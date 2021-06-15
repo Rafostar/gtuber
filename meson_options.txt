@@ -1,1 +1,5 @@
+# Gtuber
 option('introspection', type: 'boolean', value: true, description: 'Build introspection data')
+
+# Plugins
+option('youtube', type: 'feature', value: 'auto')

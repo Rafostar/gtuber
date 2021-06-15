@@ -60,6 +60,7 @@ foreach extra_arg : warning_flags
 endforeach
 
 subdir('gtuber')
+subdir('plugins')
 
 configure_file(
   output: 'config.h',
