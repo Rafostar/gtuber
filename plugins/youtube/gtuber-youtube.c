@@ -536,7 +536,7 @@ query_plugin (GUri *uri)
   g_debug ("URI query: %s", query);
 
   params = g_uri_parse_params (query, -1,
-      "&amp;", G_URI_PARAMS_NONE, NULL);
+      "&", G_URI_PARAMS_NONE, NULL);
 
   video_id = g_strdup (g_hash_table_lookup (params, "v"));
   g_hash_table_remove_all (params);
