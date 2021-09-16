@@ -49,7 +49,7 @@ GQuark            gtuber_client_error_quark                (void);
 
 GtuberClient *    gtuber_client_new                        (void);
 
-GtuberMediaInfo * gtuber_client_get_media_info             (GtuberClient *client, const gchar *uri, GError **error);
+GtuberMediaInfo * gtuber_client_get_media_info             (GtuberClient *client, const gchar *uri, GCancellable *cancellable, GError **error);
 
 void              gtuber_client_get_media_info_async       (GtuberClient *client, const gchar *uri, GCancellable *cancellable,
                                                                GAsyncReadyCallback callback, gpointer user_data);

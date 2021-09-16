@@ -166,6 +166,8 @@ gtuber_client_new (void)
  * gtuber_client_get_media_info:
  * @client: a #GtuberClient
  * @uri: a media source URI
+ * @cancellable: (nullable): optional #GCancellable object,
+ *     %NULL to ignore
  * @error: (nullable): return location for a #GError, or %NULL
  *
  * Synchronously obtains media info for requested URI.
@@ -173,7 +175,8 @@ gtuber_client_new (void)
  * Returns: (transfer full): a #GtuberMediaInfo or %NULL on error.
  */
 GtuberMediaInfo *
-gtuber_client_get_media_info (GtuberClient *self, const gchar *uri, GError **error)
+gtuber_client_get_media_info (GtuberClient *self, const gchar *uri,
+    GCancellable *cancellable, GError **error)
 {
   GtuberMediaInfo *info = NULL;
   GtuberWebsite *website = NULL;
@@ -245,7 +248,7 @@ beginning:
     GInputStream *stream;
 
     g_debug ("Sending request...");
-    stream = soup_session_send (self->session, msg, NULL, &my_error);
+    stream = soup_session_send (self->session, msg, cancellable, &my_error);
     g_debug ("Request send");
 
     flow = (my_error != NULL) ? GTUBER_FLOW_ERROR :
@@ -329,7 +332,7 @@ get_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
   GtuberMediaInfo *media_info;
   GError *error = NULL;
 
-  media_info = gtuber_client_get_media_info (self, uri, &error);
+  media_info = gtuber_client_get_media_info (self, uri, cancellable, &error);
 
   if (media_info)
     g_task_return_pointer (task, media_info, g_object_unref);
@@ -341,6 +344,8 @@ get_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
  * gtuber_client_get_media_info_async:
  * @client: a #GtuberClient
  * @uri: a media source URI
+ * @cancellable: (nullable): optional #GCancellable object,
+ *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
  *     when the request is satisfied
  * @user_data: (closure): the data to pass to callback function
