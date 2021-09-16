@@ -122,7 +122,7 @@ if get_option('introspection')
     identifier_prefix: 'Gtuber',
     symbol_prefix: 'gtuber',
     install: true,
-    includes: ['GObject-2.0'],
+    includes: ['GObject-2.0', 'Gio-2.0'],
   )
 endif
 
