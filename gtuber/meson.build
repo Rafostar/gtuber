@@ -108,7 +108,10 @@ gtuber_lib = library(
 
 install_headers(gtuber_headers, install_dir: gtuber_headers_dir)
 
-if get_option('introspection')
+gir = find_program('g-ir-scanner', required: get_option('introspection'))
+build_gir = (gir.found() and get_option('introspection'))
+
+if build_gir
   gnome.generate_gir(
     gtuber_lib,
     sources: gtuber_sources + gtuber_headers + gtuber_enums,

@@ -1,6 +1,6 @@
 project('gtuber', 'c',
   version: '0.0.1',
-  meson_version: '>=0.50.0',
+  meson_version: '>=0.53.0',
   license: 'LGPLv2.1+',
   default_options: [
     'warning_level=1',
@@ -14,11 +14,12 @@ soup_req = '>=2.42'
 gnome = import('gnome')
 pkgconfig = import('pkgconfig')
 
-datadir = get_option('datadir')
-bindir = get_option('bindir')
-includedir = get_option('includedir')
 prefix = get_option('prefix')
+bindir = get_option('bindir')
+datadir = get_option('datadir')
 libdir = get_option('libdir')
+includedir = get_option('includedir')
+
 cdata = configuration_data()
 cc = meson.get_compiler('c')
 
@@ -59,10 +60,20 @@ foreach extra_arg : warning_flags
   endif
 endforeach
 
-subdir('gtuber')
-subdir('plugins')
-
 configure_file(
   output: 'config.h',
   configuration: cdata,
 )
+
+summary({
+  'prefix': prefix,
+  'bindir': bindir,
+  'datadir': datadir,
+  'libdir': libdir,
+  'includedir': includedir,
+}, section: 'Directories')
+
+subdir('gtuber')
+summary('introspection', build_gir, section: 'Build')
+
+subdir('plugins')
