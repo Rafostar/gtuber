@@ -1,5 +1,6 @@
 # Plugins
 all_plugins = [
+  'twitch',
   'youtube',
 ]
 
