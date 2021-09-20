@@ -19,6 +19,65 @@
 
 #include "gtuber-helper-json.h"
 
+static gboolean
+_json_reader_va_iter (JsonReader *reader, const gchar *key, va_list args, guint *depth)
+{
+  const gchar *name;
+  gboolean success = TRUE;
+
+  name = key;
+  while (success && name) {
+    *depth += 1;
+    if (!(success = json_reader_read_member (reader, name)))
+      break;
+    name = va_arg (args, const gchar *);
+  }
+
+  return success;
+}
+
+const gchar *
+gtuber_helper_json_get_string (JsonReader *reader, const gchar *key, ...)
+{
+  va_list args;
+  const gchar *value = NULL;
+  guint depth = 0;
+  gboolean success;
+
+  va_start (args, key);
+  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_end (args);
+
+  if (success)
+    value = json_reader_get_string_value (reader);
+
+  while (depth--)
+    json_reader_end_member (reader);
+
+  return value;
+}
+
+gint64
+gtuber_helper_json_get_int (JsonReader *reader, const gchar *key, ...)
+{
+  va_list args;
+  gint64 value = 0;
+  guint depth = 0;
+  gboolean success;
+
+  va_start (args, key);
+  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_end (args);
+
+  if (success)
+    value = json_reader_get_int_value (reader);
+
+  while (depth--)
+    json_reader_end_member (reader);
+
+  return value;
+}
+
 void
 gtuber_helper_json_parser_debug (JsonParser *parser)
 {
