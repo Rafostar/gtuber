@@ -21,7 +21,7 @@
 #include <json-glib/json-glib.h>
 
 #include "gtuber-twitch.h"
-#include "helpers/gtuber-helper-json.h"
+#include "helpers/json/gtuber-helper-json.h"
 
 #define TWITCH_CLIENT_ID "kimne78kx3ncx6brgo4mv6wki5h1ko"
 

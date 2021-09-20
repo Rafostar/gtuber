@@ -22,7 +22,6 @@ endforeach
 
 plugin_sources = [
   'gtuber-' + website + '.c',
-  '../../helpers/gtuber-helper-json.c',
 ]
 plugin_c_args = [
   '-DG_LOG_DOMAIN="Gtuber' + website.substring(0, 1).to_upper() + website.substring(1) + '"'
@@ -31,7 +30,7 @@ plugin_c_args = [
 library(
   gtuber_plugin_prefix + website,
   plugin_sources,
-  dependencies: [gtuber_dep] + plugin_deps,
+  dependencies: [gtuber_dep, gtuber_helper_json_dep] + plugin_deps,
   include_directories: conf_inc,
   c_args: plugin_c_args,
   version: gtuber_version,
