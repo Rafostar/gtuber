@@ -345,6 +345,70 @@ gtuber_stream_set_codecs (GtuberStream *self,
 }
 
 /**
+ * gtuber_stream_get_video_codec:
+ * @stream: a #GtuberStream
+ *
+ * Returns: (transfer none): the stream video codec.
+ **/
+const gchar *
+gtuber_stream_get_video_codec (GtuberStream *self)
+{
+  g_return_val_if_fail (GTUBER_IS_STREAM (self), NULL);
+
+  return self->vcodec;
+}
+
+/**
+ * gtuber_stream_set_video_codec:
+ * @stream: a #GtuberStream
+ * @vcodec: the stream video codec
+ *
+ * Sets the video codec used to encode the stream.
+ *
+ * This is mainly useful for plugin development.
+ **/
+void
+gtuber_stream_set_video_codec (GtuberStream *self, const gchar *vcodec)
+{
+  g_return_if_fail (GTUBER_IS_STREAM (self));
+
+  g_free (self->vcodec);
+  self->vcodec = g_strdup (vcodec);
+}
+
+/**
+ * gtuber_stream_get_audio_codec:
+ * @stream: a #GtuberStream
+ *
+ * Returns: (transfer none): the stream audio codec.
+ **/
+const gchar *
+gtuber_stream_get_audio_codec (GtuberStream *self)
+{
+  g_return_val_if_fail (GTUBER_IS_STREAM (self), NULL);
+
+  return self->acodec;
+}
+
+/**
+ * gtuber_stream_set_audio_codec:
+ * @stream: a #GtuberStream
+ * @acodec: the stream audio codec
+ *
+ * Sets the audio codec used to encode the stream.
+ *
+ * This is mainly useful for plugin development.
+ **/
+void
+gtuber_stream_set_audio_codec (GtuberStream *self, const gchar *acodec)
+{
+  g_return_if_fail (GTUBER_IS_STREAM (self));
+
+  g_free (self->acodec);
+  self->acodec = g_strdup (acodec);
+}
+
+/**
  * gtuber_stream_get_width:
  * @stream: a #GtuberStream
  *
