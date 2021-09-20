@@ -20,12 +20,23 @@
 #ifndef __GTUBER_UTILS_H__
 #define __GTUBER_UTILS_H__
 
+#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
+#error "Only <gtuber/gtuber.h> can be included directly."
+#endif
+
 #include <glib.h>
+#include <gio/gio.h>
 #include <gtuber/gtuber-types.h>
 
 G_BEGIN_DECLS
 
-GtuberStreamMimeType gtuber_utils_get_mime_type_from_string (const gchar *string);
+#define GTUBER_UTILS_ERROR (gtuber_utils_error_quark ())
+GQuark               gtuber_utils_error_quark                                (void);
+
+GtuberStreamMimeType gtuber_utils_get_mime_type_from_string                  (const gchar *string);
+
+gboolean             gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
+                                                                                 GtuberMediaInfo *info, GError **error);
 
 G_END_DECLS
 

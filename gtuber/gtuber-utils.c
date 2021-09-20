@@ -17,8 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <glib.h>
 #include "gtuber-utils.h"
+#include "gtuber-media-info.h"
+#include "gtuber-adaptive-stream.h"
+
+G_DEFINE_QUARK (gtuberutils-error-quark, gtuber_utils_error)
 
 /**
  * gtuber_utils_get_mime_type_from_string:
@@ -52,4 +55,154 @@ gtuber_utils_get_mime_type_from_string (const gchar *string)
 
 unknown:
   return GTUBER_STREAM_MIME_TYPE_UNKNOWN;
+}
+
+typedef enum
+{
+  HLS_PARAM_NONE,
+  HLS_PARAM_UNSUPPORTED,
+  HLS_PARAM_BANDWIDTH,
+  HLS_PARAM_RESOLUTION,
+  HLS_PARAM_FRAME_RATE,
+  HLS_PARAM_CODECS,
+} HlsParamType;
+
+static HlsParamType
+get_hls_param_type (const gchar *param)
+{
+  if (!strcmp (param, "BANDWIDTH"))
+    return HLS_PARAM_BANDWIDTH;
+  if (!strcmp (param, "RESOLUTION"))
+    return HLS_PARAM_RESOLUTION;
+  if (!strcmp (param, "FRAME-RATE"))
+    return HLS_PARAM_FRAME_RATE;
+  if (!strcmp (param, "CODECS"))
+    return HLS_PARAM_CODECS;
+
+  return (g_ascii_isupper (param[0]))
+      ? HLS_PARAM_UNSUPPORTED
+      : HLS_PARAM_NONE;
+}
+
+static gboolean
+get_is_audio_codec (const gchar *codec)
+{
+  if (g_str_has_prefix (codec, "mp4a"))
+    return TRUE;
+
+  return FALSE;
+}
+
+/**
+ * gtuber_utils_add_adaptive_streams_from_hls_input_stream:
+ * @stream: a #GInputStream
+ * @info: a #GtuberMediaInfo
+ * @error: (nullable): return location for a #GError, or %NULL
+ *
+ * A convenience function that reads #GInputStream pointing to HLS manifest
+ *   and fills #GtuberMediaInfo with #GtuberAdaptiveStream(s) from it.
+ *
+ * Returns: %TRUE if successful, %FALSE otherwise.
+ */
+gboolean
+gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
+    GtuberMediaInfo *info, GError **error)
+{
+  GDataInputStream *dstream = g_data_input_stream_new (stream);
+  GtuberAdaptiveStream *astream = NULL;
+  gchar *line;
+  guint itag = 1;
+  gboolean success = FALSE;
+
+  g_debug ("Parsing HLS...");
+
+  while ((line = g_data_input_stream_read_line (dstream, NULL, NULL, error))) {
+    if (g_str_has_prefix (line, "#EXT-X-STREAM-INF:")) {
+      gchar **params = g_strsplit_set (line + 18, ",=x\"", 0);
+      const gchar *str;
+      gint i = 0;
+      HlsParamType last = HLS_PARAM_NONE;
+      gboolean had_width = FALSE;
+
+      astream = gtuber_adaptive_stream_new ();
+      gtuber_stream_set_itag (GTUBER_STREAM_CAST (astream), itag);
+
+      g_debug ("Created new adaptive stream, itag: %i", itag);
+
+      while ((str = params[i])) {
+        HlsParamType current;
+
+        if (!strlen (str)) {
+          i++;
+          continue;
+        }
+
+        current = get_hls_param_type (str);
+        if (current != HLS_PARAM_NONE) {
+          last = current;
+          i++;
+          continue;
+        }
+
+        switch (last) {
+          case HLS_PARAM_BANDWIDTH:
+            g_debug ("HLS stream bitrate: %s", str);
+            gtuber_stream_set_bitrate (GTUBER_STREAM_CAST (astream), atoi (str));
+            break;
+          case HLS_PARAM_RESOLUTION:
+            if (!had_width) {
+              g_debug ("HLS stream width: %s", str);
+              gtuber_stream_set_width (GTUBER_STREAM_CAST (astream), atoi (str));
+              had_width = TRUE;
+            } else {
+              g_debug ("HLS stream height: %s", str);
+              gtuber_stream_set_height (GTUBER_STREAM_CAST (astream), atoi (str));
+            }
+            break;
+          case HLS_PARAM_FRAME_RATE:
+            g_debug ("HLS stream fps: %s", str);
+            gtuber_stream_set_fps (GTUBER_STREAM_CAST (astream), atoi (str));
+            break;
+          case HLS_PARAM_CODECS:
+            if (!get_is_audio_codec (str)) {
+              g_debug ("HLS stream video codec: %s", str);
+              gtuber_stream_set_video_codec (GTUBER_STREAM_CAST (astream), str);
+            } else {
+              g_debug ("HLS stream audio codec: %s", str);
+              gtuber_stream_set_audio_codec (GTUBER_STREAM_CAST (astream), str);
+            }
+            break;
+          default:
+            break;
+        }
+        i++;
+      }
+      g_strfreev (params);
+    } else if (astream && !g_str_has_prefix (line, "#")) {
+      gtuber_stream_set_uri (GTUBER_STREAM_CAST (astream), line);
+      g_debug ("HLS stream URI: %s", line);
+
+      gtuber_media_info_add_adaptive_stream (info, astream);
+      astream = NULL;
+      success = TRUE;
+
+      itag++;
+    }
+    g_free (line);
+  }
+  g_debug ("HLS parsing %ssuccessful", success ? "" : "un");
+
+  /* When stream not added */
+  if (astream)
+    g_object_unref (astream);
+
+  g_object_unref (dstream);
+
+  if (!success && !*error) {
+    g_set_error (error, GTUBER_UTILS_ERROR,
+        GTUBER_UTILS_ERROR_COMMON,
+        "Could not extract adaptive streams from HLS");
+  }
+
+  return success;
 }
