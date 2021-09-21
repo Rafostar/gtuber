@@ -89,13 +89,13 @@ typedef enum
  * GtuberFlow:
  * @GTUBER_FLOW_OK: continue parsing.
  * @GTUBER_FLOW_ERROR: give up.
- * @GTUBER_FLOW_RETRY: retry from beginning.
+ * @GTUBER_FLOW_RESTART: start from beginning.
  */
 typedef enum
 {
   GTUBER_FLOW_OK = 0,
   GTUBER_FLOW_ERROR,
-  GTUBER_FLOW_RETRY,
+  GTUBER_FLOW_RESTART,
 } GtuberFlow;
 
 /**

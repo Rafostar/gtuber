@@ -244,7 +244,7 @@ finish:
   if (*error)
     return GTUBER_FLOW_ERROR;
 
-  return GTUBER_FLOW_RETRY;
+  return GTUBER_FLOW_RESTART;
 }
 
 static void

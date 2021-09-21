@@ -309,7 +309,7 @@ invalid_info:
 
 decide_flow:
   switch (flow) {
-    case GTUBER_FLOW_RETRY:
+    case GTUBER_FLOW_RESTART:
       if (msg) {
         g_object_unref (msg);
         msg = NULL;
