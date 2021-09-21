@@ -43,8 +43,6 @@ static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
 static void gtuber_stream_get_property (GObject *object, guint prop_id,
     GValue *value, GParamSpec *pspec);
-static void gtuber_stream_set_property (GObject *object, guint prop_id,
-    const GValue *value, GParamSpec *pspec);
 static void gtuber_stream_finalize (GObject *object);
 
 static void
@@ -70,36 +68,35 @@ gtuber_stream_class_init (GtuberStreamClass *klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
   gobject_class->get_property = gtuber_stream_get_property;
-  gobject_class->set_property = gtuber_stream_set_property;
   gobject_class->finalize = gtuber_stream_finalize;
 
   param_specs[PROP_URI] = g_param_spec_string ("uri",
       "Stream URI", "The URI leading to stream", NULL,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_ITAG] = g_param_spec_uint ("itag",
      "Itag", "Stream identifier", 0, G_MAXUINT, 0,
-     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_MIME_TYPE] = g_param_spec_enum ("mime-type",
       "Stream MIME Type", "The MIME type of the stream", GTUBER_TYPE_STREAM_MIME_TYPE,
-      GTUBER_STREAM_MIME_TYPE_UNKNOWN, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      GTUBER_STREAM_MIME_TYPE_UNKNOWN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_WIDTH] = g_param_spec_uint ("width",
      "Width", "Stream video width", 0, G_MAXUINT, 0,
-     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_HEIGHT] = g_param_spec_uint ("height",
      "Height", "Stream video height", 0, G_MAXUINT, 0,
-     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_FPS] = g_param_spec_uint ("fps",
      "FPS", "Stream video framerate", 0, G_MAXUINT, 0,
-     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_BITRATE] = g_param_spec_uint64 ("bitrate",
      "Bitrate", "Stream bitrate (bandwidth)", 0, G_MAXUINT64, 0,
-     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 }
@@ -131,40 +128,6 @@ gtuber_stream_get_property (GObject *object, guint prop_id,
       break;
     case PROP_BITRATE:
       g_value_set_uint64 (value, gtuber_stream_get_bitrate (self));
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-  }
-}
-
-static void
-gtuber_stream_set_property (GObject *object, guint prop_id,
-    const GValue *value, GParamSpec *pspec)
-{
-  GtuberStream *self = GTUBER_STREAM (object);
-
-  switch (prop_id) {
-    case PROP_URI:
-      gtuber_stream_set_uri (self, g_value_get_string (value));
-      break;
-    case PROP_ITAG:
-      gtuber_stream_set_itag (self, g_value_get_uint (value));
-      break;
-    case PROP_MIME_TYPE:
-      gtuber_stream_set_mime_type (self, g_value_get_enum (value));
-      break;
-    case PROP_WIDTH:
-      gtuber_stream_set_width (self, g_value_get_uint (value));
-      break;
-    case PROP_HEIGHT:
-      gtuber_stream_set_height (self, g_value_get_uint (value));
-      break;
-    case PROP_FPS:
-      gtuber_stream_set_fps (self, g_value_get_uint (value));
-      break;
-    case PROP_BITRATE:
-      gtuber_stream_set_bitrate (self, g_value_get_uint64 (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

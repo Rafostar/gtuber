@@ -59,8 +59,6 @@ static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
 static void gtuber_media_info_get_property (GObject *object, guint prop_id,
     GValue *value, GParamSpec *pspec);
-static void gtuber_media_info_set_property (GObject *object, guint prop_id,
-    const GValue *value, GParamSpec *pspec);
 static void gtuber_media_info_finalize (GObject *object);
 
 static void
@@ -84,24 +82,23 @@ gtuber_media_info_class_init (GtuberMediaInfoClass *klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
   gobject_class->get_property = gtuber_media_info_get_property;
-  gobject_class->set_property = gtuber_media_info_set_property;
   gobject_class->finalize = gtuber_media_info_finalize;
 
   param_specs[PROP_ID] = g_param_spec_string ("id",
       "ID", "The ID of media", NULL,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_TITLE] = g_param_spec_string ("title",
       "Title", "Media title", NULL,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_DESCRIPTION] = g_param_spec_string ("description",
       "Description", "Short media description", NULL,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_DURATION] = g_param_spec_uint64 ("duration",
       "Duration", "Media duration in seconds", 0, G_MAXUINT64, 0,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 }
@@ -124,31 +121,6 @@ gtuber_media_info_get_property (GObject *object, guint prop_id,
       break;
     case PROP_DURATION:
       g_value_set_uint64 (value, gtuber_media_info_get_duration (self));
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-  }
-}
-
-static void
-gtuber_media_info_set_property (GObject *object, guint prop_id,
-    const GValue *value, GParamSpec *pspec)
-{
-  GtuberMediaInfo *self = GTUBER_MEDIA_INFO (object);
-
-  switch (prop_id) {
-    case PROP_ID:
-      gtuber_media_info_set_id (self, g_value_get_string (value));
-      break;
-    case PROP_TITLE:
-      gtuber_media_info_set_title (self, g_value_get_string (value));
-      break;
-    case PROP_DESCRIPTION:
-      gtuber_media_info_set_description (self, g_value_get_string (value));
-      break;
-    case PROP_DURATION:
-      gtuber_media_info_set_duration (self, g_value_get_uint64 (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
