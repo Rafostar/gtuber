@@ -316,6 +316,11 @@ decide_flow:
       }
       goto beginning;
     case GTUBER_FLOW_ERROR:
+      if (!my_error) {
+        g_set_error (&my_error, GTUBER_WEBSITE_ERROR,
+            GTUBER_WEBSITE_ERROR_OTHER,
+            "Plugin encountered an error");
+      }
       goto error;
     default:
       g_assert_not_reached ();
