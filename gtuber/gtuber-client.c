@@ -163,7 +163,7 @@ gtuber_client_new (void)
 }
 
 /**
- * gtuber_client_get_media_info:
+ * gtuber_client_fetch_media_info:
  * @client: a #GtuberClient
  * @uri: a media source URI
  * @cancellable: (nullable): optional #GCancellable object,
@@ -175,7 +175,7 @@ gtuber_client_new (void)
  * Returns: (transfer full): a #GtuberMediaInfo or %NULL on error.
  */
 GtuberMediaInfo *
-gtuber_client_get_media_info (GtuberClient *self, const gchar *uri,
+gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
     GCancellable *cancellable, GError **error)
 {
   GtuberMediaInfo *info = NULL;
@@ -329,7 +329,7 @@ decide_flow:
 }
 
 static void
-get_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
+fetch_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
     GCancellable *cancellable)
 {
   GtuberClient *self = source;
@@ -337,7 +337,7 @@ get_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
   GtuberMediaInfo *media_info;
   GError *error = NULL;
 
-  media_info = gtuber_client_get_media_info (self, uri, cancellable, &error);
+  media_info = gtuber_client_fetch_media_info (self, uri, cancellable, &error);
 
   if (media_info)
     g_task_return_pointer (task, media_info, g_object_unref);
@@ -346,7 +346,7 @@ get_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
 }
 
 /**
- * gtuber_client_get_media_info_async:
+ * gtuber_client_fetch_media_info_async:
  * @client: a #GtuberClient
  * @uri: a media source URI
  * @cancellable: (nullable): optional #GCancellable object,
@@ -358,11 +358,11 @@ get_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
  * Asynchronously obtains media info for requested URI.
  *
  * When the operation is finished, @callback will be called.
- * You can then call gtuber_client_get_media_info_finish() to
+ * You can then call gtuber_client_fetch_media_info_finish() to
  * get the result of the operation.
  */
 void
-gtuber_client_get_media_info_async (GtuberClient *self, const gchar *uri,
+gtuber_client_fetch_media_info_async (GtuberClient *self, const gchar *uri,
     GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data)
 {
   GTask *task;
@@ -371,24 +371,24 @@ gtuber_client_get_media_info_async (GtuberClient *self, const gchar *uri,
 
   task = g_task_new (self, cancellable, callback, user_data);
   g_task_set_task_data (task, g_strdup (uri), (GDestroyNotify) g_free);
-  g_task_run_in_thread (task, get_media_info_async_thread);
+  g_task_run_in_thread (task, fetch_media_info_async_thread);
 
   g_object_unref (task);
 }
 
 /**
- * gtuber_client_get_media_info_finish:
+ * gtuber_client_fetch_media_info_finish:
  * @client: a #GtuberClient
  * @res: a #GAsyncResult
  * @error: (nullable): return location for a #GError, or %NULL
  *
  * Finishes an asynchronous obtain media info operation started with
- * gtuber_client_get_media_info_async().
+ * gtuber_client_fetch_media_info_async().
  *
  * Returns: (transfer full): a #GtuberMediaInfo or %NULL on error.
  */
 GtuberMediaInfo *
-gtuber_client_get_media_info_finish (GtuberClient *self, GAsyncResult *res,
+gtuber_client_fetch_media_info_finish (GtuberClient *self, GAsyncResult *res,
     GError **error)
 {
   g_return_val_if_fail (GTUBER_IS_CLIENT (self), NULL);

@@ -49,12 +49,12 @@ GQuark            gtuber_client_error_quark                (void);
 
 GtuberClient *    gtuber_client_new                        (void);
 
-GtuberMediaInfo * gtuber_client_get_media_info             (GtuberClient *client, const gchar *uri, GCancellable *cancellable, GError **error);
+GtuberMediaInfo * gtuber_client_fetch_media_info           (GtuberClient *client, const gchar *uri, GCancellable *cancellable, GError **error);
 
-void              gtuber_client_get_media_info_async       (GtuberClient *client, const gchar *uri, GCancellable *cancellable,
+void              gtuber_client_fetch_media_info_async     (GtuberClient *client, const gchar *uri, GCancellable *cancellable,
                                                                GAsyncReadyCallback callback, gpointer user_data);
 
-GtuberMediaInfo * gtuber_client_get_media_info_finish      (GtuberClient *client, GAsyncResult *res, GError **error);
+GtuberMediaInfo * gtuber_client_fetch_media_info_finish    (GtuberClient *client, GAsyncResult *res, GError **error);
 
 G_END_DECLS
 
