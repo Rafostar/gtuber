@@ -188,7 +188,7 @@ gtuber_stream_finalize (GObject *object)
 }
 
 /**
- * gtuber_stream_new:
+ * gtuber_stream_new: (skip)
  *
  * Creates a new #GtuberStream instance.
  *
@@ -217,7 +217,7 @@ gtuber_stream_get_uri (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_uri:
+ * gtuber_stream_set_uri: (skip)
  * @stream: a #GtuberStream
  * @uri: an URI
  *
@@ -249,7 +249,7 @@ gtuber_stream_get_itag (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_itag:
+ * gtuber_stream_set_itag: (skip)
  * @stream: a #GtuberStream
  * @itag: an itag
  *
@@ -281,7 +281,7 @@ gtuber_stream_get_mime_type (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_mime_type:
+ * gtuber_stream_set_mime_type: (skip)
  * @stream: a #GtuberStream
  * @mime_type: a #GtuberStreamMimeType
  *
@@ -325,7 +325,7 @@ gtuber_stream_get_codecs (GtuberStream *self,
 }
 
 /**
- * gtuber_stream_set_codecs:
+ * gtuber_stream_set_codecs: (skip)
  * @stream: a #GtuberStream
  * @vcodec: the stream video codec
  * @acodec: the stream audio codec
@@ -360,7 +360,7 @@ gtuber_stream_get_video_codec (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_video_codec:
+ * gtuber_stream_set_video_codec: (skip)
  * @stream: a #GtuberStream
  * @vcodec: the stream video codec
  *
@@ -392,7 +392,7 @@ gtuber_stream_get_audio_codec (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_audio_codec:
+ * gtuber_stream_set_audio_codec: (skip)
  * @stream: a #GtuberStream
  * @acodec: the stream audio codec
  *
@@ -424,7 +424,7 @@ gtuber_stream_get_width (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_width:
+ * gtuber_stream_set_width: (skip)
  * @stream: a #GtuberStream
  * @width: video width
  *
@@ -455,7 +455,7 @@ gtuber_stream_get_height (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_height:
+ * gtuber_stream_set_height: (skip)
  * @stream: a #GtuberStream
  * @height: video height
  *
@@ -486,7 +486,7 @@ gtuber_stream_get_fps (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_fps:
+ * gtuber_stream_set_fps: (skip)
  * @stream: a #GtuberStream
  * @fps: video framerate
  *
@@ -517,7 +517,7 @@ gtuber_stream_get_bitrate (GtuberStream *self)
 }
 
 /**
- * gtuber_stream_set_bitrate:
+ * gtuber_stream_set_bitrate: (skip)
  * @stream: a #GtuberStream
  * @bitrate: bitrate
  *

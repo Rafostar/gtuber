@@ -188,7 +188,7 @@ gtuber_media_info_get_id (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_id:
+ * gtuber_media_info_set_id: (skip)
  * @info: a #GtuberMediaInfo
  * @id: media ID
  *
@@ -220,7 +220,7 @@ gtuber_media_info_get_title (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_description:
+ * gtuber_media_info_set_description: (skip)
  * @info: a #GtuberMediaInfo
  * @description: media description
  *
@@ -252,7 +252,7 @@ gtuber_media_info_get_description (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_title:
+ * gtuber_media_info_set_title: (skip)
  * @info: a #GtuberMediaInfo
  * @title: media title
  *
@@ -284,7 +284,7 @@ gtuber_media_info_get_duration (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_duration:
+ * gtuber_media_info_set_duration: (skip)
  * @info: a #GtuberMediaInfo
  * @duration: media duration
  *
@@ -316,7 +316,7 @@ gtuber_media_info_get_streams (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_add_stream:
+ * gtuber_media_info_add_stream: (skip)
  * @info: a #GtuberMediaInfo
  * @stream: a #GtuberStream
  *
@@ -350,7 +350,7 @@ gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_add_adaptive_stream:
+ * gtuber_media_info_add_adaptive_stream: (skip)
  * @info: a #GtuberMediaInfo
  * @stream: a #GtuberAdaptiveStream
  *

@@ -46,7 +46,7 @@ gtuber_adaptive_stream_class_init (GtuberAdaptiveStreamClass *klass)
 }
 
 /**
- * gtuber_adaptive_stream_new:
+ * gtuber_adaptive_stream_new: (skip)
  *
  * Creates a new #GtuberAdaptiveStream instance.
  *
@@ -88,7 +88,7 @@ gtuber_adaptive_stream_get_init_range (GtuberAdaptiveStream *self,
 }
 
 /**
- * gtuber_adaptive_stream_set_init_range:
+ * gtuber_adaptive_stream_set_init_range: (skip)
  * @stream: a #GtuberAdaptiveStream
  * @start: the start of stream init range
  * @end: the end of stream init range
@@ -133,7 +133,7 @@ gtuber_adaptive_stream_get_index_range (GtuberAdaptiveStream *self,
 }
 
 /**
- * gtuber_adaptive_stream_set_index_range:
+ * gtuber_adaptive_stream_set_index_range: (skip)
  * @stream: a #GtuberAdaptiveStream
  * @start: the start of stream index range
  * @end: the end of stream index range
