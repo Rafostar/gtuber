@@ -27,6 +27,8 @@ _json_reader_va_iter (JsonReader *reader, const gchar *key, va_list args, guint 
 
   name = key;
   while (success && name) {
+    if (!(success = json_reader_is_object (reader)))
+      break;
     *depth += 1;
     if (!(success = json_reader_read_member (reader, name)))
       break;
@@ -48,7 +50,9 @@ gtuber_utils_json_get_string (JsonReader *reader, const gchar *key, ...)
   success = _json_reader_va_iter (reader, key, args, &depth);
   va_end (args);
 
-  if (success)
+  /* Reading null as string makes reader stuck */
+  if (success && json_reader_is_value (reader)
+      && !json_reader_get_null_value (reader))
     value = json_reader_get_string_value (reader);
 
   while (depth--)
