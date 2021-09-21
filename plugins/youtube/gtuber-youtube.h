@@ -20,7 +20,7 @@
 #ifndef __GTUBER_YOUTUBE_H__
 #define __GTUBER_YOUTUBE_H__
 
-#include <gtuber/gtuber.h>
+#include "gtuber/gtuber-plugin-devel.h"
 
 G_BEGIN_DECLS
 

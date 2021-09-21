@@ -18,8 +18,7 @@
  */
 
 #include "gtuber-utils.h"
-#include "gtuber-media-info.h"
-#include "gtuber-adaptive-stream.h"
+#include "gtuber/gtuber-plugin-devel.h"
 
 G_DEFINE_QUARK (gtuberutils-error-quark, gtuber_utils_error)
 

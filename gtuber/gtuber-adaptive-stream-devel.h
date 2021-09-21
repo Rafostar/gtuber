@@ -17,27 +17,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_UTILS_H__
-#define __GTUBER_UTILS_H__
+#ifndef __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_DEVEL_H__
+#define __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_DEVEL_H__
 
-#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
-#error "Only <gtuber/gtuber.h> can be included directly."
+#if !defined(__GTUBER_PLUGIN_DEVEL_INSIDE__) && !defined(GTUBER_COMPILATION)
+#error "Only "gtuber/gtuber-plugin-devel.h" can be included directly."
 #endif
 
-#include <glib.h>
-#include <gio/gio.h>
-#include <gtuber/gtuber-types.h>
+#include <gtuber/gtuber-adaptive-stream.h>
 
 G_BEGIN_DECLS
 
-#define GTUBER_UTILS_ERROR (gtuber_utils_error_quark ())
-GQuark               gtuber_utils_error_quark                                (void);
+GtuberAdaptiveStream * gtuber_adaptive_stream_new               (void);
 
-GtuberStreamMimeType gtuber_utils_get_mime_type_from_string                  (const gchar *string);
+void                   gtuber_adaptive_stream_set_init_range    (GtuberAdaptiveStream *stream, guint64 start, guint64 end);
 
-gboolean             gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
-                                                                                 GtuberMediaInfo *info, GError **error);
+void                   gtuber_adaptive_stream_set_index_range   (GtuberAdaptiveStream *stream, guint64 start, guint64 end);
 
 G_END_DECLS
 
-#endif /* __GTUBER_UTILS_H__ */
+#endif /* __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_DEVEL_H__ */

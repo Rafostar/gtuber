@@ -17,18 +17,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_TWITCH_H__
-#define __GTUBER_TWITCH_H__
+#ifndef __GTUBER_PLUGIN_DEVEL_H__
+#define __GTUBER_PLUGIN_DEVEL_H__
 
-#include "gtuber/gtuber-plugin-devel.h"
+#define __GTUBER_PLUGIN_DEVEL_INSIDE__
 
-G_BEGIN_DECLS
+#include <gtuber/gtuber.h>
+#include <gtuber/gtuber-website.h>
+#include <gtuber/gtuber-stream-devel.h>
+#include <gtuber/gtuber-adaptive-stream-devel.h>
+#include <gtuber/gtuber-media-info-devel.h>
 
-#define GTUBER_TYPE_TWITCH (gtuber_twitch_get_type ())
-G_DECLARE_FINAL_TYPE (GtuberTwitch, gtuber_twitch, GTUBER, TWITCH, GtuberWebsite)
+#undef __GTUBER_PLUGIN_DEVEL_INSIDE__
 
-G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);
-
-G_END_DECLS
-
-#endif /* __GTUBER_TWITCH_H__ */
+#endif /* __GTUBER_PLUGIN_DEVEL_H__ */

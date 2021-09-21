@@ -31,7 +31,7 @@ version_conf.set(
 )
 version_conf.set(
   'GTUBER_MAJOR_VERSION',
-  gtuber_major_version.to_int(),
+  version_array[0].to_int(),
 )
 version_conf.set(
   'GTUBER_MINOR_VERSION',
@@ -60,21 +60,18 @@ gtuber_headers = [
   'gtuber.h',
   'gtuber-types.h',
   'gtuber-client.h',
-  'gtuber-website.h',
   'gtuber-stream.h',
   'gtuber-adaptive-stream.h',
   'gtuber-media-info.h',
-  'gtuber-utils.h',
   gtuber_version_header,
 ]
 gtuber_sources = [
   'gtuber-client.c',
-  'gtuber-website.c',
   'gtuber-stream.c',
   'gtuber-adaptive-stream.c',
   'gtuber-media-info.c',
   'gtuber-loader.c',
-  'gtuber-utils.c',
+  'gtuber-website.c',
 ]
 gtuber_c_args = [
   '-DG_LOG_DOMAIN="Gtuber"',
@@ -120,7 +117,7 @@ if build_gir
       '--warn-all',
       '-DGTUBER_COMPILATION'
     ],
-    nsversion: gtuber_major_version + '.0',
+    nsversion: version_array[0] + '.0',
     namespace: 'Gtuber',
     identifier_prefix: 'Gtuber',
     symbol_prefix: 'gtuber',

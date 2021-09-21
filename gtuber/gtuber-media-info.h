@@ -44,22 +44,16 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberMediaInfo, g_object_unref)
 GType gtuber_media_info_get_type                            (void);
 
 const gchar *     gtuber_media_info_get_id                  (GtuberMediaInfo *info);
-void              gtuber_media_info_set_id                  (GtuberMediaInfo *info, const gchar *id);
 
 const gchar *     gtuber_media_info_get_title               (GtuberMediaInfo *info);
-void              gtuber_media_info_set_title               (GtuberMediaInfo *info, const gchar *title);
 
 const gchar *     gtuber_media_info_get_description         (GtuberMediaInfo *info);
-void              gtuber_media_info_set_description         (GtuberMediaInfo *info, const gchar *description);
 
 guint64           gtuber_media_info_get_duration            (GtuberMediaInfo *info);
-void              gtuber_media_info_set_duration            (GtuberMediaInfo *info, guint64 duration);
 
 const GPtrArray * gtuber_media_info_get_streams             (GtuberMediaInfo *info);
-void              gtuber_media_info_add_stream              (GtuberMediaInfo *info, GtuberStream *stream);
 
 const GPtrArray * gtuber_media_info_get_adaptive_streams    (GtuberMediaInfo *info);
-void              gtuber_media_info_add_adaptive_stream     (GtuberMediaInfo *info, GtuberAdaptiveStream *stream);
 
 G_END_DECLS
 

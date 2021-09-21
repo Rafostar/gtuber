@@ -23,7 +23,6 @@
 #include <gmodule.h>
 
 #include "gtuber-loader-private.h"
-#include "gtuber-website.h"
 
 typedef GtuberWebsite* (* QueryPlugin) (GUri *uri);
 

@@ -43,37 +43,25 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberStream, g_object_unref)
 
 GType gtuber_stream_get_type                        (void);
 
-GtuberStream *       gtuber_stream_new              (void);
-
 const gchar *        gtuber_stream_get_uri          (GtuberStream *stream);
-void                 gtuber_stream_set_uri          (GtuberStream *stream, const gchar *uri);
 
 guint                gtuber_stream_get_itag         (GtuberStream *stream);
-void                 gtuber_stream_set_itag         (GtuberStream *stream, guint itag);
 
 GtuberStreamMimeType gtuber_stream_get_mime_type    (GtuberStream *stream);
-void                 gtuber_stream_set_mime_type    (GtuberStream *stream, GtuberStreamMimeType mime_type);
 
 gboolean             gtuber_stream_get_codecs       (GtuberStream *stream, const gchar **vcodec, const gchar **acodec);
-void                 gtuber_stream_set_codecs       (GtuberStream *stream, const gchar *vcodec, const gchar *acodec);
 
 const gchar *        gtuber_stream_get_video_codec  (GtuberStream *stream);
-void                 gtuber_stream_set_video_codec  (GtuberStream *stream, const gchar *vcodec);
 
 const gchar *        gtuber_stream_get_audio_codec  (GtuberStream *stream);
-void                 gtuber_stream_set_audio_codec  (GtuberStream *stream, const gchar *acodec);
 
 guint                gtuber_stream_get_width        (GtuberStream *stream);
-void                 gtuber_stream_set_width        (GtuberStream *stream, guint width);
 
 guint                gtuber_stream_get_height       (GtuberStream *stream);
-void                 gtuber_stream_set_height       (GtuberStream *stream, guint height);
 
 guint                gtuber_stream_get_fps          (GtuberStream *stream);
-void                 gtuber_stream_set_fps          (GtuberStream *stream, guint fps);
 
 guint64              gtuber_stream_get_bitrate      (GtuberStream *stream);
-void                 gtuber_stream_set_bitrate      (GtuberStream *stream, guint64 bitrate);
 
 G_END_DECLS
 

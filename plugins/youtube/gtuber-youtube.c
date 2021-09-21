@@ -17,10 +17,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <gtuber/gtuber.h>
 #include <json-glib/json-glib.h>
 
 #include "gtuber-youtube.h"
+#include "utils/gtuber-utils.h"
 
 struct _GtuberYoutube
 {

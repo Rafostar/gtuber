@@ -30,10 +30,13 @@ add_global_arguments(
 
 gtuber_version = meson.project_version().split('-')[0]
 version_array = gtuber_version.split('.')
-gtuber_major_version = version_array[0]
-gtuber_helper_prefix = meson.project_name() + '-helper-'
+gtuber_version_suffix = '-' + version_array[0] + '.0'
+
+gtuber_api_name = meson.project_name() + gtuber_version_suffix
+
+gtuber_utils_prefix = meson.project_name() + '-utils-'
 gtuber_plugin_prefix = meson.project_name() + '-'
-gtuber_api_name = gtuber_plugin_prefix + gtuber_major_version + '.0'
+
 gtuber_plugins_libdir = join_paths(prefix, libdir, gtuber_api_name)
 
 cdata.set('GTUBER_PLUGIN_PATH', '"@0@"'.format(gtuber_plugins_libdir))
@@ -77,5 +80,5 @@ summary({
 subdir('gtuber')
 summary('introspection', build_gir, section: 'Build')
 
-subdir('helpers')
+subdir('utils')
 subdir('plugins')

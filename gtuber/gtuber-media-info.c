@@ -20,6 +20,7 @@
 #include <glib-object.h>
 
 #include "gtuber-media-info.h"
+#include "gtuber-media-info-devel.h"
 #include "gtuber-stream-private.h"
 #include "gtuber-adaptive-stream-private.h"
 

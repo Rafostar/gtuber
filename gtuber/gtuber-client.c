@@ -23,9 +23,9 @@
 #include <libsoup/soup.h>
 
 #include "gtuber-client.h"
-#include "gtuber-website.h"
 #include "gtuber-media-info.h"
 #include "gtuber-loader-private.h"
+#include "gtuber-website.h"
 
 struct _GtuberClient
 {

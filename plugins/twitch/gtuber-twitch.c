@@ -17,11 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <gtuber/gtuber.h>
 #include <json-glib/json-glib.h>
 
 #include "gtuber-twitch.h"
-#include "helpers/json/gtuber-helper-json.h"
+#include "utils/gtuber-utils.h"
+#include "utils/json/gtuber-utils-json.h"
 
 #define TWITCH_CLIENT_ID "kimne78kx3ncx6brgo4mv6wki5h1ko"
 
@@ -106,12 +106,12 @@ _parse_access_token_data (GtuberTwitch *self, JsonParser *parser, GError **error
       self->channel_id ? "stream" : "video");
 
   g_free (self->access_token);
-  self->access_token = g_strdup (gtuber_helper_json_get_string (reader,
+  self->access_token = g_strdup (gtuber_utils_json_get_string (reader,
       "data", data_type, "value", NULL));
   g_debug ("Downloaded access token: %s", self->access_token);
 
   g_free (self->signature);
-  self->signature = g_strdup (gtuber_helper_json_get_string (reader,
+  self->signature = g_strdup (gtuber_utils_json_get_string (reader,
       "data", data_type, "signature", NULL));
   g_debug ("Downloaded signature: %s", self->signature);
 
@@ -140,16 +140,16 @@ _read_channel_metadata (JsonReader *reader, GtuberMediaInfo *info, GError **erro
 {
   const gchar *id, *title;
 
-  id = gtuber_helper_json_get_string (reader, "data", "user", "lastBroadcast", "id", NULL);
+  id = gtuber_utils_json_get_string (reader, "data", "user", "lastBroadcast", "id", NULL);
   gtuber_media_info_set_id (info, id);
   g_debug ("Broadcast ID: %s", id);
 
-  title = gtuber_helper_json_get_string (reader, "data", "user", "lastBroadcast", "title", NULL);
+  title = gtuber_utils_json_get_string (reader, "data", "user", "lastBroadcast", "title", NULL);
   gtuber_media_info_set_title (info, title);
   g_debug ("Broadcast title: %s", title);
 
   /* Check if channel is still streaming */
-  if (!gtuber_helper_json_get_string (reader, "data", "user", "stream", "id", NULL)) {
+  if (!gtuber_utils_json_get_string (reader, "data", "user", "stream", "id", NULL)) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_OTHER,
         "Requested channel is not streaming anymore");
@@ -162,19 +162,19 @@ _read_video_metadata (JsonReader *reader, GtuberMediaInfo *info, GError **error)
   const gchar *id, *title, *description;
   guint64 duration;
 
-  id = gtuber_helper_json_get_string (reader, "data", "video", "id", NULL);
+  id = gtuber_utils_json_get_string (reader, "data", "video", "id", NULL);
   gtuber_media_info_set_id (info, id);
   g_debug ("Video ID: %s", id);
 
-  title = gtuber_helper_json_get_string (reader, "data", "video", "title", NULL);
+  title = gtuber_utils_json_get_string (reader, "data", "video", "title", NULL);
   gtuber_media_info_set_title (info, title);
   g_debug ("Video title: %s", title);
 
-  description = gtuber_helper_json_get_string (reader, "data", "video", "description", NULL);
+  description = gtuber_utils_json_get_string (reader, "data", "video", "description", NULL);
   gtuber_media_info_set_description (info, description);
   g_debug ("Video description: %s", description);
 
-  duration = gtuber_helper_json_get_int (reader, "data", "video", "lengthSeconds", NULL);
+  duration = gtuber_utils_json_get_int (reader, "data", "video", "lengthSeconds", NULL);
   gtuber_media_info_set_duration (info, duration);
   g_debug ("Video duration: %ld", duration);
 }
@@ -224,7 +224,7 @@ parse_json_stream (GtuberTwitch *self, GInputStream *stream,
   if (*error)
     goto finish;
 
-  gtuber_helper_json_parser_debug (parser);
+  gtuber_utils_json_parser_debug (parser);
 
   switch (self->last_req) {
     case GQL_REQ_ACCESS_TOKEN:

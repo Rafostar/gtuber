@@ -17,20 +17,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_HELPER_JSON_H__
-#define __GTUBER_HELPER_JSON_H__
+#ifndef __GTUBER_UTILS_JSON_H__
+#define __GTUBER_UTILS_JSON_H__
 
 #include <glib.h>
 #include <json-glib/json-glib.h>
 
 G_BEGIN_DECLS
 
-const gchar *        gtuber_helper_json_get_string           (JsonReader *reader, const gchar *key, ...);
+const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, const gchar *key, ...);
 
-gint64               gtuber_helper_json_get_int              (JsonReader *reader, const gchar *key, ...);
+gint64               gtuber_utils_json_get_int              (JsonReader *reader, const gchar *key, ...);
 
-void                 gtuber_helper_json_parser_debug         (JsonParser *parser);
+void                 gtuber_utils_json_parser_debug         (JsonParser *parser);
 
 G_END_DECLS
 
-#endif /* __GTUBER_HELPER_JSON_H__ */
+#endif /* __GTUBER_UTILS_JSON_H__ */

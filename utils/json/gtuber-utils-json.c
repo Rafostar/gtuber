@@ -17,7 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "gtuber-helper-json.h"
+#include "gtuber-utils-json.h"
 
 static gboolean
 _json_reader_va_iter (JsonReader *reader, const gchar *key, va_list args, guint *depth)
@@ -37,7 +37,7 @@ _json_reader_va_iter (JsonReader *reader, const gchar *key, va_list args, guint 
 }
 
 const gchar *
-gtuber_helper_json_get_string (JsonReader *reader, const gchar *key, ...)
+gtuber_utils_json_get_string (JsonReader *reader, const gchar *key, ...)
 {
   va_list args;
   const gchar *value = NULL;
@@ -58,7 +58,7 @@ gtuber_helper_json_get_string (JsonReader *reader, const gchar *key, ...)
 }
 
 gint64
-gtuber_helper_json_get_int (JsonReader *reader, const gchar *key, ...)
+gtuber_utils_json_get_int (JsonReader *reader, const gchar *key, ...)
 {
   va_list args;
   gint64 value = 0;
@@ -79,7 +79,7 @@ gtuber_helper_json_get_int (JsonReader *reader, const gchar *key, ...)
 }
 
 void
-gtuber_helper_json_parser_debug (JsonParser *parser)
+gtuber_utils_json_parser_debug (JsonParser *parser)
 {
   gboolean would_drop = FALSE;
 

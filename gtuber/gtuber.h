@@ -25,11 +25,9 @@
 #include <gtuber/gtuber-enum-types.h>
 #include <gtuber/gtuber-types.h>
 #include <gtuber/gtuber-client.h>
-#include <gtuber/gtuber-website.h>
 #include <gtuber/gtuber-stream.h>
 #include <gtuber/gtuber-adaptive-stream.h>
 #include <gtuber/gtuber-media-info.h>
-#include <gtuber/gtuber-utils.h>
 #include <gtuber/gtuber-version.h>
 
 #undef __GTUBER_INSIDE__

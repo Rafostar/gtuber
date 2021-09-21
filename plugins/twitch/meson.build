@@ -1,5 +1,6 @@
 plugin_deps += [
-  gtuber_helper_json_dep,
+  gtuber_utils_dep,
+  gtuber_utils_json_dep,
   dependency('json-glib-1.0', version: '>=1.2.0', required: false)
 ]
 foreach dep : plugin_deps

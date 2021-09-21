@@ -20,6 +20,7 @@
 #include <glib-object.h>
 
 #include "gtuber-stream.h"
+#include "gtuber-stream-devel.h"
 #include "gtuber-stream-private.h"
 
 enum

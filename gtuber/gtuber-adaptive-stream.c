@@ -22,6 +22,7 @@
 #include "gtuber-stream.h"
 #include "gtuber-stream-private.h"
 #include "gtuber-adaptive-stream.h"
+#include "gtuber-adaptive-stream-devel.h"
 #include "gtuber-adaptive-stream-private.h"
 
 #define parent_class gtuber_adaptive_stream_parent_class
