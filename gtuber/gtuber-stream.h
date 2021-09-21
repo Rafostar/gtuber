@@ -57,6 +57,12 @@ void                 gtuber_stream_set_mime_type    (GtuberStream *stream, Gtube
 gboolean             gtuber_stream_get_codecs       (GtuberStream *stream, const gchar **vcodec, const gchar **acodec);
 void                 gtuber_stream_set_codecs       (GtuberStream *stream, const gchar *vcodec, const gchar *acodec);
 
+const gchar *        gtuber_stream_get_video_codec  (GtuberStream *stream);
+void                 gtuber_stream_set_video_codec  (GtuberStream *stream, const gchar *vcodec);
+
+const gchar *        gtuber_stream_get_audio_codec  (GtuberStream *stream);
+void                 gtuber_stream_set_audio_codec  (GtuberStream *stream, const gchar *acodec);
+
 guint                gtuber_stream_get_width        (GtuberStream *stream);
 void                 gtuber_stream_set_width        (GtuberStream *stream, guint width);
 

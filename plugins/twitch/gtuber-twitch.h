@@ -17,27 +17,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_UTILS_H__
-#define __GTUBER_UTILS_H__
+#ifndef __GTUBER_TWITCH_H__
+#define __GTUBER_TWITCH_H__
 
-#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
-#error "Only <gtuber/gtuber.h> can be included directly."
-#endif
-
-#include <glib.h>
-#include <gio/gio.h>
-#include <gtuber/gtuber-types.h>
+#include <gtuber/gtuber.h>
 
 G_BEGIN_DECLS
 
-#define GTUBER_UTILS_ERROR (gtuber_utils_error_quark ())
-GQuark               gtuber_utils_error_quark                                (void);
+#define GTUBER_TYPE_TWITCH (gtuber_twitch_get_type ())
+G_DECLARE_FINAL_TYPE (GtuberTwitch, gtuber_twitch, GTUBER, TWITCH, GtuberWebsite)
 
-GtuberStreamMimeType gtuber_utils_get_mime_type_from_string                  (const gchar *string);
-
-gboolean             gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
-                                                                                 GtuberMediaInfo *info, GError **error);
+G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);
 
 G_END_DECLS
 
-#endif /* __GTUBER_UTILS_H__ */
+#endif /* __GTUBER_TWITCH_H__ */

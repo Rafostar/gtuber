@@ -1,5 +1,9 @@
 # Gtuber
 option('introspection', type: 'boolean', value: true, description: 'Build introspection data')
 
+# Helpers
+option('helper-json', type: 'feature', value: 'auto')
+
 # Plugins
+option('twitch', type: 'feature', value: 'auto')
 option('youtube', type: 'feature', value: 'auto')

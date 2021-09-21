@@ -17,27 +17,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_UTILS_H__
-#define __GTUBER_UTILS_H__
-
-#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
-#error "Only <gtuber/gtuber.h> can be included directly."
-#endif
+#ifndef __GTUBER_HELPER_JSON_H__
+#define __GTUBER_HELPER_JSON_H__
 
 #include <glib.h>
-#include <gio/gio.h>
-#include <gtuber/gtuber-types.h>
+#include <json-glib/json-glib.h>
 
 G_BEGIN_DECLS
 
-#define GTUBER_UTILS_ERROR (gtuber_utils_error_quark ())
-GQuark               gtuber_utils_error_quark                                (void);
+const gchar *        gtuber_helper_json_get_string           (JsonReader *reader, const gchar *key, ...);
 
-GtuberStreamMimeType gtuber_utils_get_mime_type_from_string                  (const gchar *string);
+gint64               gtuber_helper_json_get_int              (JsonReader *reader, const gchar *key, ...);
 
-gboolean             gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
-                                                                                 GtuberMediaInfo *info, GError **error);
+void                 gtuber_helper_json_parser_debug         (JsonParser *parser);
 
 G_END_DECLS
 
-#endif /* __GTUBER_UTILS_H__ */
+#endif /* __GTUBER_HELPER_JSON_H__ */
