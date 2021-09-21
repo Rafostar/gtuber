@@ -73,7 +73,7 @@ gtuber_utils_json_get_int (JsonReader *reader, const gchar *key, ...)
   success = _json_reader_va_iter (reader, key, args, &depth);
   va_end (args);
 
-  if (success)
+  if (success && json_reader_is_value (reader))
     value = json_reader_get_int_value (reader);
 
   while (depth--)
