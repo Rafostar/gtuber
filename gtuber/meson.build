@@ -70,6 +70,8 @@ gtuber_sources = [
   'gtuber-stream.c',
   'gtuber-adaptive-stream.c',
   'gtuber-media-info.c',
+]
+gtuber_sources_other = [
   'gtuber-loader.c',
   'gtuber-website.c',
 ]
@@ -95,7 +97,7 @@ gtuber_deps = [
 
 gtuber_lib = library(
   gtuber_api_name,
-  gtuber_sources + gtuber_enums,
+  gtuber_sources + gtuber_sources_other + gtuber_enums,
   dependencies: gtuber_deps,
   include_directories: conf_inc,
   c_args: gtuber_c_args,
