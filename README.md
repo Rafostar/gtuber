@@ -1,2 +1,2 @@
 # Gtuber
-A C library to get media info from websites
+A C library to fetch media info from websites
