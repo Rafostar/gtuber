@@ -189,6 +189,8 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   GError *my_error = NULL;
 
   g_return_val_if_fail (GTUBER_IS_CLIENT (self), NULL);
+  g_return_val_if_fail (uri != NULL, NULL);
+  g_return_val_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable), NULL);
 
   g_debug ("Requested URI: %s", uri);
 
@@ -368,6 +370,8 @@ gtuber_client_fetch_media_info_async (GtuberClient *self, const gchar *uri,
   GTask *task;
 
   g_return_if_fail (GTUBER_IS_CLIENT (self));
+  g_return_if_fail (uri != NULL);
+  g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
 
   task = g_task_new (self, cancellable, callback, user_data);
   g_task_set_task_data (task, g_strdup (uri), (GDestroyNotify) g_free);
