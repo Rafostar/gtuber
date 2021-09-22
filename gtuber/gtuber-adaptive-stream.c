@@ -25,8 +25,20 @@
 #include "gtuber-adaptive-stream-devel.h"
 #include "gtuber-adaptive-stream-private.h"
 
+enum
+{
+  PROP_0,
+  PROP_MANIFEST_TYPE,
+  PROP_LAST
+};
+
 #define parent_class gtuber_adaptive_stream_parent_class
 G_DEFINE_TYPE (GtuberAdaptiveStream, gtuber_adaptive_stream, GTUBER_TYPE_STREAM);
+
+static GParamSpec *param_specs[PROP_LAST] = { NULL, };
+
+static void gtuber_adaptive_stream_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec);
 
 static void
 gtuber_adaptive_stream_init (GtuberAdaptiveStream *self)
@@ -45,6 +57,32 @@ gtuber_adaptive_stream_init (GtuberAdaptiveStream *self)
 static void
 gtuber_adaptive_stream_class_init (GtuberAdaptiveStreamClass *klass)
 {
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+
+  gobject_class->get_property = gtuber_adaptive_stream_get_property;
+
+  param_specs[PROP_MANIFEST_TYPE] = g_param_spec_enum ("manifest-type",
+      "Adaptive Stream Manifest Type", "The manifest type adaptive stream belongs to",
+      GTUBER_TYPE_ADAPTIVE_STREAM_MANIFEST_TYPE,
+      GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+}
+
+static void
+gtuber_adaptive_stream_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec)
+{
+  GtuberAdaptiveStream *self = GTUBER_ADAPTIVE_STREAM (object);
+
+  switch (prop_id) {
+    case PROP_MANIFEST_TYPE:
+      g_value_set_enum (value, gtuber_adaptive_stream_get_manifest_type (self));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
 }
 
 /**
