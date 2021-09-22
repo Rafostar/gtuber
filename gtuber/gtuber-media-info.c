@@ -31,6 +31,8 @@ enum
   PROP_TITLE,
   PROP_DESCRIPTION,
   PROP_DURATION,
+  PROP_HAS_STREAMS,
+  PROP_HAS_ADAPTIVE_STREAMS,
   PROP_LAST
 };
 
@@ -100,6 +102,16 @@ gtuber_media_info_class_init (GtuberMediaInfoClass *klass)
       "Duration", "Media duration in seconds", 0, G_MAXUINT64, 0,
       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_HAS_STREAMS] =
+      g_param_spec_boolean ("has-streams", "Has Streams",
+      "Check if media info has any normal streams",
+      FALSE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_HAS_ADAPTIVE_STREAMS] =
+      g_param_spec_boolean ("has-adaptive-streams", "Has Adaptive Streams",
+      "Check if media info has any adaptive streams",
+      FALSE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 }
 
@@ -121,6 +133,12 @@ gtuber_media_info_get_property (GObject *object, guint prop_id,
       break;
     case PROP_DURATION:
       g_value_set_uint64 (value, gtuber_media_info_get_duration (self));
+      break;
+    case PROP_HAS_STREAMS:
+      g_value_set_boolean (value, gtuber_media_info_get_has_streams (self));
+      break;
+    case PROP_HAS_ADAPTIVE_STREAMS:
+      g_value_set_boolean (value, gtuber_media_info_get_has_adaptive_streams (self));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -273,13 +291,13 @@ gtuber_media_info_set_duration (GtuberMediaInfo *self, guint64 duration)
 }
 
 /**
- * gtuber_media_info_has_streams:
+ * gtuber_media_info_get_has_streams:
  * @info: a #GtuberMediaInfo
  *
  * Returns: %TRUE if info has streams, %FALSE otherwise.
  */
 gboolean
-gtuber_media_info_has_streams (GtuberMediaInfo *self)
+gtuber_media_info_get_has_streams (GtuberMediaInfo *self)
 {
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), FALSE);
 
@@ -321,13 +339,13 @@ gtuber_media_info_add_stream (GtuberMediaInfo *self, GtuberStream *stream)
 }
 
 /**
- * gtuber_media_info_has_adaptive_streams:
+ * gtuber_media_info_get_has_adaptive_streams:
  * @info: a #GtuberMediaInfo
  *
  * Returns: %TRUE if info has adaptive streams, %FALSE otherwise.
  */
 gboolean
-gtuber_media_info_has_adaptive_streams (GtuberMediaInfo *self)
+gtuber_media_info_get_has_adaptive_streams (GtuberMediaInfo *self)
 {
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), FALSE);
 
