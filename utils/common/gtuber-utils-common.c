@@ -121,6 +121,8 @@ gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
       HlsParamType last = HLS_PARAM_NONE;
 
       astream = gtuber_adaptive_stream_new ();
+      gtuber_adaptive_stream_set_manifest_type (astream,
+          GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
       gtuber_stream_set_itag (GTUBER_STREAM_CAST (astream), itag);
 
       g_debug ("Created new adaptive stream, itag: %i", itag);
