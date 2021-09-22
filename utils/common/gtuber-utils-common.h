@@ -17,8 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_UTILS_H__
-#define __GTUBER_UTILS_H__
+#ifndef __GTUBER_UTILS_COMMON_H__
+#define __GTUBER_UTILS_COMMON_H__
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -26,14 +26,10 @@
 
 G_BEGIN_DECLS
 
-#define GTUBER_UTILS_ERROR (gtuber_utils_error_quark ())
-GQuark               gtuber_utils_error_quark                                (void);
+GtuberStreamMimeType gtuber_utils_common_get_mime_type_from_string      (const gchar *string);
 
-GtuberStreamMimeType gtuber_utils_get_mime_type_from_string                  (const gchar *string);
-
-gboolean             gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
-                                                                                 GtuberMediaInfo *info, GError **error);
+gboolean             gtuber_utils_common_parse_hls_input_stream         (GInputStream *stream, GtuberMediaInfo *info, GError **error);
 
 G_END_DECLS
 
-#endif /* __GTUBER_UTILS_H__ */
+#endif /* __GTUBER_UTILS_COMMON_H__ */

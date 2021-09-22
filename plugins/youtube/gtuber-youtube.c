@@ -20,7 +20,7 @@
 #include <json-glib/json-glib.h>
 
 #include "gtuber-youtube.h"
-#include "utils/gtuber-utils.h"
+#include "utils/common/gtuber-utils-common.h"
 
 struct _GtuberYoutube
 {
@@ -281,7 +281,7 @@ parse_stream (JsonReader *reader, GtuberStream *stream)
         GtuberStreamMimeType mime_type;
         gchar *codecs;
 
-        mime_type = gtuber_utils_get_mime_type_from_string (strv[0]);
+        mime_type = gtuber_utils_common_get_mime_type_from_string (strv[0]);
         gtuber_stream_set_mime_type (stream, mime_type);
 
         codecs = g_hash_table_lookup (params, "codecs");

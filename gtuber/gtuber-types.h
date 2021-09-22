@@ -122,15 +122,6 @@ typedef enum
   GTUBER_WEBSITE_ERROR_OTHER,
 } GtuberWebsiteError;
 
-/**
- * GtuberUtilsError:
- * @GTUBER_UTILS_ERROR_COMMON: common error when one of the utils functions fails.
- */
-typedef enum
-{
-  GTUBER_UTILS_ERROR_COMMON,
-} GtuberUtilsError;
-
 G_END_DECLS
 
 #endif /* __GTUBER_TYPES_H__ */

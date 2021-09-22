@@ -20,7 +20,7 @@
 #include <json-glib/json-glib.h>
 
 #include "gtuber-twitch.h"
-#include "utils/gtuber-utils.h"
+#include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
 #define TWITCH_CLIENT_ID "kimne78kx3ncx6brgo4mv6wki5h1ko"
@@ -407,7 +407,7 @@ gtuber_twitch_parse_input_stream (GtuberWebsite *website,
   GtuberTwitch *self = GTUBER_TWITCH (website);
 
   if (self->download_hls) {
-    if (gtuber_utils_add_adaptive_streams_from_hls_input_stream (stream, info, error))
+    if (gtuber_utils_common_parse_hls_input_stream (stream, info, error))
       return GTUBER_FLOW_OK;
 
     return GTUBER_FLOW_ERROR;

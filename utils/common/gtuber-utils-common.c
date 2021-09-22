@@ -17,20 +17,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "gtuber-utils.h"
+#include "gtuber-utils-common.h"
 #include "gtuber/gtuber-plugin-devel.h"
 
-G_DEFINE_QUARK (gtuberutils-error-quark, gtuber_utils_error)
-
 /**
- * gtuber_utils_get_mime_type_from_string:
+ * gtuber_utils_common_get_mime_type_from_string:
  * @string: a null-terminated string
  *
  * Returns: a #GtuberStreamMimeType with
  *   detected MIME type from the string.
  **/
 GtuberStreamMimeType
-gtuber_utils_get_mime_type_from_string (const gchar *string)
+gtuber_utils_common_get_mime_type_from_string (const gchar *string)
 {
   gboolean is_mp4, is_webm;
 
@@ -93,7 +91,7 @@ get_is_audio_codec (const gchar *codec)
 }
 
 /**
- * gtuber_utils_add_adaptive_streams_from_hls_input_stream:
+ * gtuber_utils_common_parse_hls_input_stream:
  * @stream: a #GInputStream
  * @info: a #GtuberMediaInfo
  * @error: (nullable): return location for a #GError, or %NULL
@@ -101,10 +99,10 @@ get_is_audio_codec (const gchar *codec)
  * A convenience function that reads #GInputStream pointing to HLS manifest
  *   and fills #GtuberMediaInfo with #GtuberAdaptiveStream(s) from it.
  *
- * Returns: %TRUE if successful, %FALSE otherwise.
+ * Returns: %TRUE if info was successfully updated, %FALSE otherwise.
  */
 gboolean
-gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
+gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
     GtuberMediaInfo *info, GError **error)
 {
   GDataInputStream *dstream = g_data_input_stream_new (stream);
@@ -197,8 +195,8 @@ gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
   g_object_unref (dstream);
 
   if (!success && !*error) {
-    g_set_error (error, GTUBER_UTILS_ERROR,
-        GTUBER_UTILS_ERROR_COMMON,
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "Could not extract adaptive streams from HLS");
   }
 
