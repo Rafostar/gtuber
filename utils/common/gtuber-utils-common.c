@@ -17,6 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <math.h>
+
 #include "gtuber-utils-common.h"
 #include "gtuber/gtuber-plugin-devel.h"
 
@@ -157,10 +159,12 @@ gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
             g_strfreev (resolution);
             break;
           }
-          case HLS_PARAM_FRAME_RATE:
-            g_debug ("HLS stream fps: %s", str);
-            gtuber_stream_set_fps (GTUBER_STREAM_CAST (astream), atoi (str));
+          case HLS_PARAM_FRAME_RATE:{
+            guint fps = round (g_ascii_strtod (str, NULL));
+            g_debug ("HLS stream fps: %i", fps);
+            gtuber_stream_set_fps (GTUBER_STREAM_CAST (astream), fps);
             break;
+          }
           case HLS_PARAM_CODECS:
             if (!get_is_audio_codec (str)) {
               g_debug ("HLS stream video codec: %s", str);

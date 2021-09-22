@@ -5,6 +5,18 @@ if utils_option.disabled()
   subdir_done()
 endif
 
+utils_deps += [
+  cc.find_library('m', required: false)
+]
+foreach dep : utils_deps
+  if not dep.found()
+    if utils_option.enabled()
+      error(name + ' utils were enabled, but required dependencies were not found')
+    endif
+    subdir_done()
+  endif
+endforeach
+
 gtuber_utils_common_dep = declare_dependency(
   link_with: library(
     gtuber_utils_prefix + name + gtuber_version_suffix,
