@@ -30,6 +30,8 @@ struct _GtuberAdaptiveStream
 {
   GtuberStream parent;
 
+  GtuberAdaptiveStreamManifestType manifest_type;
+
   guint64 init_start;
   guint64 init_end;
 

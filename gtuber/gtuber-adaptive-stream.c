@@ -33,6 +33,8 @@ gtuber_adaptive_stream_init (GtuberAdaptiveStream *self)
 {
   self = gtuber_adaptive_stream_get_instance_private (self);
 
+  self->manifest_type = GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN;
+
   self->init_start = 0;
   self->init_end = 0;
 
@@ -58,6 +60,40 @@ GtuberAdaptiveStream *
 gtuber_adaptive_stream_new (void)
 {
   return g_object_new (GTUBER_TYPE_ADAPTIVE_STREAM, NULL);
+}
+
+/**
+ * gtuber_adaptive_stream_get_manifest_type:
+ * @stream: a #GtuberAdaptiveStream
+ *
+ * Returns: a #GtuberAdaptiveStreamManifestType representing
+ *   type of the manifest adaptive stream belongs to.
+ **/
+GtuberAdaptiveStreamManifestType
+gtuber_adaptive_stream_get_manifest_type (GtuberAdaptiveStream *self)
+{
+  g_return_val_if_fail (GTUBER_IS_ADAPTIVE_STREAM (self),
+      GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN);
+
+  return self->manifest_type;
+}
+
+/**
+ * gtuber_adaptive_stream_set_manifest_type: (skip)
+ * @stream: a #GtuberAdaptiveStream
+ * @type: a #GtuberAdaptiveStreamManifestType
+ *
+ * Sets the adaptive stream manifest type.
+ *
+ * This is mainly useful for plugin development.
+ **/
+void
+gtuber_adaptive_stream_set_manifest_type (GtuberAdaptiveStream *self,
+    GtuberAdaptiveStreamManifestType type)
+{
+  g_return_if_fail (GTUBER_IS_ADAPTIVE_STREAM (self));
+
+  self->manifest_type = type;
 }
 
 /**
