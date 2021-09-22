@@ -86,7 +86,7 @@ typedef enum
 } GtuberStreamMimeType;
 
 /**
- * GtuberAdaptiveStreamManifestType:
+ * GtuberAdaptiveStreamManifest:
  * @GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN: adaptive stream belongs to a manifest which type is unknown.
  * @GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH: adaptive stream belongs to a DASH manifest.
  * @GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS: adaptive stream belongs to a HLS manifest.
@@ -96,7 +96,7 @@ typedef enum
   GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN = 0,
   GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH,
   GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS
-} GtuberAdaptiveStreamManifestType;
+} GtuberAdaptiveStreamManifest;
 
 /**
  * GtuberFlow:

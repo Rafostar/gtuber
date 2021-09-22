@@ -45,7 +45,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberAdaptiveStream, g_object_unref)
 
 GType                            gtuber_adaptive_stream_get_type            (void);
 
-GtuberAdaptiveStreamManifestType gtuber_adaptive_stream_get_manifest_type   (GtuberAdaptiveStream *stream);
+GtuberAdaptiveStreamManifest     gtuber_adaptive_stream_get_manifest_type   (GtuberAdaptiveStream *stream);
 
 gboolean                         gtuber_adaptive_stream_get_init_range      (GtuberAdaptiveStream *stream, guint64 *start, guint64 *end);
 

@@ -30,7 +30,7 @@ G_BEGIN_DECLS
 
 GtuberAdaptiveStream * gtuber_adaptive_stream_new                 (void);
 
-void                   gtuber_adaptive_stream_set_manifest_type   (GtuberAdaptiveStream *stream, GtuberAdaptiveStreamManifestType type);
+void                   gtuber_adaptive_stream_set_manifest_type   (GtuberAdaptiveStream *stream, GtuberAdaptiveStreamManifest type);
 
 void                   gtuber_adaptive_stream_set_init_range      (GtuberAdaptiveStream *stream, guint64 start, guint64 end);
 

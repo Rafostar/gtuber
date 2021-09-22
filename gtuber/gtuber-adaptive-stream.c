@@ -63,8 +63,8 @@ gtuber_adaptive_stream_class_init (GtuberAdaptiveStreamClass *klass)
 
   param_specs[PROP_MANIFEST_TYPE] = g_param_spec_enum ("manifest-type",
       "Adaptive Stream Manifest Type", "The manifest type adaptive stream belongs to",
-      GTUBER_TYPE_ADAPTIVE_STREAM_MANIFEST_TYPE,
-      GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+      GTUBER_TYPE_ADAPTIVE_STREAM_MANIFEST, GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN,
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 }
@@ -104,10 +104,10 @@ gtuber_adaptive_stream_new (void)
  * gtuber_adaptive_stream_get_manifest_type:
  * @stream: a #GtuberAdaptiveStream
  *
- * Returns: a #GtuberAdaptiveStreamManifestType representing
+ * Returns: a #GtuberAdaptiveStreamManifest representing
  *   type of the manifest adaptive stream belongs to.
  **/
-GtuberAdaptiveStreamManifestType
+GtuberAdaptiveStreamManifest
 gtuber_adaptive_stream_get_manifest_type (GtuberAdaptiveStream *self)
 {
   g_return_val_if_fail (GTUBER_IS_ADAPTIVE_STREAM (self),
@@ -119,7 +119,7 @@ gtuber_adaptive_stream_get_manifest_type (GtuberAdaptiveStream *self)
 /**
  * gtuber_adaptive_stream_set_manifest_type: (skip)
  * @stream: a #GtuberAdaptiveStream
- * @type: a #GtuberAdaptiveStreamManifestType
+ * @type: a #GtuberAdaptiveStreamManifest
  *
  * Sets the adaptive stream manifest type.
  *
@@ -127,7 +127,7 @@ gtuber_adaptive_stream_get_manifest_type (GtuberAdaptiveStream *self)
  **/
 void
 gtuber_adaptive_stream_set_manifest_type (GtuberAdaptiveStream *self,
-    GtuberAdaptiveStreamManifestType type)
+    GtuberAdaptiveStreamManifest type)
 {
   g_return_if_fail (GTUBER_IS_ADAPTIVE_STREAM (self));
 
