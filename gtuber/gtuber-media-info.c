@@ -308,8 +308,12 @@ gtuber_media_info_get_has_streams (GtuberMediaInfo *self)
  * gtuber_media_info_get_streams:
  * @info: a #GtuberMediaInfo
  *
+ * Get a #GPtrArray of #GtuberStream instances. When no streams are available,
+ *   an empty array is returned. Use gtuber_media_info_get_has_streams()
+ *   to check if array will be empty.
+ *
  * Returns: (transfer none) (element-type GtuberStream): A #GPtrArray of
- * available #GtuberStream instances.
+ *   available #GtuberStream instances.
  */
 const GPtrArray *
 gtuber_media_info_get_streams (GtuberMediaInfo *self)
@@ -325,7 +329,7 @@ gtuber_media_info_get_streams (GtuberMediaInfo *self)
  * @stream: a #GtuberStream
  *
  * Add another #GtuberStream to the end of streams array.
- * This adds the stream pointer to the #GPtrArray. Do not free it afterwards.
+ *   This adds the stream pointer to the #GPtrArray. Do not free it afterwards.
  *
  * This is mainly useful for plugin development.
  */
@@ -356,8 +360,13 @@ gtuber_media_info_get_has_adaptive_streams (GtuberMediaInfo *self)
  * gtuber_media_info_get_adaptive_streams:
  * @info: a #GtuberMediaInfo
  *
+ * Get a #GPtrArray of #GtuberAdaptiveStream instances. When no adaptive streams are
+ *   available, an empty array is returned. Use gtuber_media_info_get_has_adaptive_streams()
+ *   to check if array will be empty.
+ *
  * Returns: (transfer none) (element-type GtuberAdaptiveStream): A #GPtrArray of
- * available #GtuberAdaptiveStream instances.
+ *   available #GtuberAdaptiveStream instances.
+ *
  */
 const GPtrArray *
 gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
@@ -373,7 +382,7 @@ gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
  * @stream: a #GtuberAdaptiveStream
  *
  * Add another #GtuberAdaptiveStream to the end of adaptive streams array.
- * This adds the adaptive stream pointer to the #GPtrArray. Do not free it afterwards.
+ *   This adds the adaptive stream pointer to the #GPtrArray. Do not free it afterwards.
  *
  * This is mainly useful for plugin development.
  */
