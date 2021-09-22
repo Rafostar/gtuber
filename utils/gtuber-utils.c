@@ -117,11 +117,10 @@ gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
 
   while ((line = g_data_input_stream_read_line (dstream, NULL, NULL, error))) {
     if (g_str_has_prefix (line, "#EXT-X-STREAM-INF:")) {
-      gchar **params = g_strsplit_set (line + 18, ",=x\"", 0);
+      gchar **params = g_strsplit_set (line + 18, ",=\"", 0);
       const gchar *str;
       gint i = 0;
       HlsParamType last = HLS_PARAM_NONE;
-      gboolean had_width = FALSE;
 
       astream = gtuber_adaptive_stream_new ();
       gtuber_stream_set_itag (GTUBER_STREAM_CAST (astream), itag);
@@ -148,16 +147,16 @@ gtuber_utils_add_adaptive_streams_from_hls_input_stream (GInputStream *stream,
             g_debug ("HLS stream bitrate: %s", str);
             gtuber_stream_set_bitrate (GTUBER_STREAM_CAST (astream), atoi (str));
             break;
-          case HLS_PARAM_RESOLUTION:
-            if (!had_width) {
-              g_debug ("HLS stream width: %s", str);
-              gtuber_stream_set_width (GTUBER_STREAM_CAST (astream), atoi (str));
-              had_width = TRUE;
-            } else {
-              g_debug ("HLS stream height: %s", str);
-              gtuber_stream_set_height (GTUBER_STREAM_CAST (astream), atoi (str));
+          case HLS_PARAM_RESOLUTION:{
+            gchar **resolution = g_strsplit (str, "x", 3);
+            if (resolution[0] && resolution[1]) {
+              g_debug ("HLS stream width: %s, height: %s", resolution[0], resolution[1]);
+              gtuber_stream_set_width (GTUBER_STREAM_CAST (astream), atoi (resolution[0]));
+              gtuber_stream_set_height (GTUBER_STREAM_CAST (astream), atoi (resolution[1]));
             }
+            g_strfreev (resolution);
             break;
+          }
           case HLS_PARAM_FRAME_RATE:
             g_debug ("HLS stream fps: %s", str);
             gtuber_stream_set_fps (GTUBER_STREAM_CAST (astream), atoi (str));
