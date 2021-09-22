@@ -273,11 +273,25 @@ gtuber_media_info_set_duration (GtuberMediaInfo *self, guint64 duration)
 }
 
 /**
+ * gtuber_media_info_has_streams:
+ * @info: a #GtuberMediaInfo
+ *
+ * Returns: %TRUE if info has streams, %FALSE otherwise.
+ */
+gboolean
+gtuber_media_info_has_streams (GtuberMediaInfo *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), FALSE);
+
+  return (self->streams && self->streams->len);
+}
+
+/**
  * gtuber_media_info_get_streams:
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none) (element-type GtuberStream): A #GPtrArray of
- * available #GtuberStream instances.	
+ * available #GtuberStream instances.
  */
 const GPtrArray *
 gtuber_media_info_get_streams (GtuberMediaInfo *self)
@@ -304,6 +318,20 @@ gtuber_media_info_add_stream (GtuberMediaInfo *self, GtuberStream *stream)
   g_return_if_fail (GTUBER_IS_STREAM (stream));
 
   g_ptr_array_add (self->streams, stream);
+}
+
+/**
+ * gtuber_media_info_has_adaptive_streams:
+ * @info: a #GtuberMediaInfo
+ *
+ * Returns: %TRUE if info has adaptive streams, %FALSE otherwise.
+ */
+gboolean
+gtuber_media_info_has_adaptive_streams (GtuberMediaInfo *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), FALSE);
+
+  return (self->adaptive_streams && self->adaptive_streams->len);
 }
 
 /**
