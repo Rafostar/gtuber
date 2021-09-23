@@ -17,7 +17,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <glib-object.h>
+/**
+ * SECTION:gtuber-stream
+ * @title: GtuberStream
+ * @short_description: represents a direct media stream
+ */
+
+/**
+ * SECTION:gtuber-stream-devel
+ * @title: GtuberStream Development
+ */
 
 #include "gtuber-stream.h"
 #include "gtuber-stream-devel.h"
@@ -201,7 +210,7 @@ gtuber_stream_set_uri (GtuberStream *self, const gchar *uri)
  * gtuber_stream_get_itag:
  * @stream: a #GtuberStream
  *
- * Returns: Itag of the stream or 0 when undetermined.
+ * Returns: itag of the stream or 0 when undetermined.
  **/
 guint
 gtuber_stream_get_itag (GtuberStream *self)
@@ -376,7 +385,7 @@ gtuber_stream_set_audio_codec (GtuberStream *self, const gchar *acodec)
  * gtuber_stream_get_width:
  * @stream: a #GtuberStream
  *
- * Returns: Width of video or 0 when undetermined.
+ * Returns: width of video or 0 when undetermined.
  **/
 guint
 gtuber_stream_get_width (GtuberStream *self)
@@ -407,7 +416,7 @@ gtuber_stream_set_width (GtuberStream *self, guint width)
  * gtuber_stream_get_height:
  * @stream: a #GtuberStream
  *
- * Returns: Height of video or 0 when undetermined.
+ * Returns: height of video or 0 when undetermined.
  **/
 guint
 gtuber_stream_get_height (GtuberStream *self)
@@ -438,7 +447,7 @@ gtuber_stream_set_height (GtuberStream *self, guint height)
  * gtuber_stream_get_fps:
  * @stream: a #GtuberStream
  *
- * Returns: Framerate of video or 0 when undetermined.
+ * Returns: framerate of video or 0 when undetermined.
  **/
 guint
 gtuber_stream_get_fps (GtuberStream *self)
@@ -469,7 +478,7 @@ gtuber_stream_set_fps (GtuberStream *self, guint fps)
  * gtuber_stream_get_bitrate:
  * @stream: a #GtuberStream
  *
- * Returns: Bitrate of stream or 0 when undetermined.
+ * Returns: bitrate of stream or 0 when undetermined.
  **/
 guint64
 gtuber_stream_get_bitrate (GtuberStream *self)

@@ -17,11 +17,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <glib-object.h>
+/**
+ * SECTION:gtuber-client
+ * @title: GtuberClient
+ * @short_description: a web client that fetches media info
+ */
+
 #include <gmodule.h>
-#include <gio/gio.h>
 #include <libsoup/soup.h>
 
+#include "gtuber-enums.h"
 #include "gtuber-client.h"
 #include "gtuber-media-info.h"
 #include "gtuber-loader-private.h"

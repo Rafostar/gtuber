@@ -22,7 +22,8 @@
 
 #include <glib.h>
 #include <gmodule.h>
-#include <gtuber/gtuber-types.h>
+
+#include <gtuber/gtuber-website.h>
 
 G_BEGIN_DECLS
 

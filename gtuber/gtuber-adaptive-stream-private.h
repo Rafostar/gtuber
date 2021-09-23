@@ -20,8 +20,6 @@
 #ifndef __GTUBER_ADAPTIVE_STREAM_PRIVATE_H__
 #define __GTUBER_ADAPTIVE_STREAM_PRIVATE_H__
 
-#include <glib.h>
-
 #include <gtuber/gtuber-adaptive-stream.h>
 
 G_BEGIN_DECLS

@@ -17,8 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <glib-object.h>
-#include <gmodule.h>
+/**
+ * SECTION:gtuber-website
+ * @title: GtuberWebsite
+ * @short_description: a base class for creating plugins
+ */
 
 #include "gtuber-website.h"
 
@@ -95,7 +98,7 @@ gtuber_website_parse_input_stream (GtuberWebsite *website,
 }
 
 /**
- * gtuber_website_get_uri:
+ * gtuber_website_get_uri: (skip)
  * @website: a #GtuberWebsite
  *
  * Returns: (transfer none): current requested URI.
@@ -109,7 +112,7 @@ gtuber_website_get_uri (GtuberWebsite *self)
 }
 
 /**
- * gtuber_website_set_uri:
+ * gtuber_website_set_uri: (skip)
  * @website: a #GtuberWebsite
  * @uri: requested URI
  *
@@ -129,7 +132,7 @@ gtuber_website_set_uri (GtuberWebsite *self, const gchar *uri)
 }
 
 /**
- * gtuber_website_get_user_agent:
+ * gtuber_website_get_user_agent: (skip)
  * @website: a #GtuberWebsite
  *
  * Returns: (transfer none): advertised user agent string.
@@ -143,7 +146,7 @@ gtuber_website_get_user_agent (GtuberWebsite *self)
 }
 
 /**
- * gtuber_website_get_browser_version:
+ * gtuber_website_get_browser_version: (skip)
  * @website: a #GtuberWebsite
  *
  * Returns: (transfer none): advertised browser version.
@@ -157,7 +160,7 @@ gtuber_website_get_browser_version (GtuberWebsite *self)
 }
 
 /**
- * gtuber_website_set_browser:
+ * gtuber_website_set_browser: (skip)
  * @website: a #GtuberWebsite
  * @user_agent: an user agent string
  * @browser_version: web browser version

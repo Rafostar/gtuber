@@ -26,7 +26,8 @@
 
 /**
  * SECTION:gtuber-version
- * @short_description: Gtuber version checking
+ * @title: Gtuber Version
+ * @short_description: version checking
  *
  * Gtuber provides macros to check the version of the library at
  * compile-time

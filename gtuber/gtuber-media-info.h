@@ -24,8 +24,8 @@
 #error "Only <gtuber/gtuber.h> can be included directly."
 #endif
 
+#include <glib.h>
 #include <glib-object.h>
-#include <gtuber/gtuber-types.h>
 
 G_BEGIN_DECLS
 
@@ -35,7 +35,14 @@ G_BEGIN_DECLS
 #define GTUBER_MEDIA_INFO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTUBER_TYPE_MEDIA_INFO, GtuberMediaInfoClass))
 #define GTUBER_MEDIA_INFO(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTUBER_TYPE_MEDIA_INFO, GtuberMediaInfo))
 #define GTUBER_MEDIA_INFO_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GTUBER_TYPE_MEDIA_INFO, GtuberMediaInfoClass))
-#define GTUBER_MEDIA_INFO_CAST(obj)       ((GtuberMediaInfo*)(obj))
+
+/**
+ * GtuberMediaInfo:
+ *
+ * Contains result with parsed media info.
+ */
+typedef struct _GtuberMediaInfo GtuberMediaInfo;
+typedef struct _GtuberMediaInfoClass GtuberMediaInfoClass;
 
 #ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberMediaInfo, g_object_unref)

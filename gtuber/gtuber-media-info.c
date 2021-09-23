@@ -17,7 +17,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <glib-object.h>
+/**
+ * SECTION:gtuber-media-info
+ * @title: GtuberMediaInfo
+ * @short_description: contains media information
+ */
+
+/**
+ * SECTION:gtuber-media-info-devel
+ * @title: GtuberMediaInfo Development
+ */
 
 #include "gtuber-media-info.h"
 #include "gtuber-media-info-devel.h"
@@ -167,7 +176,7 @@ gtuber_media_info_finalize (GObject *object)
  * gtuber_media_info_get_id:
  * @info: a #GtuberMediaInfo
  *
- * Returns: (transfer none): Media ID or %NULL when undetermined.
+ * Returns: (transfer none): media ID or %NULL when undetermined.
  **/
 const gchar *
 gtuber_media_info_get_id (GtuberMediaInfo *self)
@@ -199,7 +208,7 @@ gtuber_media_info_set_id (GtuberMediaInfo *self, const gchar *id)
  * gtuber_media_info_get_title:
  * @info: a #GtuberMediaInfo
  *
- * Returns: (transfer none): Media title or %NULL when undetermined.
+ * Returns: (transfer none): media title or %NULL when undetermined.
  **/
 const gchar *
 gtuber_media_info_get_title (GtuberMediaInfo *self)
@@ -231,7 +240,7 @@ gtuber_media_info_set_description (GtuberMediaInfo *self, const gchar *descripti
  * gtuber_media_info_get_description:
  * @info: a #GtuberMediaInfo
  *
- * Returns: (transfer none): Media description or %NULL when undetermined.
+ * Returns: (transfer none): media description or %NULL when undetermined.
  **/
 const gchar *
 gtuber_media_info_get_description (GtuberMediaInfo *self)
@@ -263,7 +272,7 @@ gtuber_media_info_set_title (GtuberMediaInfo *self, const gchar *title)
  * gtuber_media_info_get_duration:
  * @info: a #GtuberMediaInfo
  *
- * Returns: Media duration in seconds or 0 when undetermined.
+ * Returns: media duration in seconds or 0 when undetermined.
  **/
 guint64
 gtuber_media_info_get_duration (GtuberMediaInfo *self)
@@ -312,7 +321,7 @@ gtuber_media_info_get_has_streams (GtuberMediaInfo *self)
  *   an empty array is returned. Use gtuber_media_info_get_has_streams()
  *   to check if array will be empty.
  *
- * Returns: (transfer none) (element-type GtuberStream): A #GPtrArray of
+ * Returns: (transfer none) (element-type GtuberStream): a #GPtrArray of
  *   available #GtuberStream instances.
  */
 const GPtrArray *
@@ -364,7 +373,7 @@ gtuber_media_info_get_has_adaptive_streams (GtuberMediaInfo *self)
  *   available, an empty array is returned. Use gtuber_media_info_get_has_adaptive_streams()
  *   to check if array will be empty.
  *
- * Returns: (transfer none) (element-type GtuberAdaptiveStream): A #GPtrArray of
+ * Returns: (transfer none) (element-type GtuberAdaptiveStream): a #GPtrArray of
  *   available #GtuberAdaptiveStream instances.
  *
  */

@@ -17,7 +17,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <glib-object.h>
+/**
+ * SECTION:gtuber-adaptive-stream
+ * @title: GtuberAdaptiveStream
+ * @short_description: represents an adaptive media stream,
+ *  usually for use in an adaptive streaming manifest
+ */
+
+/**
+ * SECTION:gtuber-adaptive-stream-devel
+ * @title: GtuberAdaptiveStream Development
+ */
 
 #include "gtuber-stream.h"
 #include "gtuber-stream-private.h"

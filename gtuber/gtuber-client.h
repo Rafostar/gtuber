@@ -26,7 +26,8 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <gtuber/gtuber-types.h>
+
+#include <gtuber/gtuber-media-info.h>
 
 G_BEGIN_DECLS
 
@@ -36,16 +37,22 @@ G_BEGIN_DECLS
 #define GTUBER_CLIENT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTUBER_TYPE_CLIENT, GtuberClientClass))
 #define GTUBER_CLIENT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTUBER_TYPE_CLIENT, GtuberClient))
 #define GTUBER_CLIENT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GTUBER_TYPE_CLIENT, GtuberClientClass))
-#define GTUBER_CLIENT_CAST(obj)       ((GtuberClient*)(obj))
 
 #define GTUBER_CLIENT_ERROR           (gtuber_client_error_quark ())
+
+/**
+ * GtuberClient:
+ *
+ * Gtuber web client used to obtain media info.
+ */
+typedef struct _GtuberClient GtuberClient;
+typedef struct _GtuberClientClass GtuberClientClass;
 
 #ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberClient, g_object_unref)
 #endif
 
 GType             gtuber_client_get_type                   (void);
-GQuark            gtuber_client_error_quark                (void);
 
 GtuberClient *    gtuber_client_new                        (void);
 
@@ -55,6 +62,8 @@ void              gtuber_client_fetch_media_info_async     (GtuberClient *client
                                                                GAsyncReadyCallback callback, gpointer user_data);
 
 GtuberMediaInfo * gtuber_client_fetch_media_info_finish    (GtuberClient *client, GAsyncResult *res, GError **error);
+
+GQuark            gtuber_client_error_quark                (void);
 
 G_END_DECLS
 

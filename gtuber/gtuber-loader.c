@@ -18,10 +18,6 @@
  */
 
 #include "config.h"
-
-#include <glib.h>
-#include <gmodule.h>
-
 #include "gtuber-loader-private.h"
 
 typedef GtuberWebsite* (* QueryPlugin) (GUri *uri);

@@ -24,8 +24,7 @@
 #error "Only "gtuber/gtuber-plugin-devel.h" can be included directly."
 #endif
 
-#include <glib-object.h>
-#include <gtuber/gtuber-types.h>
+#include <gtuber/gtuber-stream.h>
 
 G_BEGIN_DECLS
 

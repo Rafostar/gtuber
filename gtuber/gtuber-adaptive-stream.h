@@ -26,8 +26,6 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <gtuber/gtuber-types.h>
-#include <gtuber/gtuber-stream.h>
 
 G_BEGIN_DECLS
 
@@ -37,7 +35,14 @@ G_BEGIN_DECLS
 #define GTUBER_ADAPTIVE_STREAM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTUBER_TYPE_ADAPTIVE_STREAM, GtuberAdaptiveStreamClass))
 #define GTUBER_ADAPTIVE_STREAM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTUBER_TYPE_ADAPTIVE_STREAM, GtuberAdaptiveStream))
 #define GTUBER_ADAPTIVE_STREAM_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GTUBER_TYPE_ADAPTIVE_STREAM, GtuberAdaptiveStreamClass))
-#define GTUBER_ADAPTIVE_STREAM_CAST(obj)       ((GtuberAdaptiveStream*)(obj))
+
+/**
+ * GtuberAdaptiveStream:
+ *
+ * Contains values of peculiar adaptive media stream.
+ */
+typedef struct _GtuberAdaptiveStream GtuberAdaptiveStream;
+typedef struct _GtuberAdaptiveStreamClass GtuberAdaptiveStreamClass;
 
 #ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberAdaptiveStream, g_object_unref)

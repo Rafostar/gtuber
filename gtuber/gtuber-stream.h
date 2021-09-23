@@ -24,8 +24,10 @@
 #error "Only <gtuber/gtuber.h> can be included directly."
 #endif
 
+#include <glib.h>
 #include <glib-object.h>
-#include <gtuber/gtuber-types.h>
+
+#include <gtuber/gtuber-enums.h>
 
 G_BEGIN_DECLS
 
@@ -35,7 +37,14 @@ G_BEGIN_DECLS
 #define GTUBER_STREAM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTUBER_TYPE_STREAM, GtuberStreamClass))
 #define GTUBER_STREAM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTUBER_TYPE_STREAM, GtuberStream))
 #define GTUBER_STREAM_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GTUBER_TYPE_STREAM, GtuberStreamClass))
-#define GTUBER_STREAM_CAST(obj)       ((GtuberStream*)(obj))
+
+/**
+ * GtuberStream:
+ *
+ * Contains values of peculiar media stream.
+ */
+typedef struct _GtuberStream GtuberStream;
+typedef struct _GtuberStreamClass GtuberStreamClass;
 
 #ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberStream, g_object_unref)
