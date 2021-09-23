@@ -1,5 +1,6 @@
 # Gtuber
 option('introspection', type: 'boolean', value: true, description: 'Build introspection data')
+option('doc', type: 'boolean', value: false, description: 'Build documentation')
 
 # Utils
 option('utils-common', type: 'feature', value: 'auto')
