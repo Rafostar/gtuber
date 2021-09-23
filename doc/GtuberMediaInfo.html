@@ -1,0 +1,458 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>GtuberMediaInfo: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-api.html" title="API Reference">
+<link rel="prev" href="GtuberClient.html" title="GtuberClient">
+<link rel="next" href="GtuberStream.html" title="GtuberStream">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GtuberMediaInfo.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#GtuberMediaInfo.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#GtuberMediaInfo.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-api.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="GtuberClient.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="GtuberStream.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="GtuberMediaInfo"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="GtuberMediaInfo.top_of_page"></a>GtuberMediaInfo</span></h2>
+<p>GtuberMediaInfo — contains media information</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-id" title="gtuber_media_info_get_id ()">gtuber_media_info_get_id</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-title" title="gtuber_media_info_get_title ()">gtuber_media_info_get_title</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-description" title="gtuber_media_info_get_description ()">gtuber_media_info_get_description</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">guint64</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-duration" title="gtuber_media_info_get_duration ()">gtuber_media_info_get_duration</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gboolean</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-has-streams" title="gtuber_media_info_get_has_streams ()">gtuber_media_info_get_has_streams</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">GPtrArray</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-streams" title="gtuber_media_info_get_streams ()">gtuber_media_info_get_streams</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gboolean</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-has-adaptive-streams" title="gtuber_media_info_get_has_adaptive_streams ()">gtuber_media_info_get_has_adaptive_streams</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">GPtrArray</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-adaptive-streams" title="gtuber_media_info_get_adaptive_streams ()">gtuber_media_info_get_adaptive_streams</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table class="informaltable" border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type">
+<span class="type">char</span> *</td>
+<td class="property_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo--description" title="The “description” property">description</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">guint64</span></td>
+<td class="property_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo--duration" title="The “duration” property">duration</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">gboolean</span></td>
+<td class="property_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo--has-adaptive-streams" title="The “has-adaptive-streams” property">has-adaptive-streams</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">gboolean</span></td>
+<td class="property_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo--has-streams" title="The “has-streams” property">has-streams</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<span class="type">char</span> *</td>
+<td class="property_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo--id" title="The “id” property">id</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<span class="type">char</span> *</td>
+<td class="property_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo--title" title="The “title” property">title</a></td>
+<td class="property_flags">Read</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="other_proto_type">
+<col class="other_proto_name">
+</colgroup>
+<tbody><tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GtuberMediaInfo.html#GtuberMediaInfo-struct" title="GtuberMediaInfo">GtuberMediaInfo</a></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GObject
+    <span class="lineart">╰──</span> GtuberMediaInfo
+</pre>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-media-info-get-id"></a><h3>gtuber_media_info_get_id ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_media_info_get_id (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-media-info-get-id.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-id.returns"></a><h4>Returns</h4>
+<p>media ID or <code class="literal">NULL</code> when undetermined. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-title"></a><h3>gtuber_media_info_get_title ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_media_info_get_title (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-media-info-get-title.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-title.returns"></a><h4>Returns</h4>
+<p>media title or <code class="literal">NULL</code> when undetermined. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-description"></a><h3>gtuber_media_info_get_description ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_media_info_get_description (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-media-info-get-description.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-description.returns"></a><h4>Returns</h4>
+<p>media description or <code class="literal">NULL</code> when undetermined. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-duration"></a><h3>gtuber_media_info_get_duration ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint64</span>
+gtuber_media_info_get_duration (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-media-info-get-duration.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-duration.returns"></a><h4>Returns</h4>
+<p> media duration in seconds or 0 when undetermined.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-has-streams"></a><h3>gtuber_media_info_get_has_streams ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>
+gtuber_media_info_get_has_streams (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-media-info-get-has-streams.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-has-streams.returns"></a><h4>Returns</h4>
+<p> <code class="literal">TRUE</code> if info has streams, <code class="literal">FALSE</code> otherwise.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-streams"></a><h3>gtuber_media_info_get_streams ()</h3>
+<pre class="programlisting">const <span class="returnvalue">GPtrArray</span> *
+gtuber_media_info_get_streams (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<p>Get a <span class="type">GPtrArray</span> of <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> instances. When no streams are available,
+  an empty array is returned. Use <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-has-streams" title="gtuber_media_info_get_has_streams ()"><code class="function">gtuber_media_info_get_has_streams()</code></a>
+  to check if array will be empty.</p>
+<div class="refsect3">
+<a name="gtuber-media-info-get-streams.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-streams.returns"></a><h4>Returns</h4>
+<p>a <span class="type">GPtrArray</span> of
+available <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> instances. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>][<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GtuberStream]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-has-adaptive-streams"></a><h3>gtuber_media_info_get_has_adaptive_streams ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>
+gtuber_media_info_get_has_adaptive_streams
+                               (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-media-info-get-has-adaptive-streams.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-has-adaptive-streams.returns"></a><h4>Returns</h4>
+<p> <code class="literal">TRUE</code> if info has adaptive streams, <code class="literal">FALSE</code> otherwise.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-adaptive-streams"></a><h3>gtuber_media_info_get_adaptive_streams ()</h3>
+<pre class="programlisting">const <span class="returnvalue">GPtrArray</span> *
+gtuber_media_info_get_adaptive_streams
+                               (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<p>Get a <span class="type">GPtrArray</span> of <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> instances. When no adaptive streams are
+  available, an empty array is returned. Use <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-has-adaptive-streams" title="gtuber_media_info_get_has_adaptive_streams ()"><code class="function">gtuber_media_info_get_has_adaptive_streams()</code></a>
+  to check if array will be empty.</p>
+<div class="refsect3">
+<a name="gtuber-media-info-get-adaptive-streams.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-adaptive-streams.returns"></a><h4>Returns</h4>
+<p>a <span class="type">GPtrArray</span> of
+available <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> instances. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>][<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GtuberAdaptiveStream]</span></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GtuberMediaInfo-struct"></a><h3>GtuberMediaInfo</h3>
+<pre class="programlisting">typedef struct _GtuberMediaInfo GtuberMediaInfo;</pre>
+<p>Contains result with parsed media info.</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="GtuberMediaInfo.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="GtuberMediaInfo--description"></a><h3>The <code class="literal">“description”</code> property</h3>
+<pre class="programlisting">  “description”              <span class="type">char</span> *</pre>
+<p>Short media description.</p>
+<p>Owner: GtuberMediaInfo</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberMediaInfo--duration"></a><h3>The <code class="literal">“duration”</code> property</h3>
+<pre class="programlisting">  “duration”                 <span class="type">guint64</span></pre>
+<p>Media duration in seconds.</p>
+<p>Owner: GtuberMediaInfo</p>
+<p>Flags: Read</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberMediaInfo--has-adaptive-streams"></a><h3>The <code class="literal">“has-adaptive-streams”</code> property</h3>
+<pre class="programlisting">  “has-adaptive-streams”     <span class="type">gboolean</span></pre>
+<p>Check if media info has any adaptive streams.</p>
+<p>Owner: GtuberMediaInfo</p>
+<p>Flags: Read</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberMediaInfo--has-streams"></a><h3>The <code class="literal">“has-streams”</code> property</h3>
+<pre class="programlisting">  “has-streams”              <span class="type">gboolean</span></pre>
+<p>Check if media info has any normal streams.</p>
+<p>Owner: GtuberMediaInfo</p>
+<p>Flags: Read</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberMediaInfo--id"></a><h3>The <code class="literal">“id”</code> property</h3>
+<pre class="programlisting">  “id”                       <span class="type">char</span> *</pre>
+<p>The ID of media.</p>
+<p>Owner: GtuberMediaInfo</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberMediaInfo--title"></a><h3>The <code class="literal">“title”</code> property</h3>
+<pre class="programlisting">  “title”                    <span class="type">char</span> *</pre>
+<p>Media title.</p>
+<p>Owner: GtuberMediaInfo</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>GtuberStream: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-api.html" title="API Reference">
+<link rel="prev" href="GtuberMediaInfo.html" title="GtuberMediaInfo">
+<link rel="next" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GtuberStream.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#GtuberStream.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#GtuberStream.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-api.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="GtuberMediaInfo.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="GtuberAdaptiveStream.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="GtuberStream"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="GtuberStream.top_of_page"></a>GtuberStream</span></h2>
+<p>GtuberStream — represents a direct media stream</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="GtuberStream.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-uri" title="gtuber_stream_get_uri ()">gtuber_stream_get_uri</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">guint</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-itag" title="gtuber_stream_get_itag ()">gtuber_stream_get_itag</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="returnvalue">GtuberStreamMimeType</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-mime-type" title="gtuber_stream_get_mime_type ()">gtuber_stream_get_mime_type</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gboolean</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-codecs" title="gtuber_stream_get_codecs ()">gtuber_stream_get_codecs</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-video-codec" title="gtuber_stream_get_video_codec ()">gtuber_stream_get_video_codec</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-audio-codec" title="gtuber_stream_get_audio_codec ()">gtuber_stream_get_audio_codec</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">guint</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-width" title="gtuber_stream_get_width ()">gtuber_stream_get_width</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">guint</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-height" title="gtuber_stream_get_height ()">gtuber_stream_get_height</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">guint</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-fps" title="gtuber_stream_get_fps ()">gtuber_stream_get_fps</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">guint64</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-bitrate" title="gtuber_stream_get_bitrate ()">gtuber_stream_get_bitrate</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table class="informaltable" border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type"><span class="type">guint64</span></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--bitrate" title="The “bitrate” property">bitrate</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">guint</span></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--fps" title="The “fps” property">fps</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">guint</span></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--height" title="The “height” property">height</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">guint</span></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--itag" title="The “itag” property">itag</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="type">GtuberStreamMimeType</span></a></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--mime-type" title="The “mime-type” property">mime-type</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<span class="type">char</span> *</td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--uri" title="The “uri” property">uri</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">guint</span></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--width" title="The “width” property">width</a></td>
+<td class="property_flags">Read</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="other_proto_type">
+<col class="other_proto_name">
+</colgroup>
+<tbody><tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GtuberStream.html#GtuberStream-struct" title="GtuberStream">GtuberStream</a></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GObject
+    <span class="lineart">╰──</span> GtuberStream
+        <span class="lineart">╰──</span> <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream">GtuberAdaptiveStream</a>
+</pre>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-stream-get-uri"></a><h3>gtuber_stream_get_uri ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_stream_get_uri (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-uri.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-uri.returns"></a><h4>Returns</h4>
+<p>URI of the stream. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-itag"></a><h3>gtuber_stream_get_itag ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint</span>
+gtuber_stream_get_itag (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-itag.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-itag.returns"></a><h4>Returns</h4>
+<p> itag of the stream or 0 when undetermined.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-mime-type"></a><h3>gtuber_stream_get_mime_type ()</h3>
+<pre class="programlisting"><a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="returnvalue">GtuberStreamMimeType</span></a>
+gtuber_stream_get_mime_type (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-mime-type.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-mime-type.returns"></a><h4>Returns</h4>
+<p> a <a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="type">GtuberStreamMimeType</span></a> representing
+MIME type of the stream.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-codecs"></a><h3>gtuber_stream_get_codecs ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>
+gtuber_stream_get_codecs (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                          <em class="parameter"><code>const <span class="type">gchar</span> **vcodec</code></em>,
+                          <em class="parameter"><code>const <span class="type">gchar</span> **acodec</code></em>);</pre>
+<p>Gets the video and audio codecs used to encode the stream.</p>
+<div class="refsect3">
+<a name="gtuber-stream-get-codecs.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>vcodec</p></td>
+<td class="parameter_description"><p>the stream video codec. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>][<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>acodec</p></td>
+<td class="parameter_description"><p>the stream audio codec. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>][<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-codecs.returns"></a><h4>Returns</h4>
+<p> <code class="literal">TRUE</code> if successful, with the out parameters set, <code class="literal">FALSE</code> otherwise.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-video-codec"></a><h3>gtuber_stream_get_video_codec ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_stream_get_video_codec (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-video-codec.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-video-codec.returns"></a><h4>Returns</h4>
+<p>the stream video codec. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-audio-codec"></a><h3>gtuber_stream_get_audio_codec ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_stream_get_audio_codec (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-audio-codec.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-audio-codec.returns"></a><h4>Returns</h4>
+<p>the stream audio codec. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-width"></a><h3>gtuber_stream_get_width ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint</span>
+gtuber_stream_get_width (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-width.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-width.returns"></a><h4>Returns</h4>
+<p> width of video or 0 when undetermined.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-height"></a><h3>gtuber_stream_get_height ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint</span>
+gtuber_stream_get_height (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-height.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-height.returns"></a><h4>Returns</h4>
+<p> height of video or 0 when undetermined.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-fps"></a><h3>gtuber_stream_get_fps ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint</span>
+gtuber_stream_get_fps (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-fps.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-fps.returns"></a><h4>Returns</h4>
+<p> framerate of video or 0 when undetermined.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-bitrate"></a><h3>gtuber_stream_get_bitrate ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint64</span>
+gtuber_stream_get_bitrate (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<div class="refsect3">
+<a name="gtuber-stream-get-bitrate.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-bitrate.returns"></a><h4>Returns</h4>
+<p> bitrate of stream or 0 when undetermined.</p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GtuberStream-struct"></a><h3>GtuberStream</h3>
+<pre class="programlisting">typedef struct _GtuberStream GtuberStream;</pre>
+<p>Contains values of peculiar media stream.</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="GtuberStream.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="GtuberStream--bitrate"></a><h3>The <code class="literal">“bitrate”</code> property</h3>
+<pre class="programlisting">  “bitrate”                  <span class="type">guint64</span></pre>
+<p>Stream bitrate (bandwidth).</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--fps"></a><h3>The <code class="literal">“fps”</code> property</h3>
+<pre class="programlisting">  “fps”                      <span class="type">guint</span></pre>
+<p>Stream video framerate.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--height"></a><h3>The <code class="literal">“height”</code> property</h3>
+<pre class="programlisting">  “height”                   <span class="type">guint</span></pre>
+<p>Stream video height.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--itag"></a><h3>The <code class="literal">“itag”</code> property</h3>
+<pre class="programlisting">  “itag”                     <span class="type">guint</span></pre>
+<p>Stream identifier.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--mime-type"></a><h3>The <code class="literal">“mime-type”</code> property</h3>
+<pre class="programlisting">  “mime-type”                <a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="type">GtuberStreamMimeType</span></a></pre>
+<p>The MIME type of the stream.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: GTUBER_STREAM_MIME_TYPE_UNKNOWN</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--uri"></a><h3>The <code class="literal">“uri”</code> property</h3>
+<pre class="programlisting">  “uri”                      <span class="type">char</span> *</pre>
+<p>The URI leading to stream.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--width"></a><h3>The <code class="literal">“width”</code> property</h3>
+<pre class="programlisting">  “width”                    <span class="type">guint</span></pre>
+<p>Stream video width.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: 0</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>

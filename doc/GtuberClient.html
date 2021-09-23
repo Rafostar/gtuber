@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>GtuberClient: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-api.html" title="API Reference">
+<link rel="prev" href="gtuber-api.html" title="API Reference">
+<link rel="next" href="GtuberMediaInfo.html" title="GtuberMediaInfo">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GtuberClient.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#GtuberClient.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-api.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="gtuber-api.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="GtuberMediaInfo.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="GtuberClient"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="GtuberClient.top_of_page"></a>GtuberClient</span></h2>
+<p>GtuberClient — a web client that fetches media info</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="GtuberClient.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="GtuberClient.html" title="GtuberClient"><span class="returnvalue">GtuberClient</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberClient.html#gtuber-client-new" title="gtuber_client_new ()">gtuber_client_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="returnvalue">GtuberMediaInfo</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberClient.html#gtuber-client-fetch-media-info" title="gtuber_client_fetch_media_info ()">gtuber_client_fetch_media_info</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberClient.html#gtuber-client-fetch-media-info-async" title="gtuber_client_fetch_media_info_async ()">gtuber_client_fetch_media_info_async</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="returnvalue">GtuberMediaInfo</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberClient.html#gtuber-client-fetch-media-info-finish" title="gtuber_client_fetch_media_info_finish ()">gtuber_client_fetch_media_info_finish</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GQuark</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberClient.html#gtuber-client-error-quark" title="gtuber_client_error_quark ()">gtuber_client_error_quark</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberClient.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="other_proto_type">
+<col class="other_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="GtuberClient.html#GTUBER-CLIENT-ERROR:CAPS" title="GTUBER_CLIENT_ERROR">GTUBER_CLIENT_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GtuberClient.html#GtuberClient-struct" title="GtuberClient">GtuberClient</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberClient.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GObject
+    <span class="lineart">╰──</span> GtuberClient
+</pre>
+</div>
+<div class="refsect1">
+<a name="GtuberClient.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="GtuberClient.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-client-new"></a><h3>gtuber_client_new ()</h3>
+<pre class="programlisting"><a class="link" href="GtuberClient.html" title="GtuberClient"><span class="returnvalue">GtuberClient</span></a> *
+gtuber_client_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Creates a new <a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a> instance.</p>
+<div class="refsect3">
+<a name="gtuber-client-new.returns"></a><h4>Returns</h4>
+<p>a new <a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a> instance. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-client-fetch-media-info"></a><h3>gtuber_client_fetch_media_info ()</h3>
+<pre class="programlisting"><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="returnvalue">GtuberMediaInfo</span></a> *
+gtuber_client_fetch_media_info (<em class="parameter"><code><a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a> *client</code></em>,
+                                <em class="parameter"><code>const <span class="type">gchar</span> *uri</code></em>,
+                                <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
+                                <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
+<p>Synchronously obtains media info for requested URI.</p>
+<div class="refsect3">
+<a name="gtuber-client-fetch-media-info.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>client</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>uri</p></td>
+<td class="parameter_description"><p>a media source URI</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>cancellable</p></td>
+<td class="parameter_description"><p>optional <span class="type">GCancellable</span> object,
+<code class="literal">NULL</code> to ignore. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>return location for a <span class="type">GError</span>, or <code class="literal">NULL</code>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-client-fetch-media-info.returns"></a><h4>Returns</h4>
+<p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> or <code class="literal">NULL</code> on error. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-client-fetch-media-info-async"></a><h3>gtuber_client_fetch_media_info_async ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_client_fetch_media_info_async (<em class="parameter"><code><a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a> *client</code></em>,
+                                      <em class="parameter"><code>const <span class="type">gchar</span> *uri</code></em>,
+                                      <em class="parameter"><code><span class="type">GCancellable</span> *cancellable</code></em>,
+                                      <em class="parameter"><code><span class="type">GAsyncReadyCallback</span> callback</code></em>,
+                                      <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
+<p>Asynchronously obtains media info for requested URI.</p>
+<p>When the operation is finished, <em class="parameter"><code>callback</code></em>
+ will be called.
+You can then call <a class="link" href="GtuberClient.html#gtuber-client-fetch-media-info-finish" title="gtuber_client_fetch_media_info_finish ()"><code class="function">gtuber_client_fetch_media_info_finish()</code></a> to
+get the result of the operation.</p>
+<div class="refsect3">
+<a name="gtuber-client-fetch-media-info-async.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>client</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>uri</p></td>
+<td class="parameter_description"><p>a media source URI</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>cancellable</p></td>
+<td class="parameter_description"><p>optional <span class="type">GCancellable</span> object,
+<code class="literal">NULL</code> to ignore. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>callback</p></td>
+<td class="parameter_description"><p>a <span class="type">GAsyncReadyCallback</span> to call
+when the request is satisfied. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="The callback is valid until first called."><span class="acronym">scope async</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>the data to pass to callback function. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="This parameter is a 'user_data', for callbacks; many bindings can pass NULL here."><span class="acronym">closure</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-client-fetch-media-info-finish"></a><h3>gtuber_client_fetch_media_info_finish ()</h3>
+<pre class="programlisting"><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="returnvalue">GtuberMediaInfo</span></a> *
+gtuber_client_fetch_media_info_finish (<em class="parameter"><code><a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a> *client</code></em>,
+                                       <em class="parameter"><code><span class="type">GAsyncResult</span> *res</code></em>,
+                                       <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
+<p>Finishes an asynchronous obtain media info operation started with
+<a class="link" href="GtuberClient.html#gtuber-client-fetch-media-info-async" title="gtuber_client_fetch_media_info_async ()"><code class="function">gtuber_client_fetch_media_info_async()</code></a>.</p>
+<div class="refsect3">
+<a name="gtuber-client-fetch-media-info-finish.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>client</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>res</p></td>
+<td class="parameter_description"><p>a <span class="type">GAsyncResult</span></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>return location for a <span class="type">GError</span>, or <code class="literal">NULL</code>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-client-fetch-media-info-finish.returns"></a><h4>Returns</h4>
+<p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> or <code class="literal">NULL</code> on error. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-client-error-quark"></a><h3>gtuber_client_error_quark ()</h3>
+<pre class="programlisting"><span class="returnvalue">GQuark</span>
+gtuber_client_error_quark (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="GtuberClient.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GTUBER-CLIENT-ERROR:CAPS"></a><h3>GTUBER_CLIENT_ERROR</h3>
+<pre class="programlisting">#define GTUBER_CLIENT_ERROR           (gtuber_client_error_quark ())
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberClient-struct"></a><h3>GtuberClient</h3>
+<pre class="programlisting">typedef struct _GtuberClient GtuberClient;</pre>
+<p>Gtuber web client used to obtain media info.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>GtuberStream Development: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-devel.html" title="Plugin Development Reference">
+<link rel="prev" href="gtuber-GtuberMediaInfo-Development.html" title="GtuberMediaInfo Development">
+<link rel="next" href="gtuber-GtuberAdaptiveStream-Development.html" title="GtuberAdaptiveStream Development">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gtuber-GtuberStream-Development.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-devel.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="gtuber-GtuberMediaInfo-Development.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gtuber-GtuberAdaptiveStream-Development.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="gtuber-GtuberStream-Development"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="gtuber-GtuberStream-Development.top_of_page"></a>GtuberStream Development</span></h2>
+<p>GtuberStream Development</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="gtuber-GtuberStream-Development.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="GtuberStream.html" title="GtuberStream"><span class="returnvalue">GtuberStream</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-new" title="gtuber_stream_new ()">gtuber_stream_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-uri" title="gtuber_stream_set_uri ()">gtuber_stream_set_uri</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-itag" title="gtuber_stream_set_itag ()">gtuber_stream_set_itag</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-mime-type" title="gtuber_stream_set_mime_type ()">gtuber_stream_set_mime_type</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-codecs" title="gtuber_stream_set_codecs ()">gtuber_stream_set_codecs</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-video-codec" title="gtuber_stream_set_video_codec ()">gtuber_stream_set_video_codec</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-audio-codec" title="gtuber_stream_set_audio_codec ()">gtuber_stream_set_audio_codec</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-width" title="gtuber_stream_set_width ()">gtuber_stream_set_width</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-height" title="gtuber_stream_set_height ()">gtuber_stream_set_height</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-fps" title="gtuber_stream_set_fps ()">gtuber_stream_set_fps</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberStream-Development.html#gtuber-stream-set-bitrate" title="gtuber_stream_set_bitrate ()">gtuber_stream_set_bitrate</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="gtuber-GtuberStream-Development.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="gtuber-GtuberStream-Development.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-stream-new"></a><h3>gtuber_stream_new ()</h3>
+<pre class="programlisting"><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="returnvalue">GtuberStream</span></a> *
+gtuber_stream_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Creates a new <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> instance.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-new.returns"></a><h4>Returns</h4>
+<p>a new <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> instance. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-uri"></a><h3>gtuber_stream_set_uri ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_uri (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                       <em class="parameter"><code>const <span class="type">gchar</span> *uri</code></em>);</pre>
+<p>Sets the stream URI.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-uri.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>uri</p></td>
+<td class="parameter_description"><p>an URI</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-itag"></a><h3>gtuber_stream_set_itag ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_itag (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                        <em class="parameter"><code><span class="type">guint</span> itag</code></em>);</pre>
+<p>Sets the stream itag. Used to identify stream among others.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-itag.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>itag</p></td>
+<td class="parameter_description"><p>an itag</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-mime-type"></a><h3>gtuber_stream_set_mime_type ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_mime_type (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                             <em class="parameter"><code><a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="type">GtuberStreamMimeType</span></a> mime_type</code></em>);</pre>
+<p>Sets the stream MIME type.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-mime-type.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>mime_type</p></td>
+<td class="parameter_description"><p>a <a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="type">GtuberStreamMimeType</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-codecs"></a><h3>gtuber_stream_set_codecs ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_codecs (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                          <em class="parameter"><code>const <span class="type">gchar</span> *vcodec</code></em>,
+                          <em class="parameter"><code>const <span class="type">gchar</span> *acodec</code></em>);</pre>
+<p>Sets the video and audio codecs used to encode the stream.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-codecs.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>vcodec</p></td>
+<td class="parameter_description"><p>the stream video codec</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>acodec</p></td>
+<td class="parameter_description"><p>the stream audio codec</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-video-codec"></a><h3>gtuber_stream_set_video_codec ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_video_codec (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                               <em class="parameter"><code>const <span class="type">gchar</span> *vcodec</code></em>);</pre>
+<p>Sets the video codec used to encode the stream.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-video-codec.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>vcodec</p></td>
+<td class="parameter_description"><p>the stream video codec</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-audio-codec"></a><h3>gtuber_stream_set_audio_codec ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_audio_codec (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                               <em class="parameter"><code>const <span class="type">gchar</span> *acodec</code></em>);</pre>
+<p>Sets the audio codec used to encode the stream.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-audio-codec.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>acodec</p></td>
+<td class="parameter_description"><p>the stream audio codec</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-width"></a><h3>gtuber_stream_set_width ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_width (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                         <em class="parameter"><code><span class="type">guint</span> width</code></em>);</pre>
+<p>Sets the video stream width.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-width.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>width</p></td>
+<td class="parameter_description"><p>video width</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-height"></a><h3>gtuber_stream_set_height ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_height (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                          <em class="parameter"><code><span class="type">guint</span> height</code></em>);</pre>
+<p>Sets the video stream height.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-height.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>height</p></td>
+<td class="parameter_description"><p>video height</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-fps"></a><h3>gtuber_stream_set_fps ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_fps (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                       <em class="parameter"><code><span class="type">guint</span> fps</code></em>);</pre>
+<p>Sets the video stream framerate.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-fps.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>fps</p></td>
+<td class="parameter_description"><p>video framerate</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-set-bitrate"></a><h3>gtuber_stream_set_bitrate ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_stream_set_bitrate (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
+                           <em class="parameter"><code><span class="type">guint64</span> bitrate</code></em>);</pre>
+<p>Sets the stream bitrate.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-stream-set-bitrate.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>bitrate</p></td>
+<td class="parameter_description"><p>bitrate</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>

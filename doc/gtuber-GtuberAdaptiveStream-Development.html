@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>GtuberAdaptiveStream Development: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-devel.html" title="Plugin Development Reference">
+<link rel="prev" href="gtuber-GtuberStream-Development.html" title="GtuberStream Development">
+<link rel="next" href="api-index-full.html" title="Index">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gtuber-GtuberAdaptiveStream-Development.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-devel.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="gtuber-GtuberStream-Development.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="api-index-full.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="gtuber-GtuberAdaptiveStream-Development"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="gtuber-GtuberAdaptiveStream-Development.top_of_page"></a>GtuberAdaptiveStream Development</span></h2>
+<p>GtuberAdaptiveStream Development</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="gtuber-GtuberAdaptiveStream-Development.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="returnvalue">GtuberAdaptiveStream</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-new" title="gtuber_adaptive_stream_new ()">gtuber_adaptive_stream_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-manifest-type" title="gtuber_adaptive_stream_set_manifest_type ()">gtuber_adaptive_stream_set_manifest_type</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-init-range" title="gtuber_adaptive_stream_set_init_range ()">gtuber_adaptive_stream_set_init_range</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-index-range" title="gtuber_adaptive_stream_set_index_range ()">gtuber_adaptive_stream_set_index_range</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="gtuber-GtuberAdaptiveStream-Development.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="gtuber-GtuberAdaptiveStream-Development.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-adaptive-stream-new"></a><h3>gtuber_adaptive_stream_new ()</h3>
+<pre class="programlisting"><a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="returnvalue">GtuberAdaptiveStream</span></a> *
+gtuber_adaptive_stream_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Creates a new <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> instance.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-adaptive-stream-new.returns"></a><h4>Returns</h4>
+<p>a new <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> instance. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-adaptive-stream-set-manifest-type"></a><h3>gtuber_adaptive_stream_set_manifest_type ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_adaptive_stream_set_manifest_type
+                               (<em class="parameter"><code><a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> *stream</code></em>,
+                                <em class="parameter"><code><a class="link" href="gtuber-Enumeration-Types.html#GtuberAdaptiveStreamManifest" title="enum GtuberAdaptiveStreamManifest"><span class="type">GtuberAdaptiveStreamManifest</span></a> type</code></em>);</pre>
+<p>Sets the adaptive stream manifest type.</p>
+<p>This is mainly useful for plugin development.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-adaptive-stream-set-manifest-type.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>type</p></td>
+<td class="parameter_description"><p>a <a class="link" href="gtuber-Enumeration-Types.html#GtuberAdaptiveStreamManifest" title="enum GtuberAdaptiveStreamManifest"><span class="type">GtuberAdaptiveStreamManifest</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-adaptive-stream-set-init-range"></a><h3>gtuber_adaptive_stream_set_init_range ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_adaptive_stream_set_init_range (<em class="parameter"><code><a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> *stream</code></em>,
+                                       <em class="parameter"><code><span class="type">guint64</span> start</code></em>,
+                                       <em class="parameter"><code><span class="type">guint64</span> end</code></em>);</pre>
+<p>Sets the byte range of stream initialization segment.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-adaptive-stream-set-init-range.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>start</p></td>
+<td class="parameter_description"><p>the start of stream init range</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>end</p></td>
+<td class="parameter_description"><p>the end of stream init range</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-adaptive-stream-set-index-range"></a><h3>gtuber_adaptive_stream_set_index_range ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_adaptive_stream_set_index_range
+                               (<em class="parameter"><code><a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> *stream</code></em>,
+                                <em class="parameter"><code><span class="type">guint64</span> start</code></em>,
+                                <em class="parameter"><code><span class="type">guint64</span> end</code></em>);</pre>
+<p>Sets the byte range of stream media segment.</p>
+<p><span class="annotation">[<acronym title="Exposed in C code, not necessarily available in other languages."><span class="acronym">skip</span></acronym>]</span></p>
+<div class="refsect3">
+<a name="gtuber-adaptive-stream-set-index-range.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>start</p></td>
+<td class="parameter_description"><p>the start of stream index range</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>end</p></td>
+<td class="parameter_description"><p>the end of stream index range</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>

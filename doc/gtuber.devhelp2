@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<book xmlns="http://www.devhelp.net/book" title="Gtuber Reference Manual" link="index.html" author="" name="gtuber" version="2" language="c" online="https://rafostar.github.io/gtuber/doc/">
+  <chapters>
+    <sub name="Gtuber Overview" link="gtuber.html"/>
+    <sub name="Gtuber Fundamentals" link="gtuber-fundamentals.html">
+      <sub name="Enumeration Types" link="gtuber-Enumeration-Types.html"/>
+      <sub name="Gtuber Version" link="gtuber-Gtuber-Version.html"/>
+    </sub>
+    <sub name="API Reference" link="gtuber-api.html">
+      <sub name="GtuberClient" link="GtuberClient.html"/>
+      <sub name="GtuberMediaInfo" link="GtuberMediaInfo.html"/>
+      <sub name="GtuberStream" link="GtuberStream.html"/>
+      <sub name="GtuberAdaptiveStream" link="GtuberAdaptiveStream.html"/>
+    </sub>
+    <sub name="Plugin Development Reference" link="gtuber-devel.html">
+      <sub name="GtuberWebsite" link="GtuberWebsite.html"/>
+      <sub name="GtuberMediaInfo Development" link="gtuber-GtuberMediaInfo-Development.html"/>
+      <sub name="GtuberStream Development" link="gtuber-GtuberStream-Development.html"/>
+      <sub name="GtuberAdaptiveStream Development" link="gtuber-GtuberAdaptiveStream-Development.html"/>
+    </sub>
+    <sub name="Index" link="api-index-full.html"/>
+    <sub name="Index of deprecated symbols" link="api-index-deprecated.html"/>
+    <sub name="Annotation Glossary" link="annotation-glossary.html"/>
+  </chapters>
+  <functions>
+    <keyword type="enum" name="enum GtuberStreamMimeType" link="gtuber-Enumeration-Types.html#GtuberStreamMimeType"/>
+    <keyword type="enum" name="enum GtuberAdaptiveStreamManifest" link="gtuber-Enumeration-Types.html#GtuberAdaptiveStreamManifest"/>
+    <keyword type="enum" name="enum GtuberClientError" link="gtuber-Enumeration-Types.html#GtuberClientError"/>
+    <keyword type="enum" name="enum GtuberWebsiteError" link="gtuber-Enumeration-Types.html#GtuberWebsiteError"/>
+    <keyword type="enum" name="enum GtuberFlow" link="gtuber-Enumeration-Types.html#GtuberFlow"/>
+    <keyword type="macro" name="GTUBER_ENCODE_VERSION()" link="gtuber-Gtuber-Version.html#GTUBER-ENCODE-VERSION:CAPS"/>
+    <keyword type="macro" name="GTUBER_CHECK_VERSION()" link="gtuber-Gtuber-Version.html#GTUBER-CHECK-VERSION:CAPS"/>
+    <keyword type="macro" name="GTUBER_MAJOR_VERSION" link="gtuber-Gtuber-Version.html#GTUBER-MAJOR-VERSION:CAPS"/>
+    <keyword type="macro" name="GTUBER_MINOR_VERSION" link="gtuber-Gtuber-Version.html#GTUBER-MINOR-VERSION:CAPS"/>
+    <keyword type="macro" name="GTUBER_MICRO_VERSION" link="gtuber-Gtuber-Version.html#GTUBER-MICRO-VERSION:CAPS"/>
+    <keyword type="macro" name="GTUBER_VERSION" link="gtuber-Gtuber-Version.html#GTUBER-VERSION:CAPS"/>
+    <keyword type="macro" name="GTUBER_VERSION_S" link="gtuber-Gtuber-Version.html#GTUBER-VERSION-S:CAPS"/>
+    <keyword type="macro" name="GTUBER_VERSION_HEX" link="gtuber-Gtuber-Version.html#GTUBER-VERSION-HEX:CAPS"/>
+    <keyword type="function" name="gtuber_client_new ()" link="GtuberClient.html#gtuber-client-new"/>
+    <keyword type="function" name="gtuber_client_fetch_media_info ()" link="GtuberClient.html#gtuber-client-fetch-media-info"/>
+    <keyword type="function" name="gtuber_client_fetch_media_info_async ()" link="GtuberClient.html#gtuber-client-fetch-media-info-async"/>
+    <keyword type="function" name="gtuber_client_fetch_media_info_finish ()" link="GtuberClient.html#gtuber-client-fetch-media-info-finish"/>
+    <keyword type="function" name="gtuber_client_error_quark ()" link="GtuberClient.html#gtuber-client-error-quark"/>
+    <keyword type="macro" name="GTUBER_CLIENT_ERROR" link="GtuberClient.html#GTUBER-CLIENT-ERROR:CAPS"/>
+    <keyword type="struct" name="GtuberClient" link="GtuberClient.html#GtuberClient-struct"/>
+    <keyword type="function" name="gtuber_media_info_get_id ()" link="GtuberMediaInfo.html#gtuber-media-info-get-id"/>
+    <keyword type="function" name="gtuber_media_info_get_title ()" link="GtuberMediaInfo.html#gtuber-media-info-get-title"/>
+    <keyword type="function" name="gtuber_media_info_get_description ()" link="GtuberMediaInfo.html#gtuber-media-info-get-description"/>
+    <keyword type="function" name="gtuber_media_info_get_duration ()" link="GtuberMediaInfo.html#gtuber-media-info-get-duration"/>
+    <keyword type="function" name="gtuber_media_info_get_has_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-has-streams"/>
+    <keyword type="function" name="gtuber_media_info_get_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-streams"/>
+    <keyword type="function" name="gtuber_media_info_get_has_adaptive_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-has-adaptive-streams"/>
+    <keyword type="function" name="gtuber_media_info_get_adaptive_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-adaptive-streams"/>
+    <keyword type="struct" name="GtuberMediaInfo" link="GtuberMediaInfo.html#GtuberMediaInfo-struct"/>
+    <keyword type="property" name="The “description” property" link="GtuberMediaInfo.html#GtuberMediaInfo--description"/>
+    <keyword type="property" name="The “duration” property" link="GtuberMediaInfo.html#GtuberMediaInfo--duration"/>
+    <keyword type="property" name="The “has-adaptive-streams” property" link="GtuberMediaInfo.html#GtuberMediaInfo--has-adaptive-streams"/>
+    <keyword type="property" name="The “has-streams” property" link="GtuberMediaInfo.html#GtuberMediaInfo--has-streams"/>
+    <keyword type="property" name="The “id” property" link="GtuberMediaInfo.html#GtuberMediaInfo--id"/>
+    <keyword type="property" name="The “title” property" link="GtuberMediaInfo.html#GtuberMediaInfo--title"/>
+    <keyword type="function" name="gtuber_stream_get_uri ()" link="GtuberStream.html#gtuber-stream-get-uri"/>
+    <keyword type="function" name="gtuber_stream_get_itag ()" link="GtuberStream.html#gtuber-stream-get-itag"/>
+    <keyword type="function" name="gtuber_stream_get_mime_type ()" link="GtuberStream.html#gtuber-stream-get-mime-type"/>
+    <keyword type="function" name="gtuber_stream_get_codecs ()" link="GtuberStream.html#gtuber-stream-get-codecs"/>
+    <keyword type="function" name="gtuber_stream_get_video_codec ()" link="GtuberStream.html#gtuber-stream-get-video-codec"/>
+    <keyword type="function" name="gtuber_stream_get_audio_codec ()" link="GtuberStream.html#gtuber-stream-get-audio-codec"/>
+    <keyword type="function" name="gtuber_stream_get_width ()" link="GtuberStream.html#gtuber-stream-get-width"/>
+    <keyword type="function" name="gtuber_stream_get_height ()" link="GtuberStream.html#gtuber-stream-get-height"/>
+    <keyword type="function" name="gtuber_stream_get_fps ()" link="GtuberStream.html#gtuber-stream-get-fps"/>
+    <keyword type="function" name="gtuber_stream_get_bitrate ()" link="GtuberStream.html#gtuber-stream-get-bitrate"/>
+    <keyword type="struct" name="GtuberStream" link="GtuberStream.html#GtuberStream-struct"/>
+    <keyword type="property" name="The “bitrate” property" link="GtuberStream.html#GtuberStream--bitrate"/>
+    <keyword type="property" name="The “fps” property" link="GtuberStream.html#GtuberStream--fps"/>
+    <keyword type="property" name="The “height” property" link="GtuberStream.html#GtuberStream--height"/>
+    <keyword type="property" name="The “itag” property" link="GtuberStream.html#GtuberStream--itag"/>
+    <keyword type="property" name="The “mime-type” property" link="GtuberStream.html#GtuberStream--mime-type"/>
+    <keyword type="property" name="The “uri” property" link="GtuberStream.html#GtuberStream--uri"/>
+    <keyword type="property" name="The “width” property" link="GtuberStream.html#GtuberStream--width"/>
+    <keyword type="function" name="gtuber_adaptive_stream_get_manifest_type ()" link="GtuberAdaptiveStream.html#gtuber-adaptive-stream-get-manifest-type"/>
+    <keyword type="function" name="gtuber_adaptive_stream_get_init_range ()" link="GtuberAdaptiveStream.html#gtuber-adaptive-stream-get-init-range"/>
+    <keyword type="function" name="gtuber_adaptive_stream_get_index_range ()" link="GtuberAdaptiveStream.html#gtuber-adaptive-stream-get-index-range"/>
+    <keyword type="struct" name="GtuberAdaptiveStream" link="GtuberAdaptiveStream.html#GtuberAdaptiveStream-struct"/>
+    <keyword type="property" name="The “manifest-type” property" link="GtuberAdaptiveStream.html#GtuberAdaptiveStream--manifest-type"/>
+    <keyword type="function" name="gtuber_website_get_uri ()" link="GtuberWebsite.html#gtuber-website-get-uri"/>
+    <keyword type="function" name="gtuber_website_set_uri ()" link="GtuberWebsite.html#gtuber-website-set-uri"/>
+    <keyword type="function" name="gtuber_website_get_user_agent ()" link="GtuberWebsite.html#gtuber-website-get-user-agent"/>
+    <keyword type="function" name="gtuber_website_get_browser_version ()" link="GtuberWebsite.html#gtuber-website-get-browser-version"/>
+    <keyword type="function" name="gtuber_website_set_browser ()" link="GtuberWebsite.html#gtuber-website-set-browser"/>
+    <keyword type="function" name="gtuber_website_error_quark ()" link="GtuberWebsite.html#gtuber-website-error-quark"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_ERROR" link="GtuberWebsite.html#GTUBER-WEBSITE-ERROR:CAPS"/>
+    <keyword type="struct" name="struct GtuberWebsite" link="GtuberWebsite.html#GtuberWebsite-struct"/>
+    <keyword type="struct" name="struct GtuberWebsiteClass" link="GtuberWebsite.html#GtuberWebsiteClass"/>
+    <keyword type="function" name="gtuber_media_info_set_id ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-id"/>
+    <keyword type="function" name="gtuber_media_info_set_title ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-title"/>
+    <keyword type="function" name="gtuber_media_info_set_description ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-description"/>
+    <keyword type="function" name="gtuber_media_info_set_duration ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-duration"/>
+    <keyword type="function" name="gtuber_media_info_add_stream ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-add-stream"/>
+    <keyword type="function" name="gtuber_media_info_add_adaptive_stream ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-add-adaptive-stream"/>
+    <keyword type="function" name="gtuber_stream_new ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-new"/>
+    <keyword type="function" name="gtuber_stream_set_uri ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-uri"/>
+    <keyword type="function" name="gtuber_stream_set_itag ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-itag"/>
+    <keyword type="function" name="gtuber_stream_set_mime_type ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-mime-type"/>
+    <keyword type="function" name="gtuber_stream_set_codecs ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-codecs"/>
+    <keyword type="function" name="gtuber_stream_set_video_codec ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-video-codec"/>
+    <keyword type="function" name="gtuber_stream_set_audio_codec ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-audio-codec"/>
+    <keyword type="function" name="gtuber_stream_set_width ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-width"/>
+    <keyword type="function" name="gtuber_stream_set_height ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-height"/>
+    <keyword type="function" name="gtuber_stream_set_fps ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-fps"/>
+    <keyword type="function" name="gtuber_stream_set_bitrate ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-bitrate"/>
+    <keyword type="function" name="gtuber_adaptive_stream_new ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-new"/>
+    <keyword type="function" name="gtuber_adaptive_stream_set_manifest_type ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-manifest-type"/>
+    <keyword type="function" name="gtuber_adaptive_stream_set_init_range ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-init-range"/>
+    <keyword type="function" name="gtuber_adaptive_stream_set_index_range ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-index-range"/>
+    <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_UNKNOWN" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-UNKNOWN:CAPS"/>
+    <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_VIDEO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-VIDEO-MP4:CAPS"/>
+    <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_AUDIO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-AUDIO-MP4:CAPS"/>
+    <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_VIDEO_WEBM" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-VIDEO-WEBM:CAPS"/>
+    <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-AUDIO-WEBM:CAPS"/>
+    <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-UNKNOWN:CAPS"/>
+    <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-DASH:CAPS"/>
+    <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-HLS:CAPS"/>
+    <keyword type="constant" name="GTUBER_CLIENT_ERROR_NO_PLUGIN" link="gtuber-Enumeration-Types.html#GTUBER-CLIENT-ERROR-NO-PLUGIN:CAPS"/>
+    <keyword type="constant" name="GTUBER_CLIENT_ERROR_MISSING_INFO" link="gtuber-Enumeration-Types.html#GTUBER-CLIENT-ERROR-MISSING-INFO:CAPS"/>
+    <keyword type="constant" name="GTUBER_WEBSITE_ERROR_REQUEST_CREATE_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-REQUEST-CREATE-FAILED:CAPS"/>
+    <keyword type="constant" name="GTUBER_WEBSITE_ERROR_PARSE_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-PARSE-FAILED:CAPS"/>
+    <keyword type="constant" name="GTUBER_WEBSITE_ERROR_OTHER" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-OTHER:CAPS"/>
+    <keyword type="constant" name="GTUBER_FLOW_OK" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-OK:CAPS"/>
+    <keyword type="constant" name="GTUBER_FLOW_ERROR" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-ERROR:CAPS"/>
+    <keyword type="constant" name="GTUBER_FLOW_RESTART" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-RESTART:CAPS"/>
+    <keyword type="member" name="GtuberWebsiteClass.handles-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.handles-input-stream"/>
+    <keyword type="member" name="GtuberWebsiteClass.create-request" link="GtuberWebsite.html#GtuberWebsiteClass.create-request"/>
+    <keyword type="member" name="GtuberWebsiteClass.parse-response" link="GtuberWebsite.html#GtuberWebsiteClass.parse-response"/>
+    <keyword type="member" name="GtuberWebsiteClass.parse-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.parse-input-stream"/>
+  </functions>
+</book>
