@@ -251,9 +251,14 @@ static void
 make_soup_msg (const char *method, const char *uri_string,
     gchar *req_body, SoupMessage **msg)
 {
+  SoupMessageHeaders *headers;
+
   *msg = soup_message_new (method, uri_string);
-  soup_message_headers_append ((*msg)->request_headers,
-      "Client-ID", TWITCH_CLIENT_ID);
+  headers = (*msg)->request_headers;
+
+  soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv");
+  soup_message_headers_replace (headers, "Origin", "https://player.twitch.tv");
+  soup_message_headers_append (headers, "Client-ID", TWITCH_CLIENT_ID);
 
   if (req_body) {
     soup_message_set_request (*msg, "application/json",
