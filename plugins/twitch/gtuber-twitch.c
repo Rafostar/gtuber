@@ -29,21 +29,32 @@ typedef enum
 {
   GQL_REQ_NONE,
   GQL_REQ_ACCESS_TOKEN,
+  GQL_REQ_ACCESS_TOKEN_CLIP,
   GQL_REQ_METADATA_CHANNEL,
   GQL_REQ_METADATA_VIDEO,
+  GQL_REQ_METADATA_CLIP,
 } GqlReqType;
+
+typedef enum
+{
+  TWITCH_MEDIA_NONE,
+  TWITCH_MEDIA_CHANNEL,
+  TWITCH_MEDIA_VIDEO,
+  TWITCH_MEDIA_CLIP,
+} TwitchMediaType;
 
 struct _GtuberTwitch
 {
   GtuberWebsite parent;
 
-  gchar *channel_id;
   gchar *video_id;
 
   gchar *access_token;
   gchar *signature;
 
+  TwitchMediaType media_type;
   GqlReqType last_req;
+
   gboolean download_hls;
 };
 
@@ -65,6 +76,7 @@ static GtuberFlow gtuber_twitch_parse_input_stream (GtuberWebsite *website,
 static void
 gtuber_twitch_init (GtuberTwitch *self)
 {
+  self->media_type = TWITCH_MEDIA_NONE;
   self->last_req = GQL_REQ_NONE;
 }
 
@@ -88,7 +100,6 @@ gtuber_twitch_finalize (GObject *object)
 
   g_debug ("Twitch finalize");
 
-  g_free (self->channel_id);
   g_free (self->video_id);
 
   g_free (self->access_token);
@@ -98,33 +109,126 @@ gtuber_twitch_finalize (GObject *object)
 }
 
 static void
-_parse_access_token_data (GtuberTwitch *self, JsonParser *parser, GError **error)
+_iterate_clip_streams (GtuberTwitch *self, JsonReader *reader, GtuberMediaInfo *info)
+{
+  gint i, count;
+
+  count = json_reader_count_elements (reader);
+  for (i = 0; i < count; i++) {
+    if (json_reader_read_element (reader, i)) {
+      const gchar *org_uri;
+
+      org_uri = gtuber_utils_json_get_string (reader, "sourceURL", NULL);
+      if (org_uri) {
+        SoupURI *uri = soup_uri_new (org_uri);
+        GtuberStream *stream = gtuber_stream_new ();
+        const gchar *quality;
+        gchar *mod_uri;
+        guint itag, fps, height = 0;
+
+        itag = i + 1;
+        gtuber_stream_set_itag (stream, itag);
+        g_debug ("Created stream, itag %i", itag);
+
+        soup_uri_set_query_from_fields (uri,
+            "sig", self->signature,
+            "token", self->access_token,
+            NULL);
+
+        mod_uri = soup_uri_to_string (uri, FALSE);
+        soup_uri_free (uri);
+
+        gtuber_stream_set_uri (stream, mod_uri);
+        g_debug ("Clip URI: %s", mod_uri);
+        g_free (mod_uri);
+
+        fps = gtuber_utils_json_get_int (reader, "frameRate", NULL);
+        gtuber_stream_set_fps (stream, fps);
+        g_debug ("Clip fps: %i", fps);
+
+        quality = gtuber_utils_json_get_string (reader, "quality", NULL);
+        if (quality && strlen (quality)) {
+          height = g_ascii_strtod (quality, NULL);
+          gtuber_stream_set_height (stream, height);
+          g_debug ("Clip height: %i", height);
+        }
+
+        gtuber_media_info_add_stream (info, stream);
+      }
+    }
+    json_reader_end_element (reader);
+  }
+}
+
+static void
+_read_clip_streams (GtuberTwitch *self, JsonReader *reader,
+    GtuberMediaInfo *info, GError **error)
+{
+  gboolean found_streams = FALSE;
+
+  if (json_reader_read_member (reader, "data")) {
+    if (json_reader_read_member (reader, "clip")) {
+      if (json_reader_read_member (reader, "videoQualities")) {
+        if ((found_streams = json_reader_is_array (reader)))
+          _iterate_clip_streams (self, reader, info);
+      }
+      json_reader_end_member (reader);
+    }
+    json_reader_end_member (reader);
+  }
+  json_reader_end_member (reader);
+
+  if (!found_streams) {
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+        "Could not find clip streams");
+  }
+}
+
+static void
+_parse_access_token_data (GtuberTwitch *self, JsonParser *parser,
+    GtuberMediaInfo *info, GError **error)
 {
   //const GtuberCache *cache;
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
-  gchar *data_type = g_strdup_printf ("%sPlaybackAccessToken",
-      self->channel_id ? "stream" : "video");
+  const gchar *data_type = NULL;
+
+  switch (self->media_type) {
+    case TWITCH_MEDIA_CHANNEL:
+      data_type = "streamPlaybackAccessToken";
+      break;
+    case TWITCH_MEDIA_VIDEO:
+      data_type = "videoPlaybackAccessToken";
+      break;
+    case TWITCH_MEDIA_CLIP:
+      data_type = "playbackAccessToken";
+      break;
+    default:
+      g_assert_not_reached ();
+  }
 
   g_free (self->access_token);
-  self->access_token = g_strdup (gtuber_utils_json_get_string (reader,
-      "data", data_type, "value", NULL));
+  self->access_token = (self->media_type == TWITCH_MEDIA_CLIP)
+      ? g_strdup (gtuber_utils_json_get_string (reader, "data", "clip", data_type, "value", NULL))
+      : g_strdup (gtuber_utils_json_get_string (reader, "data", data_type, "value", NULL));
   g_debug ("Downloaded access token: %s", self->access_token);
 
   g_free (self->signature);
-  self->signature = g_strdup (gtuber_utils_json_get_string (reader,
-      "data", data_type, "signature", NULL));
+  self->signature = (self->media_type == TWITCH_MEDIA_CLIP)
+      ? g_strdup (gtuber_utils_json_get_string (reader, "data", "clip", data_type, "signature", NULL))
+      : g_strdup (gtuber_utils_json_get_string (reader, "data", data_type, "signature", NULL));
   g_debug ("Downloaded signature: %s", self->signature);
-
-  g_free (data_type);
-  g_object_unref (reader);
 
   /* We cannot do anything without access token */
   if (!self->access_token || !self->signature) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "Could not parse access token data");
-    return;
+    goto finish;
   }
+
+  if (self->media_type == TWITCH_MEDIA_CLIP)
+    _read_clip_streams (self, reader, info, error);
 
   /* TODO: Set show_ads to false in access_token */
 
@@ -133,6 +237,9 @@ _parse_access_token_data (GtuberTwitch *self, JsonParser *parser, GError **error
   gtuber_cache_store_value (cache, "access-token", self->access_token);
   gtuber_cache_store_value (cache, "signature", self->signature);
   */
+
+finish:
+  g_object_unref (reader);
 }
 
 static void
@@ -180,29 +287,56 @@ _read_video_metadata (JsonReader *reader, GtuberMediaInfo *info, GError **error)
 }
 
 static void
+_read_clip_metadata (JsonReader *reader, GtuberMediaInfo *info, GError **error)
+{
+  const gchar *id, *title;
+
+  id = gtuber_utils_json_get_string (reader, "data", "clip", "id", NULL);
+  gtuber_media_info_set_id (info, id);
+  g_debug ("Clip ID: %s", id);
+
+  title = gtuber_utils_json_get_string (reader, "data", "clip", "title", NULL);
+  gtuber_media_info_set_title (info, title);
+  g_debug ("Clip title: %s", title);
+}
+
+static void
 _parse_metadata (GtuberTwitch *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
 
   if (!json_reader_is_array (reader)) {
-    if (self->channel_id)
-      _read_channel_metadata (reader, info, error);
-    else
-      _read_video_metadata (reader, info, error);
+    switch (self->media_type) {
+      case TWITCH_MEDIA_CHANNEL:
+        _read_channel_metadata (reader, info, error);
+        break;
+      case TWITCH_MEDIA_VIDEO:
+        _read_video_metadata (reader, info, error);
+        break;
+      case TWITCH_MEDIA_CLIP:
+        _read_clip_metadata (reader, info, error);
+        break;
+      default:
+        g_assert_not_reached ();
+    }
   } else {
     gint i, count = json_reader_count_elements (reader);
+    gboolean err_set = FALSE;
+
     for (i = 0; i < count; i++) {
       if (json_reader_read_element (reader, i)) {
-        if (json_reader_read_member (reader, "error")) {
+        if ((err_set = json_reader_read_member (reader, "error"))) {
           g_set_error (error, GTUBER_WEBSITE_ERROR,
               GTUBER_WEBSITE_ERROR_PARSE_FAILED,
               "%s", json_reader_get_string_value (reader));
-          break;
         }
         json_reader_end_member (reader);
       }
       json_reader_end_element (reader);
+
+      if (err_set)
+        break;
     }
     if (!*error) {
       g_set_error (error, GTUBER_WEBSITE_ERROR,
@@ -228,10 +362,12 @@ parse_json_stream (GtuberTwitch *self, GInputStream *stream,
 
   switch (self->last_req) {
     case GQL_REQ_ACCESS_TOKEN:
-      _parse_access_token_data (self, parser, error);
+    case GQL_REQ_ACCESS_TOKEN_CLIP:
+      _parse_access_token_data (self, parser, info, error);
       break;
     case GQL_REQ_METADATA_CHANNEL:
     case GQL_REQ_METADATA_VIDEO:
+    case GQL_REQ_METADATA_CLIP:
       _parse_metadata (self, parser, info, error);
       break;
     default:
@@ -243,6 +379,10 @@ finish:
 
   if (*error)
     return GTUBER_FLOW_ERROR;
+
+  /* Clips do not have HLS manifests, so we are done here */
+  if (self->last_req == GQL_REQ_METADATA_CLIP)
+    return GTUBER_FLOW_OK;
 
   return GTUBER_FLOW_RESTART;
 }
@@ -283,17 +423,24 @@ create_gql_msg (GtuberTwitch *self, GqlReqType req_type,
       "    \"isVod\": %s,\n"
       "    \"vodID\": \"%s\",\n"
       "    \"playerType\": \"embed\"\n",
-          self->channel_id != NULL ? "true" : "false",
-          self->channel_id ? self->channel_id : "",
-          self->video_id != NULL ? "true" : "false",
-          self->video_id ? self->video_id : "");
+          self->media_type == TWITCH_MEDIA_CHANNEL ? "true" : "false",
+          self->media_type == TWITCH_MEDIA_CHANNEL ? self->video_id : "",
+          self->media_type == TWITCH_MEDIA_VIDEO ? "true" : "false",
+          self->media_type == TWITCH_MEDIA_VIDEO ? self->video_id : "");
+      break;
+    case GQL_REQ_ACCESS_TOKEN_CLIP:
+      op_name = "VideoAccessToken_Clip";
+      sha256 = "36b89d2507fce29e5ca551df756d27c1cfe079e2609642b4390aa4c35796eb11";
+      variables = g_strdup_printf (
+      "    \"slug\": \"%s\"\n",
+          self->video_id);
       break;
     case GQL_REQ_METADATA_CHANNEL:
       op_name = "StreamMetadata";
       sha256 = "059c4653b788f5bdb2f5a2d2a24b0ddc3831a15079001a3d927556a96fb0517f";
       variables = g_strdup_printf (
       "    \"channelLogin\": \"%s\"\n",
-          self->channel_id);
+          self->video_id);
       break;
     case GQL_REQ_METADATA_VIDEO:
       op_name = "VideoMetadata";
@@ -301,6 +448,13 @@ create_gql_msg (GtuberTwitch *self, GqlReqType req_type,
       variables = g_strdup_printf (
       "    \"channelLogin\": \"\",\n"
       "    \"videoID\": \"%s\"\n",
+          self->video_id);
+      break;
+    case GQL_REQ_METADATA_CLIP:
+      op_name = "ClipsTitle";
+      sha256 = "f6cca7f2fdfbfc2cecea0c88452500dae569191e58a265f97711f8f2a838f5b4";
+      variables = g_strdup_printf (
+      "    \"slug\": \"%s\"\n",
           self->video_id);
       break;
     default:
@@ -344,8 +498,8 @@ create_hls_msg (GtuberTwitch *self, SoupMessage **msg, GError **error)
   gchar *p_id = g_strdup_printf ("%i", (rand () % 9000000) + 1000000);
   gchar *path, *uri_str;
 
-  path = (self->channel_id)
-    ? g_strdup_printf ("/api/channel/hls/%s.m3u8", self->channel_id)
+  path = (self->media_type == TWITCH_MEDIA_CHANNEL)
+    ? g_strdup_printf ("/api/channel/hls/%s.m3u8", self->video_id)
     : g_strdup_printf ("/vod/%s.m3u8", self->video_id);
   soup_uri_set_path (uri, path);
   g_free (path);
@@ -391,15 +545,22 @@ gtuber_twitch_create_request (GtuberWebsite *website,
       gtuber_cache_restore_value (cache, "signature", &self->signature);
   }
   */
-  if (!self->access_token || !self->signature)
-    return create_gql_msg (self, GQL_REQ_ACCESS_TOKEN, msg, error);
+  if (!self->access_token || !self->signature) {
+    GqlReqType req_type = (self->media_type == TWITCH_MEDIA_CLIP)
+      ? GQL_REQ_ACCESS_TOKEN_CLIP
+      : GQL_REQ_ACCESS_TOKEN;
+
+    return create_gql_msg (self, req_type, msg, error);
+  }
 
   switch (self->last_req) {
     case GQL_REQ_NONE:
     case GQL_REQ_ACCESS_TOKEN:
-      return (self->channel_id)
+      return (self->media_type == TWITCH_MEDIA_CHANNEL)
         ? create_gql_msg (self, GQL_REQ_METADATA_CHANNEL, msg, error)
         : create_gql_msg (self, GQL_REQ_METADATA_VIDEO, msg, error);
+    case GQL_REQ_ACCESS_TOKEN_CLIP:
+      return create_gql_msg (self, GQL_REQ_METADATA_CLIP, msg, error);
     default:
       return create_hls_msg (self, msg, error);
   }
@@ -443,12 +604,19 @@ query_plugin (GUri *uri)
   if (parts[1]) {
     if (!parts[2]) {
       twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
-      twitch->channel_id = g_strdup (parts[1]);
-      g_debug ("Requested live channel: %s", twitch->channel_id);
+      twitch->media_type = TWITCH_MEDIA_CHANNEL;
+      twitch->video_id = g_strdup (parts[1]);
+      g_debug ("Requested live channel: %s", twitch->video_id);
     } else if (!parts[3] && strcmp (parts[1], "videos") == 0) {
       twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
+      twitch->media_type = TWITCH_MEDIA_VIDEO;
       twitch->video_id = g_strdup (parts[2]);
       g_debug ("Requested video: %s", twitch->video_id);
+    } else if (parts[3] && strcmp (parts[2], "clip") == 0) {
+      twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
+      twitch->media_type = TWITCH_MEDIA_CLIP;
+      twitch->video_id = g_strdup (parts[3]);
+      g_debug ("Requested clip: %s", twitch->video_id);
     }
   }
   g_strfreev (parts);
