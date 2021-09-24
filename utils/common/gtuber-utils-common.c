@@ -121,9 +121,11 @@ gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
       const gchar *str;
       gint i = 0;
       HlsParamType last = HLS_PARAM_NONE;
-      GtuberStream *bstream = GTUBER_STREAM (astream);
+      GtuberStream *bstream;
 
       astream = gtuber_adaptive_stream_new ();
+      bstream = GTUBER_STREAM (astream);
+
       gtuber_adaptive_stream_set_manifest_type (astream,
           GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
       gtuber_stream_set_itag (bstream, itag);
