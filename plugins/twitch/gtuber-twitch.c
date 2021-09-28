@@ -23,8 +23,6 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
-#define TWITCH_CLIENT_ID "kimne78kx3ncx6brgo4mv6wki5h1ko"
-
 typedef enum
 {
   GQL_REQ_NONE,
@@ -398,7 +396,7 @@ make_soup_msg (const char *method, const char *uri_string,
 
   soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv");
   soup_message_headers_replace (headers, "Origin", "https://player.twitch.tv");
-  soup_message_headers_append (headers, "Client-ID", TWITCH_CLIENT_ID);
+  soup_message_headers_append (headers, "Client-ID", "kimne78kx3ncx6brgo4mv6wki5h1ko");
 
   if (req_body) {
     soup_message_set_request (*msg, "application/json",
