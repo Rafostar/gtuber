@@ -585,45 +585,39 @@ gtuber_twitch_parse_input_stream (GtuberWebsite *website,
 GtuberWebsite *
 query_plugin (GUri *uri)
 {
-  GtuberTwitch *twitch = NULL;
-  const gchar *host, *path;
-  gchar **parts;
+  guint match;
+  gchar *id;
 
-  host = g_uri_get_host (uri);
+  if (!gtuber_utils_common_uri_matches_hosts (uri, NULL,
+      "twitch.tv",
+      NULL))
+    return NULL;
 
-  if (!g_str_has_suffix (host, "twitch.tv"))
-    goto fail;
+  if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, &match,
+      "/*/clip/",
+      "/videos/",
+      "/",
+      NULL))) {
+    GtuberTwitch *twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
+    twitch->video_id = id;
 
-  path = g_uri_get_path (uri);
-  if (!path)
-    goto fail;
-
-  g_debug ("URI path: %s", path);
-
-  parts = g_strsplit (path, "/", 4);
-  if (parts[1]) {
-    if (!parts[2]) {
-      twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
-      twitch->media_type = TWITCH_MEDIA_CHANNEL;
-      twitch->video_id = g_strdup (parts[1]);
-      g_debug ("Requested live channel: %s", twitch->video_id);
-    } else if (!parts[3] && strcmp (parts[1], "videos") == 0) {
-      twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
-      twitch->media_type = TWITCH_MEDIA_VIDEO;
-      twitch->video_id = g_strdup (parts[2]);
-      g_debug ("Requested video: %s", twitch->video_id);
-    } else if (parts[3] && strcmp (parts[2], "clip") == 0) {
-      twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
-      twitch->media_type = TWITCH_MEDIA_CLIP;
-      twitch->video_id = g_strdup (parts[3]);
-      g_debug ("Requested clip: %s", twitch->video_id);
+    switch (match) {
+      case 1:
+        twitch->media_type = TWITCH_MEDIA_CLIP;
+        break;
+      case 2:
+        twitch->media_type = TWITCH_MEDIA_VIDEO;
+        break;
+      default:
+        twitch->media_type = TWITCH_MEDIA_CHANNEL;
+        break;
     }
-  }
-  g_strfreev (parts);
 
-  if (twitch)
+    g_debug ("Requested type: %i, video: %s",
+        twitch->media_type, twitch->video_id);
+
     return GTUBER_WEBSITE (twitch);
+  }
 
-fail:
   return NULL;
 }
