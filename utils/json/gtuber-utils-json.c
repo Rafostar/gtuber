@@ -82,6 +82,63 @@ gtuber_utils_json_get_int (JsonReader *reader, const gchar *key, ...)
   return value;
 }
 
+gboolean
+gtuber_utils_json_go_to (JsonReader *reader, const gchar *key, ...)
+{
+  va_list args;
+  guint depth = 0;
+  gboolean success;
+
+  va_start (args, key);
+  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_end (args);
+
+  if (!success) {
+    while (depth--)
+      json_reader_end_member (reader);
+  }
+
+  return success;
+}
+
+void
+gtuber_utils_json_go_back (JsonReader *reader, guint count)
+{
+  while (count--)
+    json_reader_end_member (reader);
+}
+
+/**
+ * gtuber_utils_json_array_foreach:
+ * @reader: a #JsonReader
+ * @info: (nullable): a #GtuberMediaInfo
+ * @func: a #GtuberFunc to call for each array element
+ * @user_data: user data to pass to the function
+ *
+ * Calls a function for each element of a array. Reader must
+ * be at array each time callback function is called.
+ *
+ * Returns: %TRUE if array was found and iterated, %FALSE otherwise.
+ */
+gboolean
+gtuber_utils_json_array_foreach (JsonReader *reader, GtuberMediaInfo *info, GtuberFunc func, gpointer user_data)
+{
+  guint i, count;
+
+  if (!json_reader_is_array (reader))
+    return FALSE;
+
+  count = json_reader_count_elements (reader);
+  for (i = 0; i < count; i++) {
+    if (json_reader_read_element (reader, i)) {
+      (*func) (reader, info, user_data);
+    }
+    json_reader_end_element (reader);
+  }
+
+  return (count > 0);
+}
+
 void
 gtuber_utils_json_parser_debug (JsonParser *parser)
 {

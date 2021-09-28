@@ -22,12 +22,19 @@
 
 #include <glib.h>
 #include <json-glib/json-glib.h>
+#include <gtuber/gtuber.h>
 
 G_BEGIN_DECLS
 
 const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, const gchar *key, ...);
 
 gint64               gtuber_utils_json_get_int              (JsonReader *reader, const gchar *key, ...);
+
+gboolean             gtuber_utils_json_go_to                (JsonReader *reader, const gchar *key, ...);
+
+void                 gtuber_utils_json_go_back              (JsonReader *reader, guint count);
+
+gboolean             gtuber_utils_json_array_foreach        (JsonReader *reader, GtuberMediaInfo *info, GtuberFunc func, gpointer user_data);
 
 void                 gtuber_utils_json_parser_debug         (JsonParser *parser);
 

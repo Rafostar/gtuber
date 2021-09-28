@@ -58,6 +58,7 @@ conf_inc = [
 
 gtuber_headers = [
   'gtuber.h',
+  'gtuber-types.h',
   'gtuber-enums.h',
   'gtuber-client.h',
   'gtuber-stream.h',

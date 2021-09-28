@@ -22,6 +22,7 @@
 
 #define __GTUBER_INSIDE__
 
+#include <gtuber/gtuber-types.h>
 #include <gtuber/gtuber-enum-types.h>
 #include <gtuber/gtuber-enums.h>
 #include <gtuber/gtuber-client.h>
