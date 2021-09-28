@@ -23,12 +23,116 @@
 #include "gtuber/gtuber-plugin-devel.h"
 
 /**
+ * gtuber_utils_common_uri_matches_hosts:
+ * @uri: a #GUri
+ * @match: (out) (optional): number of host that matched
+ *   or zero when match not found
+ * @search_host: possible supported host name
+ * @...: arguments, as per @search_host
+ *
+ * A convenience function that checks if host is matched
+ * with any of the provided possibilities.
+ *
+ * Returns: %TRUE if host was matched, %FALSE otherwise.
+ */
+gboolean
+gtuber_utils_common_uri_matches_hosts (GUri *uri, guint *match, const gchar *search_host, ...)
+{
+  va_list args;
+  guint offset = 0;
+  guint iter_count = 0;
+  gboolean found = FALSE;
+  const gchar *host = g_uri_get_host (uri);
+
+  /* Skip common prefixes */
+  if (g_str_has_prefix (host, "www."))
+    offset = 4;
+
+  va_start (args, search_host);
+  while (search_host) {
+    iter_count++;
+    if (!strcmp (host + offset, search_host)) {
+      found = TRUE;
+      break;
+    }
+    search_host = va_arg (args, const gchar *);
+  }
+  va_end (args);
+
+  if (match)
+    *match = found ? iter_count : 0;
+
+  return found;
+}
+
+/**
+ * gtuber_utils_common_obtain_uri_id_from_paths:
+ * @uri: a #GUri
+ * @match: (out) (optional): number of path that matched
+ *   or zero when match not found
+ * @search_path: expected path before ID
+ * @...: arguments, as per @search_path
+ *
+ * A convenience function that obtains the video ID hidden inside
+ * URI path. When providing multiple possibilities that start with
+ * the same path, sort them from longest to shortest path.
+ * If part of the path is irrevelant use an asterisk (*) wildcard.
+ *
+ * Every provided path must end with "/" character.
+ *
+ * Returns: (transfer full): the extracted ID or %NULL.
+ */
+gchar *
+gtuber_utils_common_obtain_uri_id_from_paths (GUri *uri, guint *match, const gchar *search_path, ...)
+{
+  va_list args;
+  guint iter_count = 0;
+  gchar *video_id = NULL;
+  gchar **path_parts;
+  const gchar *path = g_uri_get_path (uri);
+
+  g_debug ("Identifying ID from path: %s", path);
+  path_parts = g_strsplit (path, "/", 0);
+
+  va_start (args, search_path);
+  while (search_path && !video_id) {
+    gchar **search_parts;
+    guint i = 0;
+
+    iter_count++;
+    search_parts = g_strsplit (search_path, "/", 0);
+
+    while (path_parts[i] && search_parts[i]) {
+      if (strcmp (search_parts[i], "*")
+          && strcmp (path_parts[i], search_parts[i])) {
+        if (!search_parts[i + 1])
+          video_id = g_strdup (path_parts[i]);
+
+        break;
+      }
+      i++;
+    }
+    g_strfreev (search_parts);
+    search_path = va_arg (args, const gchar *);
+  }
+  va_end (args);
+  g_strfreev (path_parts);
+
+  g_debug ("Identified ID: %s", video_id);
+
+  if (match)
+    *match = video_id ? iter_count : 0;
+
+  return video_id;
+}
+
+/**
  * gtuber_utils_common_get_mime_type_from_string:
  * @string: a null-terminated string
  *
  * Returns: a #GtuberStreamMimeType with
  *   detected MIME type from the string.
- **/
+ */
 GtuberStreamMimeType
 gtuber_utils_common_get_mime_type_from_string (const gchar *string)
 {

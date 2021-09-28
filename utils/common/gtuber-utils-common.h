@@ -26,6 +26,10 @@
 
 G_BEGIN_DECLS
 
+gboolean             gtuber_utils_common_uri_matches_hosts              (GUri *uri, guint *match, const gchar *search_host, ...);
+
+gchar *              gtuber_utils_common_obtain_uri_id_from_paths       (GUri *uri, guint *match, const gchar *search_path1, ...);
+
 GtuberStreamMimeType gtuber_utils_common_get_mime_type_from_string      (const gchar *string);
 
 gboolean             gtuber_utils_common_parse_hls_input_stream         (GInputStream *stream, GtuberMediaInfo *info, GError **error);
