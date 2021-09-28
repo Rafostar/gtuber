@@ -315,59 +315,45 @@ GtuberWebsite *
 query_plugin (GUri *uri)
 {
   GtuberBilibili *bilibili = NULL;
-  const gchar *host, *path;
-  gchar **parts;
+  gchar *id;
 
-  host = g_uri_get_host (uri);
+  /* FIXME: Support "live.bilibili.com" streams */
+  if (!gtuber_utils_common_uri_matches_hosts (uri, NULL,
+      "bilibili.com",
+      "b23.tv",
+      NULL))
+    return NULL;
 
-  if (!g_str_has_suffix (host, "bilibili.com"))
-    goto fail;
+  if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL,
+      "/bangumi/play/",
+      "/video/",
+      "/",
+      NULL))) {
+    BilibiliType bili_type;
 
-  /* FIXME: Support live streams */
-  if (g_str_has_prefix (host, "live"))
-    goto fail;
+    bili_type = (g_str_has_prefix (id, "BV"))
+      ? BILIBILI_BV
+      : (g_str_has_prefix (id, "av"))
+      ? BILIBILI_AV
+      : (g_str_has_prefix (id, "ep"))
+      ? BILIBILI_BANGUMI_EP
+      : (g_str_has_prefix (id, "ss"))
+      ? BILIBILI_BANGUMI_SS
+      : BILIBILI_UNKNOWN;
 
-  path = g_uri_get_path (uri);
-  if (!path)
-    goto fail;
-
-  g_debug ("URI path: %s", path);
-
-  parts = g_strsplit (path, "/", 4);
-  if (parts[1] && parts[2]) {
-    BilibiliType bili_type = BILIBILI_UNKNOWN;
-    const gchar *tmp_id = NULL;
-
-    if (!strcmp (parts[1], "video")) {
-      if (g_str_has_prefix (parts[2], "BV"))
-        bili_type = BILIBILI_BV;
-      else if (g_str_has_prefix (parts[2], "av"))
-        bili_type = BILIBILI_AV;
-
-      tmp_id = parts[2];
-    } else if (parts[3] && !strcmp (parts[1], "bangumi")) {
-      if (g_str_has_prefix (parts[3], "ep"))
-        bili_type = BILIBILI_BANGUMI_EP;
-      else if (g_str_has_prefix (parts[3], "ss"))
-        bili_type = BILIBILI_BANGUMI_SS;
-
-      tmp_id = parts[3];
-    }
-
-    if (bili_type != BILIBILI_UNKNOWN && tmp_id) {
+    if (bili_type != BILIBILI_UNKNOWN) {
       bilibili = g_object_new (GTUBER_TYPE_BILIBILI, NULL);
       bilibili->bili_type = bili_type;
-      bilibili->video_id = g_strdup (tmp_id + 2);
+      bilibili->video_id = g_strdup (id + 2);
 
       g_debug ("Requested type: %i, video: %s",
           bilibili->bili_type, bilibili->video_id);
     }
+    g_free (id);
   }
-  g_strfreev (parts);
 
   if (bilibili)
     return GTUBER_WEBSITE (bilibili);
 
-fail:
   return NULL;
 }
