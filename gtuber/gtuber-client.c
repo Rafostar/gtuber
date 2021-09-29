@@ -245,6 +245,8 @@ beginning:
   flow = website_class->create_request (website, info, &msg, &my_error);
   if (flow != GTUBER_FLOW_OK)
     goto decide_flow;
+  if (!msg)
+    goto no_message;
 
   g_debug ("Request created");
 
@@ -313,6 +315,14 @@ invalid_info:
   }
 
   return info;
+
+no_message:
+  if (!my_error) {
+    g_set_error (&my_error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_OTHER,
+        "Plugin request message has not been created");
+  }
+  goto error;
 
 decide_flow:
   switch (flow) {
