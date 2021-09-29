@@ -107,54 +107,58 @@ gtuber_twitch_finalize (GObject *object)
 }
 
 static void
-_iterate_clip_streams (GtuberTwitch *self, JsonReader *reader, GtuberMediaInfo *info)
+_find_error_cb (JsonReader *reader, GtuberMediaInfo *info, const gchar **err_msg)
 {
-  gint i, count;
+  if (*err_msg)
+    return;
 
-  count = json_reader_count_elements (reader);
-  for (i = 0; i < count; i++) {
-    if (json_reader_read_element (reader, i)) {
-      const gchar *org_uri;
+  *err_msg = gtuber_utils_json_get_string (reader, "message", NULL);
+  if (!*err_msg)
+    *err_msg = gtuber_utils_json_get_string (reader, "error", NULL);
+}
 
-      org_uri = gtuber_utils_json_get_string (reader, "sourceURL", NULL);
-      if (org_uri) {
-        SoupURI *uri = soup_uri_new (org_uri);
-        GtuberStream *stream = gtuber_stream_new ();
-        const gchar *quality;
-        gchar *mod_uri;
-        guint itag, fps, height = 0;
+static void
+_read_clip_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberTwitch *self)
+{
+  const gchar *org_uri;
 
-        itag = i + 1;
-        gtuber_stream_set_itag (stream, itag);
-        g_debug ("Created stream, itag %i", itag);
+  org_uri = gtuber_utils_json_get_string (reader, "sourceURL", NULL);
+  if (org_uri) {
+    SoupURI *uri = soup_uri_new (org_uri);
+    GtuberStream *stream = gtuber_stream_new ();
+    const GPtrArray *streams = gtuber_media_info_get_streams (info);
+    const gchar *quality;
+    gchar *mod_uri;
+    guint itag, fps, height = 0;
 
-        soup_uri_set_query_from_fields (uri,
-            "sig", self->signature,
-            "token", self->access_token,
-            NULL);
+    itag = streams->len + 1;
+    gtuber_stream_set_itag (stream, itag);
+    g_debug ("Created stream, itag %i", itag);
 
-        mod_uri = soup_uri_to_string (uri, FALSE);
-        soup_uri_free (uri);
+    soup_uri_set_query_from_fields (uri,
+        "sig", self->signature,
+        "token", self->access_token,
+        NULL);
 
-        gtuber_stream_set_uri (stream, mod_uri);
-        g_debug ("Clip URI: %s", mod_uri);
-        g_free (mod_uri);
+    mod_uri = soup_uri_to_string (uri, FALSE);
+    soup_uri_free (uri);
 
-        fps = gtuber_utils_json_get_int (reader, "frameRate", NULL);
-        gtuber_stream_set_fps (stream, fps);
-        g_debug ("Clip fps: %i", fps);
+    gtuber_stream_set_uri (stream, mod_uri);
+    g_debug ("Clip URI: %s", mod_uri);
+    g_free (mod_uri);
 
-        quality = gtuber_utils_json_get_string (reader, "quality", NULL);
-        if (quality && strlen (quality)) {
-          height = g_ascii_strtod (quality, NULL);
-          gtuber_stream_set_height (stream, height);
-          g_debug ("Clip height: %i", height);
-        }
+    fps = gtuber_utils_json_get_int (reader, "frameRate", NULL);
+    gtuber_stream_set_fps (stream, fps);
+    g_debug ("Clip fps: %i", fps);
 
-        gtuber_media_info_add_stream (info, stream);
-      }
+    quality = gtuber_utils_json_get_string (reader, "quality", NULL);
+    if (quality && strlen (quality)) {
+      height = g_ascii_strtod (quality, NULL);
+      gtuber_stream_set_height (stream, height);
+      g_debug ("Clip height: %i", height);
     }
-    json_reader_end_element (reader);
+
+    gtuber_media_info_add_stream (info, stream);
   }
 }
 
@@ -164,17 +168,11 @@ _read_clip_streams (GtuberTwitch *self, JsonReader *reader,
 {
   gboolean found_streams = FALSE;
 
-  if (json_reader_read_member (reader, "data")) {
-    if (json_reader_read_member (reader, "clip")) {
-      if (json_reader_read_member (reader, "videoQualities")) {
-        if ((found_streams = json_reader_is_array (reader)))
-          _iterate_clip_streams (self, reader, info);
-      }
-      json_reader_end_member (reader);
-    }
-    json_reader_end_member (reader);
+  if (gtuber_utils_json_go_to (reader, "data", "clip", "videoQualities", NULL)) {
+    found_streams = gtuber_utils_json_array_foreach (reader, info,
+        (GtuberFunc) _read_clip_stream_cb, self);
+    gtuber_utils_json_go_back (reader, 3);
   }
-  json_reader_end_member (reader);
 
   if (!found_streams) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
@@ -225,6 +223,7 @@ _parse_access_token_data (GtuberTwitch *self, JsonParser *parser,
     goto finish;
   }
 
+  /* Clips access token data also contains streams */
   if (self->media_type == TWITCH_MEDIA_CLIP)
     _read_clip_streams (self, reader, info, error);
 
@@ -304,7 +303,23 @@ _parse_metadata (GtuberTwitch *self, JsonParser *parser,
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
 
-  if (!json_reader_is_array (reader)) {
+  if (gtuber_utils_json_go_to (reader, "errors", NULL)) {
+    const gchar *err_msg = NULL;
+
+    gtuber_utils_json_array_foreach (reader, NULL,
+        (GtuberFunc) _find_error_cb, &err_msg);
+
+    if (!err_msg)
+      err_msg = "Could not parse metadata";
+
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+    "%s", err_msg);
+
+    gtuber_utils_json_go_back (reader, 1);
+  }
+
+  if (!*error) {
     switch (self->media_type) {
       case TWITCH_MEDIA_CHANNEL:
         _read_channel_metadata (reader, info, error);
@@ -317,29 +332,6 @@ _parse_metadata (GtuberTwitch *self, JsonParser *parser,
         break;
       default:
         g_assert_not_reached ();
-    }
-  } else {
-    gint i, count = json_reader_count_elements (reader);
-    gboolean err_set = FALSE;
-
-    for (i = 0; i < count; i++) {
-      if (json_reader_read_element (reader, i)) {
-        if ((err_set = json_reader_read_member (reader, "error"))) {
-          g_set_error (error, GTUBER_WEBSITE_ERROR,
-              GTUBER_WEBSITE_ERROR_PARSE_FAILED,
-              "%s", json_reader_get_string_value (reader));
-        }
-        json_reader_end_member (reader);
-      }
-      json_reader_end_element (reader);
-
-      if (err_set)
-        break;
-    }
-    if (!*error) {
-      g_set_error (error, GTUBER_WEBSITE_ERROR,
-          GTUBER_WEBSITE_ERROR_PARSE_FAILED,
-          "Could not parse metadata");
     }
   }
   g_object_unref (reader);
