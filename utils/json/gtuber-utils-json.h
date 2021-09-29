@@ -26,11 +26,11 @@
 
 G_BEGIN_DECLS
 
-const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, const gchar *key, ...);
+const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
 
-gint64               gtuber_utils_json_get_int              (JsonReader *reader, const gchar *key, ...);
+gint64               gtuber_utils_json_get_int              (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
 
-gboolean             gtuber_utils_json_go_to                (JsonReader *reader, const gchar *key, ...);
+gboolean             gtuber_utils_json_go_to                (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
 
 void                 gtuber_utils_json_go_back              (JsonReader *reader, guint count);
 
