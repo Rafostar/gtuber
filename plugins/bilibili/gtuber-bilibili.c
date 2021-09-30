@@ -83,14 +83,12 @@ _get_id_name (GtuberBilibili *self)
 }
 
 static void
-_add_dash_media_stream (GtuberBilibili *self, JsonReader *reader,
-    GtuberMediaInfo *info, const gchar *type)
+_read_dash_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberBilibili *self)
 {
   GtuberAdaptiveStream *astream;
   GtuberStream *stream;
   GtuberStreamMimeType mime_type;
-  const gchar *fps_str, *init_range, *index_range;
-  gboolean is_video = strcmp (type, "video") == 0;
+  const gchar *fps_str, *init_range, *index_range, *codec;
   guint itag = 0;
 
   astream = gtuber_adaptive_stream_new ();
@@ -105,12 +103,20 @@ _add_dash_media_stream (GtuberBilibili *self, JsonReader *reader,
       gtuber_utils_json_get_string (reader, "mime_type", NULL));
   gtuber_stream_set_mime_type (stream, mime_type);
 
-  if (is_video) {
-    gtuber_stream_set_video_codec (stream,
-        gtuber_utils_json_get_string (reader, "codecs", NULL));
-  } else {
-    gtuber_stream_set_audio_codec (stream,
-        gtuber_utils_json_get_string (reader, "codecs", NULL));
+  codec = gtuber_utils_json_get_string (reader, "codecs", NULL);
+
+  switch (mime_type) {
+    case GTUBER_STREAM_MIME_TYPE_VIDEO_MP4:
+    case GTUBER_STREAM_MIME_TYPE_VIDEO_WEBM:
+      gtuber_stream_set_video_codec (stream, codec);
+      break;
+    case GTUBER_STREAM_MIME_TYPE_AUDIO_MP4:
+    case GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM:
+      gtuber_stream_set_audio_codec (stream, codec);
+      break;
+    default:
+      g_debug ("Unknown mime type id: %i", mime_type);
+      break;
   }
 
   init_range = gtuber_utils_json_get_string (reader, "segment_base", "initialization", NULL);
@@ -149,20 +155,11 @@ static void
 _add_dash_media_streams (GtuberBilibili *self, JsonReader *reader,
     GtuberMediaInfo *info, const gchar *type)
 {
-  guint count, i;
-
-  /* Must be inside "dash" JSON key here */
-  if (json_reader_read_member (reader, type)
-      && json_reader_is_array (reader)) {
-    count = json_reader_count_elements (reader);
-    for (i = 0; i < count; i++) {
-      if (json_reader_read_element (reader, i)) {
-        _add_dash_media_stream (self, reader, info, type);
-      }
-      json_reader_end_element (reader);
-    }
+  if (gtuber_utils_json_go_to (reader, type, NULL)) {
+    gtuber_utils_json_array_foreach (reader, info,
+        (GtuberFunc) _read_dash_stream_cb, self);
+    gtuber_utils_json_go_back (reader, 1);
   }
-  json_reader_end_member (reader);
 }
 
 static GtuberFlow
@@ -212,14 +209,12 @@ parse_media_streams (GtuberBilibili *self, JsonParser *parser,
       g_assert_not_reached ();
   }
 
-  if (json_reader_read_member (reader, obj_name)) {
-    if (json_reader_read_member (reader, "dash")) {
-      _add_dash_media_streams (self, reader, info, "video");
-      _add_dash_media_streams (self, reader, info, "audio");
-    }
-    json_reader_end_member (reader);
+  if (gtuber_utils_json_go_to (reader, obj_name, "dash", NULL)) {
+    _add_dash_media_streams (self, reader, info, "video");
+    _add_dash_media_streams (self, reader, info, "audio");
+
+    gtuber_utils_json_go_back (reader, 2);
   }
-  json_reader_end_member (reader);
 
   g_object_unref (reader);
 
