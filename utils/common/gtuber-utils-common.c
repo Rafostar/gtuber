@@ -126,6 +126,26 @@ gtuber_utils_common_obtain_uri_id_from_paths (GUri *uri, guint *match, const gch
   return video_id;
 }
 
+gchar *
+gtuber_utils_common_obtain_uri_query_value (GUri *uri, const gchar *key)
+{
+  const gchar *query;
+  gchar *value;
+  GHashTable *params;
+
+  query = g_uri_get_query (uri);
+  if (!query)
+    return NULL;
+
+  params = g_uri_parse_params (query, -1,
+      "&", G_URI_PARAMS_NONE, NULL);
+
+  value = g_strdup (g_hash_table_lookup (params, key));
+  g_hash_table_unref (params);
+
+  return value;
+}
+
 /**
  * gtuber_utils_common_get_mime_type_from_string:
  * @string: a null-terminated string
