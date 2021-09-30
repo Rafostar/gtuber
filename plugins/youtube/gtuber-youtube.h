@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_YOUTUBE_H__
-#define __GTUBER_YOUTUBE_H__
+#pragma once
 
 #include "gtuber/gtuber-plugin-devel.h"
 
@@ -30,5 +29,3 @@ G_DECLARE_FINAL_TYPE (GtuberYoutube, gtuber_youtube, GTUBER, YOUTUBE, GtuberWebs
 G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);
 
 G_END_DECLS
-
-#endif /* __GTUBER_YOUTUBE_H__ */
