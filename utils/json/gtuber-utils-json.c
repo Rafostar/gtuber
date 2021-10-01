@@ -83,6 +83,27 @@ gtuber_utils_json_get_int (JsonReader *reader, const gchar *key, ...)
 }
 
 gboolean
+gtuber_utils_json_get_boolean (JsonReader *reader, const gchar *key, ...)
+{
+  va_list args;
+  gboolean value = FALSE;
+  guint depth = 0;
+  gboolean success;
+
+  va_start (args, key);
+  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_end (args);
+
+  if (success && json_reader_is_value (reader))
+    value = json_reader_get_boolean_value (reader);
+
+  while (depth--)
+    json_reader_end_member (reader);
+
+  return value;
+}
+
+gboolean
 gtuber_utils_json_go_to (JsonReader *reader, const gchar *key, ...)
 {
   va_list args;
