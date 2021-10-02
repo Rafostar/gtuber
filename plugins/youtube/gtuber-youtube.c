@@ -331,7 +331,7 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   *msg = soup_message_new ("POST",
       "https://www.youtube.com/youtubei/v1/player?"
       "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
-  headers = (*msg)->request_headers;
+  headers = soup_message_get_request_headers (*msg);
 
   ua = g_strdup_printf (
       "com.google.android.youtube/%s(Linux; U; Android 11; en_US) gzip",
@@ -344,8 +344,7 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   req_body = get_player_req_body (self, info);
   g_debug ("Request body: %s", req_body);
 
-  soup_message_set_request (*msg, "application/json",
-      SOUP_MEMORY_TAKE, req_body, strlen (req_body));
+  gtuber_utils_common_msg_take_request (*msg, "application/json", req_body);
 
   return GTUBER_FLOW_OK;
 }
