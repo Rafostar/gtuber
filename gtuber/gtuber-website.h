@@ -84,7 +84,7 @@ struct _GtuberWebsiteClass
                                  GError         **error);
 
   GtuberFlow (* parse_response) (GtuberWebsite   *website,
-                                 SoupMessage     *msg,
+                                 gchar           *data,
                                  GtuberMediaInfo *info,
                                  GError         **error);
 

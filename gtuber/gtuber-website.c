@@ -34,7 +34,7 @@ static void gtuber_website_finalize (GObject *object);
 static GtuberFlow gtuber_website_create_request (GtuberWebsite *self,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error);
 static GtuberFlow gtuber_website_parse_response (GtuberWebsite *website,
-    SoupMessage *msg, GtuberMediaInfo *info, GError **error);
+    gchar *data, GtuberMediaInfo *info, GError **error);
 static GtuberFlow gtuber_website_parse_input_stream (GtuberWebsite *website,
     GInputStream *stream, GtuberMediaInfo *info, GError **error);
 
@@ -85,7 +85,7 @@ gtuber_website_create_request (GtuberWebsite *self,
 
 static GtuberFlow
 gtuber_website_parse_response (GtuberWebsite *website,
-    SoupMessage *msg, GtuberMediaInfo *info, GError **error)
+    gchar *data, GtuberMediaInfo *info, GError **error)
 {
   return (*error == NULL) ? GTUBER_FLOW_OK : GTUBER_FLOW_ERROR;
 }

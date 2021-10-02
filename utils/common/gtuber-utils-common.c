@@ -147,6 +147,31 @@ gtuber_utils_common_obtain_uri_query_value (GUri *uri, const gchar *key)
 }
 
 /**
+ * gtuber_utils_common_msg_take_request:
+ * @msg: a #SoupMessage
+ * @content_type: MIME Content-Type of the body, or NULL if unknown
+ * @req_body: (transfer full): request body
+ *
+ * Set the request body of a SoupMessage from string.
+ *
+ * Takes ownership of passed string and frees it automatically
+ * when done with it.
+ */
+void
+gtuber_utils_common_msg_take_request (SoupMessage *msg,
+    const gchar *content_type, gchar *req_body)
+{
+  GInputStream *stream;
+
+  stream = g_memory_input_stream_new_from_data (req_body,
+      strlen (req_body), (GDestroyNotify) g_free);
+  soup_message_set_request_body (msg, content_type,
+      stream, strlen (req_body));
+
+  g_object_unref (stream);
+}
+
+/**
  * gtuber_utils_common_get_mime_type_from_string:
  * @string: a null-terminated string
  *

@@ -124,24 +124,23 @@ _read_clip_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberTwitch *s
 
   org_uri = gtuber_utils_json_get_string (reader, "sourceURL", NULL);
   if (org_uri) {
-    SoupURI *uri = soup_uri_new (org_uri);
     GtuberStream *stream = gtuber_stream_new ();
     const GPtrArray *streams = gtuber_media_info_get_streams (info);
     const gchar *quality;
-    gchar *mod_uri;
+    gchar *mod_uri, *query;
     guint itag, fps, height = 0;
 
     itag = streams->len + 1;
     gtuber_stream_set_itag (stream, itag);
     g_debug ("Created stream, itag %i", itag);
 
-    soup_uri_set_query_from_fields (uri,
+    query = soup_form_encode (
         "sig", self->signature,
         "token", self->access_token,
         NULL);
 
-    mod_uri = soup_uri_to_string (uri, FALSE);
-    soup_uri_free (uri);
+    mod_uri = g_strjoin ("?", org_uri, query, NULL);
+    g_free (query);
 
     gtuber_stream_set_uri (stream, mod_uri);
     g_debug ("Clip URI: %s", mod_uri);
@@ -384,16 +383,14 @@ make_soup_msg (const char *method, const char *uri_string,
   SoupMessageHeaders *headers;
 
   *msg = soup_message_new (method, uri_string);
-  headers = (*msg)->request_headers;
+  headers = soup_message_get_request_headers (*msg);
 
   soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv");
   soup_message_headers_replace (headers, "Origin", "https://player.twitch.tv");
   soup_message_headers_append (headers, "Client-ID", "kimne78kx3ncx6brgo4mv6wki5h1ko");
 
-  if (req_body) {
-    soup_message_set_request (*msg, "application/json",
-        SOUP_MEMORY_TAKE, req_body, strlen (req_body));
-  }
+  if (req_body)
+    gtuber_utils_common_msg_take_request (*msg, "application/json", req_body);
 }
 
 static GtuberFlow
@@ -484,17 +481,14 @@ fail:
 static GtuberFlow
 create_hls_msg (GtuberTwitch *self, SoupMessage **msg, GError **error)
 {
-  SoupURI *uri = soup_uri_new ("https://usher.ttvnw.net");
   gchar *p_id = g_strdup_printf ("%i", (rand () % 9000000) + 1000000);
-  gchar *path, *uri_str;
+  gchar *path, *query, *uri_str;
 
   path = (self->media_type == TWITCH_MEDIA_CHANNEL)
     ? g_strdup_printf ("/api/channel/hls/%s.m3u8", self->video_id)
     : g_strdup_printf ("/vod/%s.m3u8", self->video_id);
-  soup_uri_set_path (uri, path);
-  g_free (path);
 
-  soup_uri_set_query_from_fields (uri,
+  query = soup_form_encode (
       "allow_source", "true",
       "allow_audio_only", "true",
       "allow_spectre", "false",
@@ -505,10 +499,14 @@ create_hls_msg (GtuberTwitch *self, SoupMessage **msg, GError **error)
       "sig", self->signature,
       "token", self->access_token,
       NULL);
+
   g_free (p_id);
 
-  uri_str = soup_uri_to_string (uri, FALSE);
-  soup_uri_free (uri);
+  uri_str = g_uri_join (G_URI_FLAGS_ENCODED, "https", NULL,
+      "usher.ttvnw.net", -1, path, query, NULL);
+
+  g_free (path);
+  g_free (query);
 
   g_debug ("HLS manifest URI: %s", uri_str);
   make_soup_msg ("GET", uri_str, NULL, msg);

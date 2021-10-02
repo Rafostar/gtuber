@@ -102,25 +102,6 @@ gtuber_client_finalize (GObject *object)
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
-static GUri *
-uri_to_guri (const gchar *uri, GError **error)
-{
-  GUri *guri;
-  GUriFlags flags;
-  GError *my_error = NULL;
-
-  flags = G_URI_FLAGS_NON_DNS |
-      G_URI_FLAGS_ENCODED_QUERY |
-      G_URI_FLAGS_ENCODED_PATH;
-
-  guri = g_uri_parse (uri, flags, &my_error);
-
-  if (my_error)
-    g_propagate_error (error, my_error);
-
-  return guri;
-}
-
 static void
 gtuber_client_configure_website (GtuberClient *self,
     GtuberWebsite *website, const gchar *uri)
@@ -199,7 +180,7 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
 
   g_debug ("Requested URI: %s", uri);
 
-  guri = uri_to_guri (uri, &my_error);
+  guri = g_uri_parse (uri, G_URI_FLAGS_ENCODED, &my_error);
   if (!guri) {
     gchar *yt_uri;
 
@@ -213,7 +194,7 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
 
     /* Exclusively assume YT video ID for non-uri 11 characters */
     yt_uri = g_strjoin (NULL, "https://www.youtube.com/watch?v=", uri, NULL);
-    guri = uri_to_guri (yt_uri, &my_error);
+    guri = g_uri_parse (yt_uri, G_URI_FLAGS_ENCODED, &my_error);
     g_free (yt_uri);
 
     if (!guri)
@@ -268,18 +249,30 @@ beginning:
         g_debug ("Input stream closed");
       else
         g_warning ("Input stream could not be closed");
+
+      g_object_unref (stream);
     }
-    if (flow != GTUBER_FLOW_OK)
-      goto decide_flow;
   } else {
+    GBytes *bytes;
+
     g_debug ("Sending request...");
-    soup_session_send_message (self->session, msg);
+    bytes = soup_session_send_and_read (self->session, msg, cancellable, &my_error);
     g_debug ("Request send");
 
-    flow = website_class->parse_response (website, msg, info, &my_error);
-    if (flow != GTUBER_FLOW_OK)
-      goto decide_flow;
+    if (my_error) {
+      flow = GTUBER_FLOW_ERROR;
+    } else {
+      gchar *data;
+      gsize size;
+
+      data = g_bytes_unref_to_data (bytes, &size);
+      flow = website_class->parse_response (website, data, info, &my_error);
+      g_free (data);
+    }
   }
+
+  if (flow != GTUBER_FLOW_OK)
+    goto decide_flow;
 
   g_debug ("Parsed response");
 

@@ -16,10 +16,9 @@ gio_dep = dependency('gio-2.0',
 gmodule_dep = dependency('gmodule-2.0',
   version: glib_req,
   required: true,
-  fallback: ['glib', 'libgmodule_dep']
+  fallback: ['glib', 'libgmodule_dep'],
 )
-soup_dep = dependency('libsoup-2.4',
-  version: soup_req,
+soup_dep = dependency('libsoup-3.0',
   required: true,
 )
 

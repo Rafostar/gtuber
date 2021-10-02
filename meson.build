@@ -9,7 +9,6 @@ project('gtuber', 'c',
 )
 
 glib_req = '>=2.66'
-soup_req = '>=2.42'
 
 gnome = import('gnome')
 pkgconfig = import('pkgconfig')
