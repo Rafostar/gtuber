@@ -1,6 +1,7 @@
 # Plugins
 all_plugins = [
   'bilibili',
+  'piped',
   'twitch',
   'youtube',
 ]
