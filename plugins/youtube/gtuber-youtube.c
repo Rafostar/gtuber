@@ -102,10 +102,20 @@ gtuber_youtube_finalize (GObject *object)
 static void
 _read_stream_info (JsonReader *reader, GtuberStream *stream)
 {
-  const gchar *yt_mime;
+  const gchar *uri_str, *yt_mime;
+  gchar *mod_uri;
+
+  uri_str = gtuber_utils_json_get_string (reader, "url", NULL);
+
+  /* No point continuing without URI */
+  if (!uri_str)
+    return;
+
+  mod_uri = gtuber_utils_common_obtain_uri_with_query_as_path (uri_str);
+  gtuber_stream_set_uri (stream, mod_uri);
+  g_free (mod_uri);
 
   gtuber_stream_set_itag (stream, gtuber_utils_json_get_int (reader, "itag", NULL));
-  gtuber_stream_set_uri (stream, gtuber_utils_json_get_string (reader, "url", NULL));
   gtuber_stream_set_bitrate (stream, gtuber_utils_json_get_int (reader, "bitrate", NULL));
   gtuber_stream_set_width (stream, gtuber_utils_json_get_int (reader, "width", NULL));
   gtuber_stream_set_height (stream, gtuber_utils_json_get_int (reader, "height", NULL));
