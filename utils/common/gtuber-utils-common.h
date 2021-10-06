@@ -33,6 +33,8 @@ gchar *              gtuber_utils_common_obtain_uri_id_from_paths       (GUri *u
 
 gchar *              gtuber_utils_common_obtain_uri_query_value         (GUri *uri, const gchar *key);
 
+gchar *              gtuber_utils_common_obtain_uri_with_query_as_path  (const gchar *uri_str);
+
 void                 gtuber_utils_common_msg_take_request               (SoupMessage *msg, const gchar *content_type, gchar *req_body);
 
 GtuberStreamMimeType gtuber_utils_common_get_mime_type_from_string      (const gchar *string);

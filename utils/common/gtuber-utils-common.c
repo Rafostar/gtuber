@@ -146,6 +146,49 @@ gtuber_utils_common_obtain_uri_query_value (GUri *uri, const gchar *key)
   return value;
 }
 
+gchar *
+gtuber_utils_common_obtain_uri_with_query_as_path (const gchar *uri_str)
+{
+  GUri *uri;
+  GUriParamsIter iter;
+  gchar *attr, *value, *query_path, *mod_path, *mod_uri;
+  const gchar *org_path;
+  GString *string;
+
+  string = g_string_new ("");
+  uri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
+
+  g_uri_params_iter_init (&iter, g_uri_get_query (uri),
+      -1, "&", G_URI_PARAMS_NONE);
+
+  while (g_uri_params_iter_next (&iter, &attr, &value, NULL)) {
+    gchar *esc_attr, *esc_value;
+
+    esc_attr = g_uri_escape_string (attr, NULL, TRUE);
+    g_free (attr);
+
+    esc_value = g_uri_escape_string (value, NULL, TRUE);
+    g_free (value);
+
+    g_string_append_printf (string, "/%s/%s", esc_attr, esc_value);
+    g_free (esc_attr);
+    g_free (esc_value);
+  }
+
+  org_path = g_uri_get_path (uri);
+  g_uri_unref (uri);
+
+  query_path = g_string_free (string, FALSE);
+  mod_path = g_build_path ("/", org_path, query_path, NULL);
+  g_free (query_path);
+
+  mod_uri = g_uri_resolve_relative (uri_str, mod_path,
+      G_URI_FLAGS_ENCODED, NULL);
+  g_free (mod_path);
+
+  return mod_uri;
+}
+
 /**
  * gtuber_utils_common_msg_take_request:
  * @msg: a #SoupMessage
