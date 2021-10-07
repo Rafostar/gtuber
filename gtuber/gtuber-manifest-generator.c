@@ -27,7 +27,6 @@
 #include "gtuber-enums.h"
 #include "gtuber-manifest-generator.h"
 #include "gtuber-stream.h"
-#include "gtuber-adaptive-stream.h"
 
 struct _GtuberManifestGenerator
 {
@@ -37,6 +36,10 @@ struct _GtuberManifestGenerator
   guint indent;
 
   GtuberMediaInfo *media_info;
+
+  GtuberAdaptiveStreamFilter filter_func;
+  gpointer filter_data;
+  GDestroyNotify filter_destroy;
 };
 
 struct _GtuberManifestGeneratorClass
@@ -59,6 +62,7 @@ typedef enum
 G_DEFINE_TYPE (GtuberManifestGenerator, gtuber_manifest_generator, G_TYPE_OBJECT)
 G_DEFINE_QUARK (gtubermanifestgenerator-error-quark, gtuber_manifest_generator_error)
 
+static void gtuber_manifest_generator_dispose (GObject *object);
 static void gtuber_manifest_generator_finalize (GObject *object);
 
 static void
@@ -66,7 +70,11 @@ gtuber_manifest_generator_init (GtuberManifestGenerator *self)
 {
   self->pretty = FALSE;
   self->indent = 2;
+
   self->media_info = NULL;
+
+  self->filter_func = NULL;
+  self->filter_destroy = NULL;
 }
 
 static void
@@ -74,7 +82,22 @@ gtuber_manifest_generator_class_init (GtuberManifestGeneratorClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
+  gobject_class->dispose = gtuber_manifest_generator_dispose;
   gobject_class->finalize = gtuber_manifest_generator_finalize;
+}
+
+static void
+gtuber_manifest_generator_dispose (GObject *object)
+{
+  GtuberManifestGenerator *self = GTUBER_MANIFEST_GENERATOR (object);
+
+  if (self->filter_destroy)
+    self->filter_destroy (self->filter_data);
+
+  self->filter_func = NULL;
+  self->filter_destroy = NULL;
+
+  G_OBJECT_CLASS (parent_class)->dispose (object);
 }
 
 static void
@@ -462,13 +485,40 @@ obtain_time_as_pts (guint64 value)
   return g_strdup_printf ("PT%luS", value);
 }
 
-static void
-_sort_streams_cb (GtuberAdaptiveStream *astream, GPtrArray *adaptations)
+typedef struct
 {
+  GtuberManifestGenerator *gen;
+  GPtrArray *adaptations;
+} SortStreamsData;
+
+static SortStreamsData *
+sort_streams_data_new (GtuberManifestGenerator *gen, GPtrArray *adaptations)
+{
+  SortStreamsData *data;
+
+  data = g_new (SortStreamsData, 1);
+  data->gen = g_object_ref (gen);
+  data->adaptations = g_ptr_array_ref (adaptations);
+
+  return data;
+}
+
+static void
+sort_streams_data_free (SortStreamsData *data)
+{
+  g_object_unref (data->gen);
+  g_ptr_array_unref (data->adaptations);
+  g_free (data);
+}
+
+static void
+_sort_streams_cb (GtuberAdaptiveStream *astream, SortStreamsData *sort_data)
+{
+  GtuberManifestGenerator *self = sort_data->gen;
   gboolean add = TRUE;
 
-  /* TODO: user filter func */
-  //add = func ();
+  if (self->filter_func)
+    add = self->filter_func (astream, self->filter_data);
 
   if (add) {
     GtuberStream *stream;
@@ -476,7 +526,7 @@ _sort_streams_cb (GtuberAdaptiveStream *astream, GPtrArray *adaptations)
 
     stream = GTUBER_STREAM (astream);
 
-    data = get_adaptation_data_for_stream (stream, adaptations);
+    data = get_adaptation_data_for_stream (stream, sort_data->adaptations);
     if (data) {
       data->max_width = MAX (data->max_width, gtuber_stream_get_width (stream));
       data->max_height = MAX (data->max_height, gtuber_stream_get_height (stream));
@@ -491,6 +541,8 @@ static void
 dump_data (GtuberManifestGenerator *self, GString *string)
 {
   DumpStringData *data;
+  SortStreamsData *sort_data;
+
   GPtrArray *adaptations;
   const GPtrArray *astreams;
   gchar *dur_pts, *buf_pts;
@@ -502,7 +554,11 @@ dump_data (GtuberManifestGenerator *self, GString *string)
       g_ptr_array_new_with_free_func ((GDestroyNotify) dash_adaptation_data_free);
 
   astreams = gtuber_media_info_get_adaptive_streams (self->media_info);
-  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _sort_streams_cb, adaptations);
+  sort_data = sort_streams_data_new (self, adaptations);
+
+  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _sort_streams_cb, sort_data);
+
+  sort_streams_data_free (sort_data);
 
   if (!adaptations->len) {
     g_debug ("Adaptations array is empty");
@@ -599,6 +655,33 @@ gtuber_manifest_generator_set_media_info (GtuberManifestGenerator *self, GtuberM
     g_object_unref (self->media_info);
 
   self->media_info = g_object_ref (info);
+}
+
+/**
+ * gtuber_manifest_generator_set_filter_func:
+ * @gen: a #GtuberManifestGenerator
+ * @filter: (nullable): the filter function to use
+ * @user_data: (nullable): user data passed to the filter function
+ * @destroy: (nullable): destroy notifier for @user_data
+ *
+ * Sets the #GtuberAdaptiveStream filtering function.
+ *
+ * The filter function will be called for each #GtuberAdaptiveStream
+ * that generator considers adding during manifest generation.
+ */
+void
+gtuber_manifest_generator_set_filter_func (GtuberManifestGenerator *self,
+    GtuberAdaptiveStreamFilter filter, gpointer user_data, GDestroyNotify destroy)
+{
+  g_return_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self));
+  g_return_if_fail (filter || (user_data == NULL && !destroy));
+
+  if (self->filter_destroy)
+    self->filter_destroy (self->filter_data);
+
+  self->filter_func = filter;
+  self->filter_data = user_data;
+  self->filter_destroy = destroy;
 }
 
 /**

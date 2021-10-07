@@ -27,6 +27,7 @@
 #include <glib-object.h>
 
 #include <gtuber/gtuber-media-info.h>
+#include <gtuber/gtuber-adaptive-stream.h>
 
 G_BEGIN_DECLS
 
@@ -47,6 +48,18 @@ G_BEGIN_DECLS
 typedef struct _GtuberManifestGenerator GtuberManifestGenerator;
 typedef struct _GtuberManifestGeneratorClass GtuberManifestGeneratorClass;
 
+/**
+ * GtuberAdaptiveStreamFilter:
+ * @stream: a #GtuberAdaptiveStream to check
+ * @user_data: (nullable): the user data that has been passed on
+ *
+ * A function to be used with gtuber_manifest_generator_set_filter_func()
+ * in order to get a manifest only with streams that match certain criteria.
+ *
+ * Returns: %TRUE if adaptive stream should be added, %FALSE otherwise
+ */
+typedef gboolean (*GtuberAdaptiveStreamFilter) (GtuberAdaptiveStream *stream, gpointer user_data);
+
 #ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberManifestGenerator, g_object_unref)
 #endif
@@ -56,6 +69,8 @@ GType                     gtuber_manifest_generator_get_type               (void
 GtuberManifestGenerator * gtuber_manifest_generator_new                    (void);
 
 void                      gtuber_manifest_generator_set_media_info         (GtuberManifestGenerator *gen, GtuberMediaInfo *info);
+
+void                      gtuber_manifest_generator_set_filter_func        (GtuberManifestGenerator *gen, GtuberAdaptiveStreamFilter filter, gpointer user_data, GDestroyNotify destroy);
 
 gchar *                   gtuber_manifest_generator_to_data                (GtuberManifestGenerator *gen);
 
