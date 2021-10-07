@@ -152,7 +152,6 @@ gtuber_utils_common_obtain_uri_with_query_as_path (const gchar *uri_str)
   GUri *uri;
   GUriParamsIter iter;
   gchar *attr, *value, *query_path, *mod_path, *mod_uri;
-  const gchar *org_path;
   GString *string;
 
   string = g_string_new ("");
@@ -175,11 +174,10 @@ gtuber_utils_common_obtain_uri_with_query_as_path (const gchar *uri_str)
     g_free (esc_value);
   }
 
-  org_path = g_uri_get_path (uri);
-  g_uri_unref (uri);
-
   query_path = g_string_free (string, FALSE);
-  mod_path = g_build_path ("/", org_path, query_path, NULL);
+  mod_path = g_build_path ("/", g_uri_get_path (uri), query_path, NULL);
+
+  g_uri_unref (uri);
   g_free (query_path);
 
   mod_uri = g_uri_resolve_relative (uri_str, mod_path,
