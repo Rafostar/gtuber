@@ -39,9 +39,6 @@ struct _GtuberClient
   gchar *user_agent;
   gchar *browser_version;
 
-  /* Soup data */
-  SoupSession *session;
-
   /* Private */
   gchar *module_name;
 };
@@ -68,12 +65,6 @@ gtuber_client_init (GtuberClient *self)
       "Mozilla/5.0 (X11; Linux x86_64; rv:%s) Gecko/20100101 Firefox/%s",
       self->browser_version, self->browser_version);
 
-  self->session = soup_session_new_with_options (
-      "timeout", 7,
-      "max_conns_per_host", 1,
-      "user_agent", self->user_agent,
-      NULL);
-
   self->module_name = NULL;
 }
 
@@ -94,8 +85,6 @@ gtuber_client_finalize (GObject *object)
 
   g_free (self->browser_version);
   g_free (self->user_agent);
-
-  g_object_unref (self->session);
 
   g_free (self->module_name);
 
@@ -171,6 +160,7 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
 
   GUri *guri = NULL;
   GModule *module = NULL;
+  SoupSession *session = NULL;
   SoupMessage *msg = NULL;
   GError *my_error = NULL;
 
@@ -222,6 +212,12 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   website_class = GTUBER_WEBSITE_GET_CLASS (website);
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
+  session = soup_session_new_with_options (
+      "timeout", 7,
+      "max_conns_per_host", 1,
+      "user_agent", self->user_agent,
+      NULL);
+
 beginning:
   flow = website_class->create_request (website, info, &msg, &my_error);
   if (flow != GTUBER_FLOW_OK)
@@ -238,7 +234,7 @@ beginning:
     GInputStream *stream;
 
     g_debug ("Sending request...");
-    stream = soup_session_send (self->session, msg, cancellable, &my_error);
+    stream = soup_session_send (session, msg, cancellable, &my_error);
     g_debug ("Request send");
 
     flow = (my_error != NULL) ? GTUBER_FLOW_ERROR :
@@ -256,7 +252,7 @@ beginning:
     GBytes *bytes;
 
     g_debug ("Sending request...");
-    bytes = soup_session_send_and_read (self->session, msg, cancellable, &my_error);
+    bytes = soup_session_send_and_read (session, msg, cancellable, &my_error);
     g_debug ("Request send");
 
     if (my_error) {
@@ -281,6 +277,8 @@ error:
     g_uri_unref (guri);
   if (msg)
     g_object_unref (msg);
+  if (session)
+    g_object_unref (session);
   if (website)
     g_object_unref (website);
   if (module) {
@@ -342,12 +340,19 @@ static void
 fetch_media_info_async_thread (GTask *task, gpointer source, gpointer task_data,
     GCancellable *cancellable)
 {
+  GMainContext *worker_context;
   GtuberClient *self = source;
   gchar *uri = task_data;
   GtuberMediaInfo *media_info;
   GError *error = NULL;
 
+  worker_context = g_main_context_new ();
+  g_main_context_push_thread_default (worker_context);
+
   media_info = gtuber_client_fetch_media_info (self, uri, cancellable, &error);
+
+  g_main_context_pop_thread_default (worker_context);
+  g_main_context_unref (worker_context);
 
   if (media_info)
     g_task_return_pointer (task, media_info, g_object_unref);
