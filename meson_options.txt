@@ -1,5 +1,6 @@
 # Gtuber
-option('introspection', type: 'boolean', value: true, description: 'Build introspection data')
+option('introspection', type: 'boolean', value: true, description: 'Build GObject Introspection data')
+option('vapi', type: 'boolean', value: true, description: 'Build Vala bindings')
 option('doc', type: 'boolean', value: false, description: 'Build documentation')
 
 # Utils

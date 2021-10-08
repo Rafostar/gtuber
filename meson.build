@@ -78,6 +78,7 @@ summary({
 
 subdir('gtuber')
 summary('introspection', build_gir, section: 'Build')
+summary('vapi', build_vapi, section: 'Build')
 
 subdir('doc')
 summary('doc', build_doc, section: 'Build')

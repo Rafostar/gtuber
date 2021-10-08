@@ -113,7 +113,7 @@ gir = find_program('g-ir-scanner', required: get_option('introspection'))
 build_gir = (gir.found() and get_option('introspection'))
 
 if build_gir
-  gnome.generate_gir(
+  gtuber_gir = gnome.generate_gir(
     gtuber_lib,
     sources: gtuber_sources + gtuber_headers + gtuber_enums,
     extra_args: [
@@ -125,18 +125,32 @@ if build_gir
     namespace: 'Gtuber',
     identifier_prefix: 'Gtuber',
     symbol_prefix: 'gtuber',
+    export_packages: gtuber_api_name,
     install: true,
     includes: ['GObject-2.0', 'Gio-2.0'],
+    header: join_paths(meson.project_name(), 'gtuber.h'),
+  )
+endif
+
+build_vapi = get_option('vapi')
+if build_vapi
+  if not build_gir
+    error('cannot build "vapi" without "introspection"')
+  endif
+  gnome.generate_vapi(gtuber_api_name,
+    sources: gtuber_gir[0],
+    packages: ['gobject-2.0', 'gio-2.0'],
+    install: true,
   )
 endif
 
 pkgconfig.generate(
   libraries: gtuber_lib,
   subdirs: [gtuber_api_name],
-  version: meson.project_version(),
-  name: gtuber_api_name,
   filebase: gtuber_api_name,
-  description: 'A C library to get media info from websites',
+  name: meson.project_name(),
+  version: meson.project_version(),
+  description: ' A C library to fetch media info from websites',
   requires: [
     'glib-2.0',
     'gobject-2.0',
