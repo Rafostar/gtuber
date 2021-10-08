@@ -79,7 +79,7 @@ bilibili_normal_parse_info (GtuberBilibili *self, JsonReader *reader,
 
           el_cid = gtuber_utils_json_get_int (reader, "cid", NULL);
           if (el_cid == self->cid) {
-            guint64 duration;
+            guint duration;
 
             duration = gtuber_utils_json_get_int (reader, "duration", NULL);
             gtuber_media_info_set_duration (info, duration);

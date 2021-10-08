@@ -36,7 +36,7 @@ void              gtuber_media_info_set_title               (GtuberMediaInfo *in
 
 void              gtuber_media_info_set_description         (GtuberMediaInfo *info, const gchar *description);
 
-void              gtuber_media_info_set_duration            (GtuberMediaInfo *info, guint64 duration);
+void              gtuber_media_info_set_duration            (GtuberMediaInfo *info, guint duration);
 
 void              gtuber_media_info_add_stream              (GtuberMediaInfo *info, GtuberStream *stream);
 

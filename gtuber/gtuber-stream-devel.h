@@ -48,7 +48,7 @@ void                 gtuber_stream_set_height       (GtuberStream *stream, guint
 
 void                 gtuber_stream_set_fps          (GtuberStream *stream, guint fps);
 
-void                 gtuber_stream_set_bitrate      (GtuberStream *stream, guint64 bitrate);
+void                 gtuber_stream_set_bitrate      (GtuberStream *stream, guint bitrate);
 
 G_END_DECLS
 

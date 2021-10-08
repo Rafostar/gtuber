@@ -263,7 +263,7 @@ static void
 _read_video_metadata (JsonReader *reader, GtuberMediaInfo *info, GError **error)
 {
   const gchar *id, *title, *description;
-  guint64 duration;
+  guint duration;
 
   id = gtuber_utils_json_get_string (reader, "data", "video", "id", NULL);
   gtuber_media_info_set_id (info, id);
@@ -279,7 +279,7 @@ _read_video_metadata (JsonReader *reader, GtuberMediaInfo *info, GError **error)
 
   duration = gtuber_utils_json_get_int (reader, "data", "video", "lengthSeconds", NULL);
   gtuber_media_info_set_duration (info, duration);
-  g_debug ("Video duration: %ld", duration);
+  g_debug ("Video duration: %i", duration);
 }
 
 static void

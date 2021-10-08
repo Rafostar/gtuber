@@ -480,9 +480,9 @@ finish:
 }
 
 static gchar *
-obtain_time_as_pts (guint64 value)
+obtain_time_as_pts (guint value)
 {
-  return g_strdup_printf ("PT%luS", value);
+  return g_strdup_printf ("PT%iS", value);
 }
 
 typedef struct

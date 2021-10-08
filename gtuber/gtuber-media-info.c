@@ -52,7 +52,7 @@ struct _GtuberMediaInfo
   gchar *id;
   gchar *title;
   gchar *description;
-  guint64 duration;
+  guint duration;
 
   GPtrArray *streams;
   GPtrArray *adaptive_streams;
@@ -107,8 +107,8 @@ gtuber_media_info_class_init (GtuberMediaInfoClass *klass)
       "Description", "Short media description", NULL,
       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_DURATION] = g_param_spec_uint64 ("duration",
-      "Duration", "Media duration in seconds", 0, G_MAXUINT64, 0,
+  param_specs[PROP_DURATION] = g_param_spec_uint ("duration",
+      "Duration", "Media duration in seconds", 0, G_MAXUINT, 0,
       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_HAS_STREAMS] =
@@ -141,7 +141,7 @@ gtuber_media_info_get_property (GObject *object, guint prop_id,
       g_value_set_string (value, gtuber_media_info_get_description (self));
       break;
     case PROP_DURATION:
-      g_value_set_uint64 (value, gtuber_media_info_get_duration (self));
+      g_value_set_uint (value, gtuber_media_info_get_duration (self));
       break;
     case PROP_HAS_STREAMS:
       g_value_set_boolean (value, gtuber_media_info_get_has_streams (self));
@@ -274,7 +274,7 @@ gtuber_media_info_set_title (GtuberMediaInfo *self, const gchar *title)
  *
  * Returns: media duration in seconds or 0 when undetermined.
  **/
-guint64
+guint
 gtuber_media_info_get_duration (GtuberMediaInfo *self)
 {
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), 0);
@@ -292,7 +292,7 @@ gtuber_media_info_get_duration (GtuberMediaInfo *self)
  * This is mainly useful for plugin development.
  **/
 void
-gtuber_media_info_set_duration (GtuberMediaInfo *self, guint64 duration)
+gtuber_media_info_set_duration (GtuberMediaInfo *self, guint duration)
 {
   g_return_if_fail (GTUBER_IS_MEDIA_INFO (self));
 

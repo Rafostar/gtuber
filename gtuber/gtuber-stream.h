@@ -70,7 +70,7 @@ guint                gtuber_stream_get_height       (GtuberStream *stream);
 
 guint                gtuber_stream_get_fps          (GtuberStream *stream);
 
-guint64              gtuber_stream_get_bitrate      (GtuberStream *stream);
+guint                gtuber_stream_get_bitrate      (GtuberStream *stream);
 
 G_END_DECLS
 

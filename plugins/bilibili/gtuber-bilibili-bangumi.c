@@ -68,7 +68,7 @@ _read_episodes (GtuberBilibili *self, JsonReader *reader,
 
         if (*res != GTUBER_FLOW_ERROR) {
           const gchar *title, *l_title;
-          guint64 duration;
+          guint duration;
 
           title = gtuber_utils_json_get_string (reader, "title", NULL);
           l_title = gtuber_utils_json_get_string (reader, "long_title", NULL);

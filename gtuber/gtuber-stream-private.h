@@ -35,7 +35,7 @@ struct _GtuberStream
   guint width;
   guint height;
   guint fps;
-  guint64 bitrate;
+  guint bitrate;
 
   gchar *vcodec;
   gchar *acodec;

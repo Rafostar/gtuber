@@ -56,7 +56,7 @@ const gchar *     gtuber_media_info_get_title                  (GtuberMediaInfo 
 
 const gchar *     gtuber_media_info_get_description            (GtuberMediaInfo *info);
 
-guint64           gtuber_media_info_get_duration               (GtuberMediaInfo *info);
+guint             gtuber_media_info_get_duration               (GtuberMediaInfo *info);
 
 gboolean          gtuber_media_info_get_has_streams            (GtuberMediaInfo *info);
 

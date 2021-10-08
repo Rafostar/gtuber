@@ -103,8 +103,8 @@ gtuber_stream_class_init (GtuberStreamClass *klass)
      "FPS", "Stream video framerate", 0, G_MAXUINT, 0,
      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_BITRATE] = g_param_spec_uint64 ("bitrate",
-     "Bitrate", "Stream bitrate (bandwidth)", 0, G_MAXUINT64, 0,
+  param_specs[PROP_BITRATE] = g_param_spec_uint ("bitrate",
+     "Bitrate", "Stream bitrate (bandwidth)", 0, G_MAXUINT, 0,
      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
@@ -136,7 +136,7 @@ gtuber_stream_get_property (GObject *object, guint prop_id,
       g_value_set_uint (value, gtuber_stream_get_fps (self));
       break;
     case PROP_BITRATE:
-      g_value_set_uint64 (value, gtuber_stream_get_bitrate (self));
+      g_value_set_uint (value, gtuber_stream_get_bitrate (self));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -480,7 +480,7 @@ gtuber_stream_set_fps (GtuberStream *self, guint fps)
  *
  * Returns: bitrate of stream or 0 when undetermined.
  **/
-guint64
+guint
 gtuber_stream_get_bitrate (GtuberStream *self)
 {
   g_return_val_if_fail (GTUBER_IS_STREAM (self), 0);
@@ -498,7 +498,7 @@ gtuber_stream_get_bitrate (GtuberStream *self)
  * This is mainly useful for plugin development.
  **/
 void
-gtuber_stream_set_bitrate (GtuberStream *self, guint64 bitrate)
+gtuber_stream_set_bitrate (GtuberStream *self, guint bitrate)
 {
   g_return_if_fail (GTUBER_IS_STREAM (self));
 
