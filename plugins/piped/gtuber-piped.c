@@ -123,6 +123,8 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
     gtuber_adaptive_stream_set_index_range (astream,
         gtuber_utils_json_get_int (reader, "indexStart", NULL),
         gtuber_utils_json_get_int (reader, "indexEnd", NULL));
+
+    gtuber_adaptive_stream_set_manifest_type (astream, GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH);
   }
 
   stream = (astream != NULL)
