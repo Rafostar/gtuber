@@ -36,6 +36,7 @@
     <xi:include href="xml/gtuber-media-info.xml" />
     <xi:include href="xml/gtuber-stream.xml" />
     <xi:include href="xml/gtuber-adaptive-stream.xml" />
+    <xi:include href="xml/gtuber-manifest-generator.xml" />
   </chapter>
 
   <chapter id="gtuber-devel">
