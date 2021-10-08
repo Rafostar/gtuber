@@ -515,7 +515,12 @@ static void
 _sort_streams_cb (GtuberAdaptiveStream *astream, SortStreamsData *sort_data)
 {
   GtuberManifestGenerator *self = sort_data->gen;
+  GtuberAdaptiveStreamManifest stream_manifest;
   gboolean add = TRUE;
+
+  stream_manifest = gtuber_adaptive_stream_get_manifest_type (astream);
+  if (stream_manifest != GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH)
+    return;
 
   if (self->filter_func)
     add = self->filter_func (astream, self->filter_data);
