@@ -7,7 +7,7 @@ print_stream_info (Gtuber.Stream stream)
     stdout.printf ("VIDEO CODEC: %s\n", vcodec);
     stdout.printf ("AUDIO CODEC: %s\n", acodec);
   }
-  stdout.printf ("RESOLUTION: %lix%lix%li\n", stream.width, stream.height, stream.fps);
+  stdout.printf ("RESOLUTION: %ux%ux%u\n", stream.width, stream.height, stream.fps);
   stdout.printf ("URI: %s\n\n", stream.uri);
 }
 
@@ -15,7 +15,7 @@ static void
 print_media_info (Gtuber.MediaInfo info)
 {
   stdout.printf ("TITLE: %s\n", info.title);
-  stdout.printf ("DURATION: %li\n\n", info.duration);
+  stdout.printf ("DURATION: %u\n\n", info.duration);
 
   var streams = info.get_streams ();
   var adaptive_streams = info.get_adaptive_streams ();

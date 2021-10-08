@@ -46,7 +46,7 @@ main (int argc, char **argv)
     const GPtrArray *streams, *adaptive_streams;
 
     g_print ("TITLE: %s\n", gtuber_media_info_get_title (info));
-    g_print ("DURATION: %li\n\n", gtuber_media_info_get_duration (info));
+    g_print ("DURATION: %u\n\n", gtuber_media_info_get_duration (info));
 
     streams = gtuber_media_info_get_streams (info);
     adaptive_streams = gtuber_media_info_get_adaptive_streams (info);

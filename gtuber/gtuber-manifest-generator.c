@@ -482,7 +482,7 @@ finish:
 static gchar *
 obtain_time_as_pts (guint value)
 {
-  return g_strdup_printf ("PT%iS", value);
+  return g_strdup_printf ("PT%uS", value);
 }
 
 typedef struct
