@@ -11,6 +11,7 @@
       <sub name="GtuberMediaInfo" link="GtuberMediaInfo.html"/>
       <sub name="GtuberStream" link="GtuberStream.html"/>
       <sub name="GtuberAdaptiveStream" link="GtuberAdaptiveStream.html"/>
+      <sub name="GtuberManifestGenerator" link="GtuberManifestGenerator.html"/>
     </sub>
     <sub name="Plugin Development Reference" link="gtuber-devel.html">
       <sub name="GtuberWebsite" link="GtuberWebsite.html"/>
@@ -81,6 +82,15 @@
     <keyword type="function" name="gtuber_adaptive_stream_get_index_range ()" link="GtuberAdaptiveStream.html#gtuber-adaptive-stream-get-index-range"/>
     <keyword type="struct" name="GtuberAdaptiveStream" link="GtuberAdaptiveStream.html#GtuberAdaptiveStream-struct"/>
     <keyword type="property" name="The “manifest-type” property" link="GtuberAdaptiveStream.html#GtuberAdaptiveStream--manifest-type"/>
+    <keyword type="function" name="GtuberAdaptiveStreamFilter ()" link="GtuberManifestGenerator.html#GtuberAdaptiveStreamFilter"/>
+    <keyword type="function" name="gtuber_manifest_generator_new ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-new"/>
+    <keyword type="function" name="gtuber_manifest_generator_set_media_info ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-media-info"/>
+    <keyword type="function" name="gtuber_manifest_generator_set_filter_func ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-filter-func"/>
+    <keyword type="function" name="gtuber_manifest_generator_to_data ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-to-data"/>
+    <keyword type="function" name="gtuber_manifest_generator_to_file ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-to-file"/>
+    <keyword type="function" name="gtuber_manifest_generator_error_quark ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-error-quark"/>
+    <keyword type="macro" name="GTUBER_MANIFEST_GENERATOR_ERROR" link="GtuberManifestGenerator.html#GTUBER-MANIFEST-GENERATOR-ERROR:CAPS"/>
+    <keyword type="struct" name="GtuberManifestGenerator" link="GtuberManifestGenerator.html#GtuberManifestGenerator-struct"/>
     <keyword type="function" name="gtuber_website_get_uri ()" link="GtuberWebsite.html#gtuber-website-get-uri"/>
     <keyword type="function" name="gtuber_website_set_uri ()" link="GtuberWebsite.html#gtuber-website-set-uri"/>
     <keyword type="function" name="gtuber_website_get_user_agent ()" link="GtuberWebsite.html#gtuber-website-get-user-agent"/>

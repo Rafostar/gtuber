@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>GtuberManifestGenerator: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-api.html" title="API Reference">
+<link rel="prev" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream">
+<link rel="next" href="gtuber-devel.html" title="Plugin Development Reference">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GtuberManifestGenerator.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#GtuberManifestGenerator.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-api.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="GtuberAdaptiveStream.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gtuber-devel.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="GtuberManifestGenerator"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="GtuberManifestGenerator.top_of_page"></a>GtuberManifestGenerator</span></h2>
+<p>GtuberManifestGenerator — generates adaptive streams manifest
+from media info</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="GtuberManifestGenerator.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gboolean</span>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="GtuberManifestGenerator.html#GtuberAdaptiveStreamFilter" title="GtuberAdaptiveStreamFilter ()">*GtuberAdaptiveStreamFilter</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="returnvalue">GtuberManifestGenerator</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-new" title="gtuber_manifest_generator_new ()">gtuber_manifest_generator_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-set-media-info" title="gtuber_manifest_generator_set_media_info ()">gtuber_manifest_generator_set_media_info</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-set-filter-func" title="gtuber_manifest_generator_set_filter_func ()">gtuber_manifest_generator_set_filter_func</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-to-data" title="gtuber_manifest_generator_to_data ()">gtuber_manifest_generator_to_data</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gboolean</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-to-file" title="gtuber_manifest_generator_to_file ()">gtuber_manifest_generator_to_file</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GQuark</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-error-quark" title="gtuber_manifest_generator_error_quark ()">gtuber_manifest_generator_error_quark</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberManifestGenerator.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="other_proto_type">
+<col class="other_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="GtuberManifestGenerator.html#GTUBER-MANIFEST-GENERATOR-ERROR:CAPS" title="GTUBER_MANIFEST_GENERATOR_ERROR">GTUBER_MANIFEST_GENERATOR_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GtuberManifestGenerator.html#GtuberManifestGenerator-struct" title="GtuberManifestGenerator">GtuberManifestGenerator</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="GtuberManifestGenerator.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GObject
+    <span class="lineart">╰──</span> GtuberManifestGenerator
+</pre>
+</div>
+<div class="refsect1">
+<a name="GtuberManifestGenerator.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="GtuberManifestGenerator.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="GtuberAdaptiveStreamFilter"></a><h3>GtuberAdaptiveStreamFilter ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>
+<span class="c_punctuation">(</span>*GtuberAdaptiveStreamFilter<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> *stream</code></em>,
+                               <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>);</pre>
+<p>A function to be used with <a class="link" href="GtuberManifestGenerator.html#gtuber-manifest-generator-set-filter-func" title="gtuber_manifest_generator_set_filter_func ()"><code class="function">gtuber_manifest_generator_set_filter_func()</code></a>
+in order to get a manifest only with streams that match certain criteria.</p>
+<div class="refsect3">
+<a name="GtuberAdaptiveStreamFilter.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> to check</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>the user data that has been passed on. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="GtuberAdaptiveStreamFilter.returns"></a><h4>Returns</h4>
+<p> <code class="literal">TRUE</code> if adaptive stream should be added, <code class="literal">FALSE</code> otherwise</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-manifest-generator-new"></a><h3>gtuber_manifest_generator_new ()</h3>
+<pre class="programlisting"><a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="returnvalue">GtuberManifestGenerator</span></a> *
+gtuber_manifest_generator_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Creates a new <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> instance.</p>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-new.returns"></a><h4>Returns</h4>
+<p>a new <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> instance. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-manifest-generator-set-media-info"></a><h3>gtuber_manifest_generator_set_media_info ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_manifest_generator_set_media_info
+                               (<em class="parameter"><code><a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> *gen</code></em>,
+                                <em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<p>Set media info used to generate the manifest data.
+Generator will take a reference on the passed media info object.</p>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-set-media-info.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>gen</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-manifest-generator-set-filter-func"></a><h3>gtuber_manifest_generator_set_filter_func ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_manifest_generator_set_filter_func
+                               (<em class="parameter"><code><a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> *gen</code></em>,
+                                <em class="parameter"><code><a class="link" href="GtuberManifestGenerator.html#GtuberAdaptiveStreamFilter" title="GtuberAdaptiveStreamFilter ()"><span class="type">GtuberAdaptiveStreamFilter</span></a> filter</code></em>,
+                                <em class="parameter"><code><span class="type">gpointer</span> user_data</code></em>,
+                                <em class="parameter"><code><span class="type">GDestroyNotify</span> destroy</code></em>);</pre>
+<p>Sets the <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> filtering function.</p>
+<p>The filter function will be called for each <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a>
+that generator considers adding during manifest generation.</p>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-set-filter-func.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>gen</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>filter</p></td>
+<td class="parameter_description"><p>the filter function to use. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data passed to the filter function. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>destroy</p></td>
+<td class="parameter_description"><p>destroy notifier for <em class="parameter"><code>user_data</code></em>
+. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-manifest-generator-to-data"></a><h3>gtuber_manifest_generator_to_data ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *
+gtuber_manifest_generator_to_data (<em class="parameter"><code><a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> *gen</code></em>);</pre>
+<p>Generates manifest data from <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> currently set
+in <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> and returns it as a buffer.</p>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-to-data.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>gen</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-to-data.returns"></a><h4>Returns</h4>
+<p>a newly allocated string holding manifest data. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-manifest-generator-to-file"></a><h3>gtuber_manifest_generator_to_file ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>
+gtuber_manifest_generator_to_file (<em class="parameter"><code><a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> *gen</code></em>,
+                                   <em class="parameter"><code>const <span class="type">gchar</span> *filename</code></em>,
+                                   <em class="parameter"><code><span class="type">GError</span> **error</code></em>);</pre>
+<p>Generates manifest data from <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> currently set
+in <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a> and puts it inside <code class="literal">filename</code>,
+overwriting the file's current contents.</p>
+<p>This operation is atomic, in the sense that the data is written to
+a temporary file which is then renamed to the given <code class="literal">filename</code>.</p>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-to-file.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>gen</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberManifestGenerator.html" title="GtuberManifestGenerator"><span class="type">GtuberManifestGenerator</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>filename</p></td>
+<td class="parameter_description"><p>the path to the target file. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Override the parsed C type with given type."><span class="acronym">type</span></acronym> filename]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>return location for a <span class="type">GError</span>, or <code class="literal">NULL</code></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-manifest-generator-to-file.returns"></a><h4>Returns</h4>
+<p> <code class="literal">TRUE</code> if saving was successful, <code class="literal">FALSE</code> otherwise.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-manifest-generator-error-quark"></a><h3>gtuber_manifest_generator_error_quark ()</h3>
+<pre class="programlisting"><span class="returnvalue">GQuark</span>
+gtuber_manifest_generator_error_quark (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="GtuberManifestGenerator.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GTUBER-MANIFEST-GENERATOR-ERROR:CAPS"></a><h3>GTUBER_MANIFEST_GENERATOR_ERROR</h3>
+<pre class="programlisting">#define GTUBER_MANIFEST_GENERATOR_ERROR           (gtuber_manifest_generator_error_quark ())
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberManifestGenerator-struct"></a><h3>GtuberManifestGenerator</h3>
+<pre class="programlisting">typedef struct _GtuberManifestGenerator GtuberManifestGenerator;</pre>
+<p>Gtuber manifest generator</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>
