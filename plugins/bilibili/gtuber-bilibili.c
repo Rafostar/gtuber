@@ -99,6 +99,8 @@ _read_dash_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberBilibili 
   gtuber_stream_set_itag (stream, itag);
   g_debug ("Created adaptive stream, itag %i", itag);
 
+  gtuber_adaptive_stream_set_manifest_type (astream, GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH);
+
   mime_type = gtuber_utils_common_get_mime_type_from_string (
       gtuber_utils_json_get_string (reader, "mime_type", NULL));
   gtuber_stream_set_mime_type (stream, mime_type);
