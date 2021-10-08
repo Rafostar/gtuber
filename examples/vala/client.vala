@@ -1,0 +1,48 @@
+static void
+print_stream_info (Gtuber.Stream stream)
+{
+  string vcodec, acodec;
+
+  if (stream.get_codecs (out vcodec, out acodec)) {
+    stdout.printf ("VIDEO CODEC: %s\n", vcodec);
+    stdout.printf ("AUDIO CODEC: %s\n", acodec);
+  }
+  stdout.printf ("RESOLUTION: %lix%lix%li\n", stream.width, stream.height, stream.fps);
+  stdout.printf ("URI: %s\n\n", stream.uri);
+}
+
+static void
+print_media_info (Gtuber.MediaInfo info)
+{
+  stdout.printf ("TITLE: %s\n", info.title);
+  stdout.printf ("DURATION: %li\n\n", info.duration);
+
+  var streams = info.get_streams ();
+  var adaptive_streams = info.get_adaptive_streams ();
+
+  stdout.printf ("STREAMS: %i\n", streams.length);
+  stdout.printf ("ADAPTIVE STREAMS: %i\n\n", adaptive_streams.length);
+
+  streams.foreach (print_stream_info);
+  adaptive_streams.foreach (print_stream_info);
+}
+
+int
+main (string[] argv)
+{
+  if (argv.length < 2) {
+    stderr.printf ("Error: No URI privided as argument!\n");
+    return 1;
+  }
+
+  var client = new Gtuber.Client ();
+
+  try {
+    var info = client.fetch_media_info (argv[1]);
+    print_media_info (info);
+  } catch (Error e) {
+    stderr.printf ("Error: %s\n", e.message);
+  }
+
+  return 0;
+}
