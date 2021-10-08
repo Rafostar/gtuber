@@ -41,7 +41,7 @@ version_conf.set(
   version_array[2].to_int(),
 )
 
-gtuber_headers_dir = join_paths(includedir, gtuber_api_name)
+gtuber_headers_dir = join_paths(includedir, gtuber_api_name, 'gtuber')
 
 gtuber_version_header = configure_file(
   input: 'gtuber-version.h.in',
@@ -132,7 +132,7 @@ endif
 
 pkgconfig.generate(
   libraries: gtuber_lib,
-  subdirs: 'gtuber',
+  subdirs: [gtuber_api_name],
   version: meson.project_version(),
   name: gtuber_api_name,
   filebase: gtuber_api_name,
@@ -142,7 +142,7 @@ pkgconfig.generate(
     'gobject-2.0',
     'gio-2.0',
     'gmodule-2.0',
-    'soup-2.4',
+    'libsoup-3.0',
   ],
 )
 
