@@ -360,6 +360,35 @@ dump_string_data_new (GtuberManifestGenerator *gen, GString *string)
 }
 
 static void
+add_escaped_xml_uri (GString *string, const gchar *uri_str)
+{
+  GUri *uri;
+  GUriParamsIter iter;
+  gchar *attr, *value, *base_uri;
+  gboolean query_started = FALSE;
+
+  uri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
+
+  base_uri = g_uri_to_string_partial (uri, G_URI_HIDE_QUERY);
+  g_string_append (string, base_uri);
+  g_free (base_uri);
+
+  g_uri_params_iter_init (&iter, g_uri_get_query (uri),
+      -1, "&", G_URI_PARAMS_NONE);
+
+  while (g_uri_params_iter_next (&iter, &attr, &value, NULL)) {
+    g_string_append_printf (string, "%s%s=%s",
+        query_started ? "&amp;" : "?", attr, value);
+    query_started = TRUE;
+
+    g_free (attr);
+    g_free (value);
+  }
+
+  g_uri_unref (uri);
+}
+
+static void
 dump_string_data_free (DumpStringData *data)
 {
   g_object_unref (data->gen);
@@ -418,7 +447,7 @@ _add_representation_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
 
   /* <BaseURL> */
   add_line_no_newline (data->gen, data->string, 4, "<BaseURL>");
-  add_line_no_newline (data->gen, data->string, 0, gtuber_stream_get_uri (stream));
+  add_escaped_xml_uri (data->string, gtuber_stream_get_uri (stream));
   finish_line (data->gen, data->string, "</BaseURL>");
 
   /* <SegmentBase> */
