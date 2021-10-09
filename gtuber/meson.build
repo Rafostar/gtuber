@@ -110,7 +110,7 @@ gtuber_lib = library(
 install_headers(gtuber_headers, install_dir: gtuber_headers_dir)
 
 gir = find_program('g-ir-scanner', required: get_option('introspection'))
-build_gir = (gir.found() and get_option('introspection'))
+build_gir = (gir.found() and not get_option('introspection').disabled())
 
 if build_gir
   gtuber_gir = gnome.generate_gir(
@@ -132,16 +132,21 @@ if build_gir
   )
 endif
 
-build_vapi = get_option('vapi')
+vapigen = find_program('vapigen', required: get_option('vapi'))
+build_vapi = (vapigen.found() and not get_option('vapi').disabled())
+
 if build_vapi
   if not build_gir
-    error('cannot build "vapi" without "introspection"')
+    if get_option('vapi').enabled()
+      error('cannot build "vapi" without "introspection"')
+    endif
+  else
+    gnome.generate_vapi(gtuber_api_name,
+      sources: gtuber_gir[0],
+      packages: ['gobject-2.0', 'gio-2.0'],
+      install: true,
+    )
   endif
-  gnome.generate_vapi(gtuber_api_name,
-    sources: gtuber_gir[0],
-    packages: ['gobject-2.0', 'gio-2.0'],
-    install: true,
-  )
 endif
 
 pkgconfig.generate(
