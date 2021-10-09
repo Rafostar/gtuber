@@ -6,6 +6,9 @@ all_plugins = [
   'youtube',
 ]
 
+# Shared deps
+json_glib_dep = dependency('json-glib-1.0', version: '>=1.2.0', required: false)
+
 build_plugins = []
 foreach name : all_plugins
   plugin_option = get_option(name)
