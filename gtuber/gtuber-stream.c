@@ -38,6 +38,8 @@ enum
   PROP_URI,
   PROP_ITAG,
   PROP_MIME_TYPE,
+  PROP_VIDEO_CODEC,
+  PROP_AUDIO_CODEC,
   PROP_WIDTH,
   PROP_HEIGHT,
   PROP_FPS,
@@ -91,6 +93,14 @@ gtuber_stream_class_init (GtuberStreamClass *klass)
       "Stream MIME Type", "The MIME type of the stream", GTUBER_TYPE_STREAM_MIME_TYPE,
       GTUBER_STREAM_MIME_TYPE_UNKNOWN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_VIDEO_CODEC] = g_param_spec_string ("video-codec",
+      "Video Codec", "The stream video codec", NULL,
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_AUDIO_CODEC] = g_param_spec_string ("audio-codec",
+      "Audio Codec", "The stream audio codec", NULL,
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   param_specs[PROP_WIDTH] = g_param_spec_uint ("width",
      "Width", "Stream video width", 0, G_MAXUINT, 0,
      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
@@ -125,6 +135,12 @@ gtuber_stream_get_property (GObject *object, guint prop_id,
       break;
     case PROP_MIME_TYPE:
       g_value_set_enum (value, gtuber_stream_get_mime_type (self));
+      break;
+    case PROP_VIDEO_CODEC:
+      g_value_set_string (value, gtuber_stream_get_video_codec (self));
+      break;
+    case PROP_AUDIO_CODEC:
+      g_value_set_string (value, gtuber_stream_get_audio_codec (self));
       break;
     case PROP_WIDTH:
       g_value_set_uint (value, gtuber_stream_get_width (self));
