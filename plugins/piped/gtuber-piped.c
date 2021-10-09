@@ -35,6 +35,7 @@ struct _GtuberPiped
   GtuberWebsite parent;
 
   gchar *video_id;
+  gchar *hls_uri;
 
   PipedMediaType media_type;
 };
@@ -57,6 +58,7 @@ static GtuberFlow gtuber_piped_parse_input_stream (GtuberWebsite *website,
 static void
 gtuber_piped_init (GtuberPiped *self)
 {
+  self->hls_uri = NULL;
 }
 
 static void
@@ -80,6 +82,7 @@ gtuber_piped_finalize (GObject *object)
   g_debug ("Piped finalize");
 
   g_free (self->video_id);
+  g_free (self->hls_uri);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -182,17 +185,21 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
   gtuber_media_info_set_description (info, gtuber_utils_json_get_string (reader, "description", NULL));
   gtuber_media_info_set_duration (info, gtuber_utils_json_get_int (reader, "duration", NULL));
 
-  if (gtuber_utils_json_go_to (reader, "videoStreams", NULL)) {
-    self->media_type = PIPED_MEDIA_VIDEO_STREAM;
-    gtuber_utils_json_array_foreach (reader, info,
-        (GtuberFunc) _read_stream_cb, self);
-    gtuber_utils_json_go_back (reader, 1);
-  }
-  if (gtuber_utils_json_go_to (reader, "audioStreams", NULL)) {
-    self->media_type = PIPED_MEDIA_AUDIO_STREAM;
-    gtuber_utils_json_array_foreach (reader, info,
-        (GtuberFunc) _read_stream_cb, self);
-    gtuber_utils_json_go_back (reader, 1);
+  self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hls", NULL));
+
+  if (!self->hls_uri) {
+    if (gtuber_utils_json_go_to (reader, "videoStreams", NULL)) {
+      self->media_type = PIPED_MEDIA_VIDEO_STREAM;
+      gtuber_utils_json_array_foreach (reader, info,
+          (GtuberFunc) _read_stream_cb, self);
+      gtuber_utils_json_go_back (reader, 1);
+    }
+    if (gtuber_utils_json_go_to (reader, "audioStreams", NULL)) {
+      self->media_type = PIPED_MEDIA_AUDIO_STREAM;
+      gtuber_utils_json_array_foreach (reader, info,
+          (GtuberFunc) _read_stream_cb, self);
+      gtuber_utils_json_go_back (reader, 1);
+    }
   }
 
   g_object_unref (reader);
@@ -203,11 +210,17 @@ gtuber_piped_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error)
 {
   GtuberPiped *self = GTUBER_PIPED (website);
-  gchar *uri;
 
-  uri = g_strdup_printf ("https://pipedapi.kavin.rocks/streams/%s", self->video_id);
-  *msg = soup_message_new ("GET", uri);
-  g_free (uri);
+  if (!self->hls_uri) {
+    gchar *uri;
+
+    uri = g_strdup_printf ("https://pipedapi.kavin.rocks/streams/%s", self->video_id);
+    *msg = soup_message_new ("GET", uri);
+
+    g_free (uri);
+  } else {
+    *msg = soup_message_new ("GET", self->hls_uri);
+  }
 
   return GTUBER_FLOW_OK;
 }
@@ -218,6 +231,14 @@ gtuber_piped_parse_input_stream (GtuberWebsite *website,
 {
   GtuberPiped *self = GTUBER_PIPED (website);
   JsonParser *parser;
+
+  if (self->hls_uri) {
+    if (gtuber_utils_common_parse_hls_input_stream (stream, info, error)) {
+      /* FIXME: Share update HLS code with youtube plugin */
+      return GTUBER_FLOW_OK;
+    }
+    return GTUBER_FLOW_ERROR;
+  }
 
   parser = json_parser_new ();
   json_parser_load_from_stream (parser, stream, NULL, error);
@@ -232,6 +253,8 @@ finish:
 
   if (*error)
     return GTUBER_FLOW_ERROR;
+  if (self->hls_uri)
+    return GTUBER_FLOW_RESTART;
 
   return GTUBER_FLOW_OK;
 }
