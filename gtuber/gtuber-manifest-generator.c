@@ -28,6 +28,14 @@
 #include "gtuber-manifest-generator.h"
 #include "gtuber-stream.h"
 
+enum
+{
+  PROP_0,
+  PROP_PRETTY,
+  PROP_INDENT,
+  PROP_LAST
+};
+
 struct _GtuberManifestGenerator
 {
   GObject parent;
@@ -62,6 +70,12 @@ typedef enum
 G_DEFINE_TYPE (GtuberManifestGenerator, gtuber_manifest_generator, G_TYPE_OBJECT)
 G_DEFINE_QUARK (gtubermanifestgenerator-error-quark, gtuber_manifest_generator_error)
 
+static GParamSpec *param_specs[PROP_LAST] = { NULL, };
+
+static void gtuber_manifest_generator_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec);
+static void gtuber_manifest_generator_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec);
 static void gtuber_manifest_generator_dispose (GObject *object);
 static void gtuber_manifest_generator_finalize (GObject *object);
 
@@ -82,8 +96,59 @@ gtuber_manifest_generator_class_init (GtuberManifestGeneratorClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
+  gobject_class->set_property = gtuber_manifest_generator_set_property;
+  gobject_class->get_property = gtuber_manifest_generator_get_property;
   gobject_class->dispose = gtuber_manifest_generator_dispose;
   gobject_class->finalize = gtuber_manifest_generator_finalize;
+
+  param_specs[PROP_PRETTY] =
+      g_param_spec_boolean ("pretty", "Pretty",
+      "Apply new lines and indentation to manifests that support them",
+      FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_INDENT] = g_param_spec_uint ("indent",
+      "Indent", "Amount of spaces used for indent", 0, G_MAXUINT, 0,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+}
+
+static void
+gtuber_manifest_generator_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  GtuberManifestGenerator *self = GTUBER_MANIFEST_GENERATOR (object);
+
+  switch (prop_id) {
+    case PROP_PRETTY:
+      gtuber_manifest_generator_set_pretty (self, g_value_get_boolean (value));
+      break;
+    case PROP_INDENT:
+      gtuber_manifest_generator_set_indent (self, g_value_get_uint (value));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gtuber_manifest_generator_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec)
+{
+  GtuberManifestGenerator *self = GTUBER_MANIFEST_GENERATOR (object);
+
+  switch (prop_id) {
+    case PROP_PRETTY:
+      g_value_set_boolean (value, gtuber_manifest_generator_get_pretty (self));
+      break;
+    case PROP_INDENT:
+      g_value_set_uint (value, gtuber_manifest_generator_get_indent (self));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
 }
 
 static void
@@ -669,6 +734,64 @@ GtuberManifestGenerator *
 gtuber_manifest_generator_new (void)
 {
   return g_object_new (GTUBER_TYPE_MANIFEST_GENERATOR, NULL);
+}
+
+/**
+ * gtuber_manifest_generator_get_pretty:
+ * @gen: a #GtuberManifestGenerator
+ *
+ * Returns: %TRUE if pretty printing is enabled, %FALSE otherwise.
+ */
+gboolean
+gtuber_manifest_generator_get_pretty (GtuberManifestGenerator *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self), FALSE);
+
+  return self->pretty;
+}
+
+/**
+ * gtuber_manifest_generator_set_pretty:
+ * @gen: a #GtuberManifestGenerator
+ * @pretty: %TRUE to enable pretty printing, %FALSE otherwise
+ *
+ * Sets the pretty printing mode.
+ */
+void
+gtuber_manifest_generator_set_pretty (GtuberManifestGenerator *self, gboolean pretty)
+{
+  g_return_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self));
+
+  self->pretty = pretty;
+}
+
+/**
+ * gtuber_manifest_generator_get_indent:
+ * @gen: a #GtuberManifestGenerator
+ *
+ * Returns: amount of indent in spaces for prettifying.
+ **/
+guint
+gtuber_manifest_generator_get_indent (GtuberManifestGenerator *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self), 0);
+
+  return self->indent;
+}
+
+/**
+ * gtuber_manifest_generator_set_duration:
+ * @gen: a #GtuberManifestGenerator
+ * @indent: amount of spaces
+ *
+ * Sets the amount of indent in spaces for prettifying.
+ **/
+void
+gtuber_manifest_generator_set_indent (GtuberManifestGenerator *self, guint indent)
+{
+  g_return_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self));
+
+  self->indent = indent;
 }
 
 /**

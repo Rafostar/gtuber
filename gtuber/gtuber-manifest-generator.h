@@ -68,6 +68,14 @@ GType                     gtuber_manifest_generator_get_type               (void
 
 GtuberManifestGenerator * gtuber_manifest_generator_new                    (void);
 
+gboolean                  gtuber_manifest_generator_get_pretty             (GtuberManifestGenerator *gen);
+
+void                      gtuber_manifest_generator_set_pretty             (GtuberManifestGenerator *gen, gboolean pretty);
+
+guint                     gtuber_manifest_generator_get_indent             (GtuberManifestGenerator *gen);
+
+void                      gtuber_manifest_generator_set_indent             (GtuberManifestGenerator *gen, guint indent);
+
 void                      gtuber_manifest_generator_set_media_info         (GtuberManifestGenerator *gen, GtuberMediaInfo *info);
 
 void                      gtuber_manifest_generator_set_filter_func        (GtuberManifestGenerator *gen, GtuberAdaptiveStreamFilter filter, gpointer user_data, GDestroyNotify destroy);
