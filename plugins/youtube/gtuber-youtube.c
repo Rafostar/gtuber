@@ -28,6 +28,7 @@ struct _GtuberYoutube
   GtuberWebsite parent;
 
   gchar *video_id;
+  gchar *hls_uri;
 
   gchar *visitor_data;
   gchar *client_version;
@@ -53,6 +54,8 @@ static void
 gtuber_youtube_init (GtuberYoutube *self)
 {
   const gchar * const *langs;
+
+  self->hls_uri = NULL;
 
   /* FIXME: get from cache */
   self->visitor_data = g_strdup ("");
@@ -91,6 +94,7 @@ gtuber_youtube_finalize (GObject *object)
   g_debug ("Youtube finalize");
 
   g_free (self->video_id);
+  g_free (self->hls_uri);
 
   g_free (self->visitor_data);
   g_free (self->client_version);
@@ -236,6 +240,50 @@ _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer us
 }
 
 static void
+_update_hls_stream_cb (GtuberAdaptiveStream *astream, gpointer user_data)
+{
+  GtuberStream *stream;
+  GUri *guri;
+  const gchar *uri_str;
+
+  stream = GTUBER_STREAM (astream);
+  uri_str = gtuber_stream_get_uri (stream);
+
+  if (!uri_str)
+    return;
+
+  guri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
+  if (guri) {
+    gchar **path_parts;
+    guint i = 0;
+
+    path_parts = g_strsplit (g_uri_get_path (guri), "/", 0);
+
+    while (path_parts[i]) {
+      if (!strcmp (path_parts[i], "itag") && path_parts[i + 1]) {
+        guint itag;
+
+        itag = g_ascii_strtoull (path_parts[i + 1], NULL, 10);
+        gtuber_stream_set_itag (stream, itag);
+      }
+      i++;
+    }
+
+    g_strfreev (path_parts);
+    g_uri_unref (guri);
+  }
+}
+
+static void
+update_info_hls (GtuberMediaInfo *info)
+{
+  const GPtrArray *astreams;
+
+  astreams = gtuber_media_info_get_adaptive_streams (info);
+  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _update_hls_stream_cb, NULL);
+}
+
+static void
 parse_response_data (GtuberYoutube *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
@@ -271,15 +319,19 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
   }
 
   if (gtuber_utils_json_go_to (reader, "streamingData", NULL)) {
-    if (gtuber_utils_json_go_to (reader, "formats", NULL)) {
-      gtuber_utils_json_array_foreach (reader, info,
-          (GtuberFunc) _read_stream_cb, NULL);
-      gtuber_utils_json_go_back (reader, 1);
-    }
-    if (gtuber_utils_json_go_to (reader, "adaptiveFormats", NULL)) {
-      gtuber_utils_json_array_foreach (reader, info,
-          (GtuberFunc) _read_adaptive_stream_cb, NULL);
-      gtuber_utils_json_go_back (reader, 1);
+    self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hlsManifestUrl", NULL));
+
+    if (!self->hls_uri) {
+      if (gtuber_utils_json_go_to (reader, "formats", NULL)) {
+        gtuber_utils_json_array_foreach (reader, info,
+            (GtuberFunc) _read_stream_cb, NULL);
+        gtuber_utils_json_go_back (reader, 1);
+      }
+      if (gtuber_utils_json_go_to (reader, "adaptiveFormats", NULL)) {
+        gtuber_utils_json_array_foreach (reader, info,
+            (GtuberFunc) _read_adaptive_stream_cb, NULL);
+        gtuber_utils_json_go_back (reader, 1);
+      }
     }
     gtuber_utils_json_go_back (reader, 1);
   }
@@ -298,7 +350,7 @@ finish:
 }
 
 static gchar *
-get_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
+obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
 {
   gchar *req_body, **parts;
 
@@ -338,9 +390,17 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   SoupMessageHeaders *headers;
   gchar *req_body, *ua;
 
-  *msg = soup_message_new ("POST",
-      "https://www.youtube.com/youtubei/v1/player?"
-      "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
+  if (!self->hls_uri) {
+    *msg = soup_message_new ("POST",
+        "https://www.youtube.com/youtubei/v1/player?"
+        "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
+    req_body = obtain_player_req_body (self, info);
+    g_debug ("Request body: %s", req_body);
+
+    gtuber_utils_common_msg_take_request (*msg, "application/json", req_body);
+  } else {
+    *msg = soup_message_new ("GET", self->hls_uri);
+  }
   headers = soup_message_get_request_headers (*msg);
 
   ua = g_strdup_printf (
@@ -351,11 +411,6 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   soup_message_headers_append (headers, "X-Goog-Visitor-Id", self->visitor_data);
   g_free (ua);
 
-  req_body = get_player_req_body (self, info);
-  g_debug ("Request body: %s", req_body);
-
-  gtuber_utils_common_msg_take_request (*msg, "application/json", req_body);
-
   return GTUBER_FLOW_OK;
 }
 
@@ -365,6 +420,14 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   JsonParser *parser;
+
+  if (self->hls_uri) {
+    if (gtuber_utils_common_parse_hls_input_stream (stream, info, error)) {
+      update_info_hls (info);
+      return GTUBER_FLOW_OK;
+    }
+    return GTUBER_FLOW_ERROR;
+  }
 
   parser = json_parser_new ();
   json_parser_load_from_stream (parser, stream, NULL, error);
@@ -379,6 +442,8 @@ finish:
 
   if (*error)
     return GTUBER_FLOW_ERROR;
+  if (self->hls_uri)
+    return GTUBER_FLOW_RESTART;
 
   return GTUBER_FLOW_OK;
 }
