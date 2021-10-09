@@ -430,6 +430,7 @@ add_escaped_xml_uri (GString *string, const gchar *uri_str)
   GUri *uri;
   GUriParamsIter iter;
   gchar *attr, *value, *base_uri;
+  const gchar *org_query;
   gboolean query_started = FALSE;
 
   uri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
@@ -438,16 +439,17 @@ add_escaped_xml_uri (GString *string, const gchar *uri_str)
   g_string_append (string, base_uri);
   g_free (base_uri);
 
-  g_uri_params_iter_init (&iter, g_uri_get_query (uri),
-      -1, "&", G_URI_PARAMS_NONE);
+  if ((org_query = g_uri_get_query (uri))) {
+    g_uri_params_iter_init (&iter, org_query, -1, "&", G_URI_PARAMS_NONE);
 
-  while (g_uri_params_iter_next (&iter, &attr, &value, NULL)) {
-    g_string_append_printf (string, "%s%s=%s",
-        query_started ? "&amp;" : "?", attr, value);
-    query_started = TRUE;
+    while (g_uri_params_iter_next (&iter, &attr, &value, NULL)) {
+      g_string_append_printf (string, "%s%s=%s",
+          query_started ? "&amp;" : "?", attr, value);
+      query_started = TRUE;
 
-    g_free (attr);
-    g_free (value);
+      g_free (attr);
+      g_free (value);
+    }
   }
 
   g_uri_unref (uri);
