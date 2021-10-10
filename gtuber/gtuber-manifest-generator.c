@@ -596,7 +596,8 @@ _add_adaptation_set_cb (DashAdaptationData *adaptation, DumpStringData *data)
   }
   finish_line (data->gen, data->string, ">");
 
-  /* Add representations */
+  /* Sort and add representations */
+  g_ptr_array_sort (adaptation->adaptive_streams, (GCompareFunc) _sort_streams_cb);
   g_ptr_array_foreach (adaptation->adaptive_streams, (GFunc) _add_representation_cb, data);
 
   add_line (data->gen, data->string, 2, "</AdaptationSet>");
