@@ -425,6 +425,29 @@ dump_string_data_new (GtuberManifestGenerator *gen, GString *string)
 }
 
 static void
+dump_string_data_free (DumpStringData *data)
+{
+  g_object_unref (data->gen);
+  g_free (data);
+}
+
+static gboolean
+get_should_add_adaptive_stream (GtuberManifestGenerator *self,
+    GtuberAdaptiveStream *astream, GtuberAdaptiveStreamManifest req_manifest)
+{
+  GtuberAdaptiveStreamManifest stream_manifest;
+
+  stream_manifest = gtuber_adaptive_stream_get_manifest_type (astream);
+  if (stream_manifest != req_manifest)
+    return FALSE;
+
+  if (self->filter_func)
+    return self->filter_func (astream, self->filter_data);
+
+  return TRUE;
+}
+
+static void
 add_escaped_xml_uri (GString *string, const gchar *uri_str)
 {
   GUri *uri;
@@ -455,11 +478,19 @@ add_escaped_xml_uri (GString *string, const gchar *uri_str)
   g_uri_unref (uri);
 }
 
-static void
-dump_string_data_free (DumpStringData *data)
+static gint
+_sort_streams_cb (gconstpointer a, gconstpointer b)
 {
-  g_object_unref (data->gen);
-  g_free (data);
+  GtuberStream *stream_a, *stream_b;
+  guint bitrate_a, bitrate_b;
+
+  stream_a = *((GtuberStream **) a);
+  stream_b = *((GtuberStream **) b);
+
+  bitrate_a = gtuber_stream_get_bitrate (stream_a);
+  bitrate_b = gtuber_stream_get_bitrate (stream_b);
+
+  return (bitrate_a - bitrate_b);
 }
 
 static void
@@ -575,6 +606,73 @@ finish:
   g_free (mime_str);
 }
 
+static void
+_add_hls_stream_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
+{
+  gboolean add;
+
+  add = get_should_add_adaptive_stream (data->gen, astream,
+      GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
+
+  if (add) {
+    GtuberStream *stream;
+    gchar *codecs;
+    guint itag, bitrate, width, height, fps;
+    gboolean audio_only;
+
+    stream = GTUBER_STREAM (astream);
+
+    itag = gtuber_stream_get_itag (stream);
+    bitrate = gtuber_stream_get_bitrate (stream);
+    width = gtuber_stream_get_width (stream);
+    height = gtuber_stream_get_height (stream);
+    fps = gtuber_stream_get_fps (stream);
+
+    audio_only = (width == 0 && height == 0 && fps == 0
+        && gtuber_stream_get_video_codec (stream) == NULL);
+
+    /* EXT-X-MEDIA */
+    g_string_append (data->string, "#EXT-X-STREAM-INF");
+    g_string_append_printf (data->string, ":TYPE=%s",
+        audio_only ? "AUDIO" : "VIDEO");
+    g_string_append_printf (data->string, ",GROUP-ID=\"%u\"", itag);
+    g_string_append_printf (data->string, ",NAME=\"%s\"",
+        audio_only ? "audio_only" : "default");
+    g_string_append_printf (data->string, ",AUTOSELECT=%s",
+        audio_only ? "NO" : "YES");
+    g_string_append_printf (data->string, ",DEFAULT=%s",
+        audio_only ? "NO" : "YES");
+    g_string_append (data->string, "\n");
+
+    /* EXT-X-STREAM-INF */
+    g_string_append (data->string, "#EXT-X-STREAM-INF");
+
+    if (bitrate)
+      g_string_append_printf (data->string, ":BANDWIDTH=%u", bitrate);
+    if (width || height)
+      g_string_append_printf (data->string, ",RESOLUTION=%ux%u", width, height);
+
+    codecs = gtuber_stream_obtain_codecs_string (stream);
+    if (codecs) {
+      g_string_append_printf (data->string, ",CODECS=\"%s\"", codecs);
+      g_free (codecs);
+    }
+
+    if (!audio_only)
+      g_string_append_printf (data->string, ",VIDEO=\"%u\"", itag);
+    else
+      g_string_append_printf (data->string, ",AUDIO=\"%u\"", itag);
+
+    if (fps)
+      g_string_append_printf (data->string, ",FRAME-RATE=%u", fps);
+
+    g_string_append (data->string, "\n");
+
+    /* URI */
+    g_string_append_printf (data->string, "%s\n", gtuber_stream_get_uri (stream));
+  }
+}
+
 static gchar *
 obtain_time_as_pts (guint value)
 {
@@ -608,18 +706,12 @@ sort_streams_data_free (SortStreamsData *data)
 }
 
 static void
-_sort_streams_cb (GtuberAdaptiveStream *astream, SortStreamsData *sort_data)
+_sort_dash_adaptations_cb (GtuberAdaptiveStream *astream, SortStreamsData *sort_data)
 {
-  GtuberManifestGenerator *self = sort_data->gen;
-  GtuberAdaptiveStreamManifest stream_manifest;
-  gboolean add = TRUE;
+  gboolean add;
 
-  stream_manifest = gtuber_adaptive_stream_get_manifest_type (astream);
-  if (stream_manifest != GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH)
-    return;
-
-  if (self->filter_func)
-    add = self->filter_func (astream, self->filter_data);
+  add = get_should_add_adaptive_stream (sort_data->gen, astream,
+      GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH);
 
   if (add) {
     GtuberStream *stream;
@@ -638,8 +730,8 @@ _sort_streams_cb (GtuberAdaptiveStream *astream, SortStreamsData *sort_data)
   }
 }
 
-static void
-dump_data (GtuberManifestGenerator *self, GString *string)
+static gboolean
+dump_dash_data (GtuberManifestGenerator *self, GString *string)
 {
   DumpStringData *data;
   SortStreamsData *sort_data;
@@ -649,7 +741,7 @@ dump_data (GtuberManifestGenerator *self, GString *string)
   gchar *dur_pts, *buf_pts;
   guint buf_time, duration;
 
-  g_debug ("Generating manifest data...");
+  g_debug ("Generating DASH manifest data...");
 
   adaptations =
       g_ptr_array_new_with_free_func ((GDestroyNotify) dash_adaptation_data_free);
@@ -657,7 +749,8 @@ dump_data (GtuberManifestGenerator *self, GString *string)
   astreams = gtuber_media_info_get_adaptive_streams (self->media_info);
   sort_data = sort_streams_data_new (self, adaptations);
 
-  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _sort_streams_cb, sort_data);
+  g_ptr_array_foreach ((GPtrArray *) astreams,
+      (GFunc) _sort_dash_adaptations_cb, sort_data);
 
   sort_streams_data_free (sort_data);
 
@@ -702,22 +795,64 @@ dump_data (GtuberManifestGenerator *self, GString *string)
   add_line (self, string, 1, "</Period>");
   add_line_no_newline (self, string, 0, "</MPD>");
 
-  g_debug ("Manifest data generated");
+  g_debug ("DASH manifest data generated");
 
 finish:
   g_ptr_array_unref (adaptations);
+
+  return (string->len > 0);
+}
+
+static gboolean
+dump_hls_data (GtuberManifestGenerator *self, GString *string)
+{
+  DumpStringData *data;
+  GPtrArray *sorted_astreams;
+  const GPtrArray *astreams;
+
+  g_debug ("Generating HLS manifest data...");
+
+  astreams = gtuber_media_info_get_adaptive_streams (self->media_info);
+
+  /* Copy pointers only as we need to sort streams, not modify them */
+  sorted_astreams = g_ptr_array_copy ((GPtrArray *) astreams,
+      (GCopyFunc) g_object_ref, NULL);
+
+  g_ptr_array_sort (sorted_astreams, (GCompareFunc) _sort_streams_cb);
+
+  data = dump_string_data_new (self, string);
+  g_ptr_array_foreach (sorted_astreams, (GFunc) _add_hls_stream_cb, data);
+  dump_string_data_free (data);
+
+  g_ptr_array_unref (sorted_astreams);
+
+  if (string->len == 0) {
+    g_debug ("No HLS streams added");
+    return FALSE;
+  }
+
+  /* Prepend header now that we know data is not empty */
+  g_string_prepend (string, "#EXTM3U\n");
+
+  g_debug ("HLS manifest data generated");
+
+  return TRUE;
 }
 
 static gchar *
 gen_to_data_internal (GtuberManifestGenerator *self, gsize *length)
 {
   GString *string;
+  gboolean success;
 
   g_return_val_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self), NULL);
   g_return_val_if_fail (self->media_info != NULL, NULL);
 
   string = g_string_new ("");
-  dump_data (self, string);
+
+  success = dump_dash_data (self, string);
+  if (!success)
+    success = dump_hls_data (self, string);
 
   if (length)
     *length = string->len;
