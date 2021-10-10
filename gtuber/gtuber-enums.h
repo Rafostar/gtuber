@@ -65,7 +65,7 @@ typedef enum
 
 /**
  * GtuberClientError:
- * @GTUBER_CLIENT_ERROR_NO_PLUGIN: none of the installed plugins could handle URI. 
+ * @GTUBER_CLIENT_ERROR_NO_PLUGIN: none of the installed plugins could handle URI.
  * @GTUBER_CLIENT_ERROR_MISSING_INFO: plugin did not fill the media info.
  */
 typedef enum
@@ -73,6 +73,15 @@ typedef enum
   GTUBER_CLIENT_ERROR_NO_PLUGIN,
   GTUBER_CLIENT_ERROR_MISSING_INFO,
 } GtuberClientError;
+
+/**
+ * GtuberManifestGeneratorError:
+ * @GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA: no data was generated.
+ */
+typedef enum
+{
+  GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA,
+} GtuberManifestGeneratorError;
 
 /**
  * GtuberWebsiteError:

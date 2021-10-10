@@ -722,7 +722,7 @@ gen_to_data_internal (GtuberManifestGenerator *self, gsize *length)
   if (length)
     *length = string->len;
 
-  return g_string_free (string, FALSE);
+  return g_string_free (string, string->len == 0);
 }
 
 /**
@@ -884,7 +884,13 @@ gtuber_manifest_generator_to_file (GtuberManifestGenerator *self,
   g_return_val_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self), FALSE);
   g_return_val_if_fail (filename != NULL, FALSE);
 
-  data = gen_to_data_internal (self, &len);
+  if (!(data = gen_to_data_internal (self, &len))) {
+    g_set_error (error, GTUBER_MANIFEST_GENERATOR_ERROR,
+        GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA,
+        "No data was generated");
+    return FALSE;
+  }
+
   success = g_file_set_contents (filename, data, len, error);
   g_free (data);
 
