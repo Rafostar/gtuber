@@ -64,27 +64,31 @@ typedef gboolean (*GtuberAdaptiveStreamFilter) (GtuberAdaptiveStream *stream, gp
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberManifestGenerator, g_object_unref)
 #endif
 
-GType                     gtuber_manifest_generator_get_type               (void);
+GType                        gtuber_manifest_generator_get_type            (void);
 
-GtuberManifestGenerator * gtuber_manifest_generator_new                    (void);
+GtuberManifestGenerator *    gtuber_manifest_generator_new                 (void);
 
-gboolean                  gtuber_manifest_generator_get_pretty             (GtuberManifestGenerator *gen);
+gboolean                     gtuber_manifest_generator_get_pretty          (GtuberManifestGenerator *gen);
 
-void                      gtuber_manifest_generator_set_pretty             (GtuberManifestGenerator *gen, gboolean pretty);
+void                         gtuber_manifest_generator_set_pretty          (GtuberManifestGenerator *gen, gboolean pretty);
 
-guint                     gtuber_manifest_generator_get_indent             (GtuberManifestGenerator *gen);
+guint                        gtuber_manifest_generator_get_indent          (GtuberManifestGenerator *gen);
 
-void                      gtuber_manifest_generator_set_indent             (GtuberManifestGenerator *gen, guint indent);
+void                         gtuber_manifest_generator_set_indent          (GtuberManifestGenerator *gen, guint indent);
 
-void                      gtuber_manifest_generator_set_media_info         (GtuberManifestGenerator *gen, GtuberMediaInfo *info);
+GtuberAdaptiveStreamManifest gtuber_manifest_generator_get_manifest_type   (GtuberManifestGenerator *gen);
 
-void                      gtuber_manifest_generator_set_filter_func        (GtuberManifestGenerator *gen, GtuberAdaptiveStreamFilter filter, gpointer user_data, GDestroyNotify destroy);
+void                         gtuber_manifest_generator_set_manifest_type   (GtuberManifestGenerator *gen, GtuberAdaptiveStreamManifest type);
 
-gchar *                   gtuber_manifest_generator_to_data                (GtuberManifestGenerator *gen);
+void                         gtuber_manifest_generator_set_media_info      (GtuberManifestGenerator *gen, GtuberMediaInfo *info);
 
-gboolean                  gtuber_manifest_generator_to_file                (GtuberManifestGenerator *gen, const gchar *filename, GError **error);
+void                         gtuber_manifest_generator_set_filter_func     (GtuberManifestGenerator *gen, GtuberAdaptiveStreamFilter filter, gpointer user_data, GDestroyNotify destroy);
 
-GQuark                    gtuber_manifest_generator_error_quark            (void);
+gchar *                      gtuber_manifest_generator_to_data             (GtuberManifestGenerator *gen);
+
+gboolean                     gtuber_manifest_generator_to_file             (GtuberManifestGenerator *gen, const gchar *filename, GError **error);
+
+GQuark                       gtuber_manifest_generator_error_quark         (void);
 
 G_END_DECLS
 

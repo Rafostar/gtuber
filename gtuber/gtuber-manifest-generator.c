@@ -33,6 +33,7 @@ enum
   PROP_0,
   PROP_PRETTY,
   PROP_INDENT,
+  PROP_MANIFEST_TYPE,
   PROP_LAST
 };
 
@@ -43,6 +44,7 @@ struct _GtuberManifestGenerator
   gboolean pretty;
   guint indent;
 
+  GtuberAdaptiveStreamManifest manifest_type;
   GtuberMediaInfo *media_info;
 
   GtuberAdaptiveStreamFilter filter_func;
@@ -85,6 +87,7 @@ gtuber_manifest_generator_init (GtuberManifestGenerator *self)
   self->pretty = FALSE;
   self->indent = 2;
 
+  self->manifest_type = GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN;
   self->media_info = NULL;
 
   self->filter_func = NULL;
@@ -110,6 +113,11 @@ gtuber_manifest_generator_class_init (GtuberManifestGeneratorClass *klass)
       "Indent", "Amount of spaces used for indent", 0, G_MAXUINT, 0,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_MANIFEST_TYPE] = g_param_spec_enum ("manifest-type",
+      "Adaptive Stream Manifest Type", "The manifest type to generate",
+      GTUBER_TYPE_ADAPTIVE_STREAM_MANIFEST, GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 }
 
@@ -125,6 +133,9 @@ gtuber_manifest_generator_set_property (GObject * object, guint prop_id,
       break;
     case PROP_INDENT:
       gtuber_manifest_generator_set_indent (self, g_value_get_uint (value));
+      break;
+    case PROP_MANIFEST_TYPE:
+      gtuber_manifest_generator_set_manifest_type (self, g_value_get_enum (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -144,6 +155,9 @@ gtuber_manifest_generator_get_property (GObject *object, guint prop_id,
       break;
     case PROP_INDENT:
       g_value_set_uint (value, gtuber_manifest_generator_get_indent (self));
+      break;
+    case PROP_MANIFEST_TYPE:
+      g_value_set_enum (value, gtuber_manifest_generator_get_manifest_type (self));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -840,19 +854,28 @@ dump_hls_data (GtuberManifestGenerator *self, GString *string)
   return TRUE;
 }
 
+static gboolean
+get_allows_type (GtuberManifestGenerator *self,
+    GtuberAdaptiveStreamManifest possible_type)
+{
+  return (self->manifest_type == GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN
+      || self->manifest_type == possible_type);
+}
+
 static gchar *
 gen_to_data_internal (GtuberManifestGenerator *self, gsize *length)
 {
   GString *string;
-  gboolean success;
+  gboolean success = FALSE;
 
   g_return_val_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self), NULL);
   g_return_val_if_fail (self->media_info != NULL, NULL);
 
   string = g_string_new ("");
 
-  success = dump_dash_data (self, string);
-  if (!success)
+  if (!success && get_allows_type (self, GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH))
+    success = dump_dash_data (self, string);
+  if (!success && get_allows_type (self, GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS))
     success = dump_hls_data (self, string);
 
   if (length)
@@ -930,6 +953,46 @@ gtuber_manifest_generator_set_indent (GtuberManifestGenerator *self, guint inden
   g_return_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self));
 
   self->indent = indent;
+}
+
+/**
+ * gtuber_manifest_generator_get_manifest_type:
+ * @gen: a #GtuberManifestGenerator
+ *
+ * Returns: a #GtuberAdaptiveStreamManifest representing
+ *   requested type of the manifest to generate.
+ */
+GtuberAdaptiveStreamManifest
+gtuber_manifest_generator_get_manifest_type (GtuberManifestGenerator *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self),
+      GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN);
+
+  return self->manifest_type;
+}
+
+/**
+ * gtuber_manifest_generator_set_manifest_type:
+ * @gen: a #GtuberManifestGenerator
+ * @type: a #GtuberAdaptiveStreamManifest
+ *
+ * Sets the adaptive stream manifest type to use for generation.
+ *
+ * Generator will only try to generate data of the requested type.
+ * Adaptive streams array must include streams supporting this
+ * type for generation to be successful.
+ *
+ * Setting this option to %GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN,
+ * results in auto behavior (i.e. any possible manifest type will be generated).
+ * Do that if your app does not distinguish (supports all) types.
+ */
+void
+gtuber_manifest_generator_set_manifest_type (GtuberManifestGenerator *self,
+    GtuberAdaptiveStreamManifest type)
+{
+  g_return_if_fail (GTUBER_IS_MANIFEST_GENERATOR (self));
+
+  self->manifest_type = type;
 }
 
 /**
