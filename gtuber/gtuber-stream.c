@@ -313,6 +313,34 @@ gtuber_stream_get_codecs (GtuberStream *self,
 }
 
 /**
+ * gtuber_stream_obtain_codecs_string:
+ * @stream: a #GtuberStream
+ *
+ * Obtains a single string with all codecs used to encode the stream.
+ * Multiple codecs will be separated by commas.
+ *
+ * Returns: (transfer full): codecs string or %NULL when none.
+ **/
+gchar *
+gtuber_stream_obtain_codecs_string (GtuberStream *self)
+{
+  const gchar *vcodec, *acodec;
+  gchar *codecs_str = NULL;
+
+  g_return_val_if_fail (GTUBER_IS_STREAM (self), NULL);
+
+  if (gtuber_stream_get_codecs (self, &vcodec, &acodec)) {
+    codecs_str = (vcodec && acodec)
+        ? g_strdup_printf ("%s,%s", vcodec, acodec)
+        : (vcodec)
+        ? g_strdup (vcodec)
+        : g_strdup (acodec);
+  }
+
+  return codecs_str;
+}
+
+/**
  * gtuber_stream_set_codecs: (skip)
  * @stream: a #GtuberStream
  * @vcodec: the stream video codec

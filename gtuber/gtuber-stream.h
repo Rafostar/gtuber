@@ -50,27 +50,29 @@ typedef struct _GtuberStreamClass GtuberStreamClass;
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberStream, g_object_unref)
 #endif
 
-GType gtuber_stream_get_type                        (void);
+GType gtuber_stream_get_type                            (void);
 
-const gchar *        gtuber_stream_get_uri          (GtuberStream *stream);
+const gchar *        gtuber_stream_get_uri              (GtuberStream *stream);
 
-guint                gtuber_stream_get_itag         (GtuberStream *stream);
+guint                gtuber_stream_get_itag             (GtuberStream *stream);
 
-GtuberStreamMimeType gtuber_stream_get_mime_type    (GtuberStream *stream);
+GtuberStreamMimeType gtuber_stream_get_mime_type        (GtuberStream *stream);
 
-gboolean             gtuber_stream_get_codecs       (GtuberStream *stream, const gchar **vcodec, const gchar **acodec);
+gboolean             gtuber_stream_get_codecs           (GtuberStream *stream, const gchar **vcodec, const gchar **acodec);
 
-const gchar *        gtuber_stream_get_video_codec  (GtuberStream *stream);
+gchar *              gtuber_stream_obtain_codecs_string (GtuberStream *stream);
 
-const gchar *        gtuber_stream_get_audio_codec  (GtuberStream *stream);
+const gchar *        gtuber_stream_get_video_codec      (GtuberStream *stream);
 
-guint                gtuber_stream_get_width        (GtuberStream *stream);
+const gchar *        gtuber_stream_get_audio_codec      (GtuberStream *stream);
 
-guint                gtuber_stream_get_height       (GtuberStream *stream);
+guint                gtuber_stream_get_width            (GtuberStream *stream);
 
-guint                gtuber_stream_get_fps          (GtuberStream *stream);
+guint                gtuber_stream_get_height           (GtuberStream *stream);
 
-guint                gtuber_stream_get_bitrate      (GtuberStream *stream);
+guint                gtuber_stream_get_fps              (GtuberStream *stream);
+
+guint                gtuber_stream_get_bitrate          (GtuberStream *stream);
 
 G_END_DECLS
 
