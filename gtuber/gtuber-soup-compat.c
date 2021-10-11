@@ -17,19 +17,29 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_PLUGIN_DEVEL_H__
-#define __GTUBER_PLUGIN_DEVEL_H__
+#include "gtuber-soup-compat.h"
 
-#define __GTUBER_PLUGIN_DEVEL_INSIDE__
+#if !SOUP_CHECK_VERSION (2, 99, 1)
 
-#include <gtuber/gtuber.h>
-#include <gtuber/gtuber-website.h>
-#include <gtuber/gtuber-stream-devel.h>
-#include <gtuber/gtuber-adaptive-stream-devel.h>
-#include <gtuber/gtuber-media-info-devel.h>
+SoupMessageHeaders *
+soup_message_get_request_headers (SoupMessage *msg)
+{
+  return msg->request_headers;
+}
 
-#include <gtuber/gtuber-soup-compat.h>
+void
+soup_message_set_request_body (SoupMessage *msg, const char *content_type,
+    GInputStream *stream, gssize content_length)
+{
+  GBytes *bytes;
+  gchar *req_body;
+  gsize req_size;
 
-#undef __GTUBER_PLUGIN_DEVEL_INSIDE__
+  bytes = g_input_stream_read_bytes (stream, content_length, NULL, NULL);
+  req_body = g_bytes_unref_to_data (bytes, &req_size);
 
-#endif /* __GTUBER_PLUGIN_DEVEL_H__ */
+  soup_message_set_request (msg, content_type,
+      SOUP_MEMORY_TAKE, req_body, req_size);
+}
+
+#endif /* SOUP_CHECK_VERSION */

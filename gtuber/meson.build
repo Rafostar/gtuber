@@ -18,9 +18,17 @@ gmodule_dep = dependency('gmodule-2.0',
   required: true,
   fallback: ['glib', 'libgmodule_dep'],
 )
-soup_dep = dependency('libsoup-3.0',
-  required: true,
+
+soup_dep_name = 'libsoup-3.0'
+soup_dep = dependency(soup_dep_name,
+  required: false,
 )
+if not soup_dep.found()
+  soup_dep_name = 'libsoup-2.4'
+  soup_dep = dependency(soup_dep_name,
+    required: true,
+  )
+endif
 
 version_conf = configuration_data()
 
@@ -76,6 +84,7 @@ gtuber_sources = [
 gtuber_sources_other = [
   'gtuber-loader.c',
   'gtuber-website.c',
+  'gtuber-soup-compat.c',
 ]
 gtuber_c_args = [
   '-DG_LOG_DOMAIN="Gtuber"',
@@ -161,7 +170,7 @@ pkgconfig.generate(
     'gobject-2.0',
     'gio-2.0',
     'gmodule-2.0',
-    'libsoup-3.0',
+    soup_dep_name,
   ],
 )
 

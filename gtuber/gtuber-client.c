@@ -32,6 +32,8 @@
 #include "gtuber-loader-private.h"
 #include "gtuber-website.h"
 
+#include "gtuber-soup-compat.h"
+
 struct _GtuberClient
 {
   GObject parent;
@@ -158,10 +160,12 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   GtuberWebsiteClass *website_class;
   GtuberFlow flow = GTUBER_FLOW_ERROR;
 
-  GUri *guri = NULL;
-  GModule *module = NULL;
   SoupSession *session = NULL;
   SoupMessage *msg = NULL;
+  GInputStream *stream = NULL;
+
+  GUri *guri = NULL;
+  GModule *module = NULL;
   GError *my_error = NULL;
 
   g_return_val_if_fail (GTUBER_IS_CLIENT (self), NULL);
@@ -219,54 +223,52 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
       NULL);
 
 beginning:
+  g_debug ("Creating request...");
   flow = website_class->create_request (website, info, &msg, &my_error);
+
+  if (my_error)
+    flow = GTUBER_FLOW_ERROR;
   if (flow != GTUBER_FLOW_OK)
     goto decide_flow;
   if (!msg)
     goto no_message;
 
-  g_debug ("Request created");
+  g_debug ("Sending request...");
+  stream = soup_session_send (session, msg, cancellable, &my_error);
 
-  g_debug ("Plugin handles input stream: %s",
-      website_class->handles_input_stream ? "yes" : "no");
-
-  if (website_class->handles_input_stream) {
-    GInputStream *stream;
-
-    g_debug ("Sending request...");
-    stream = soup_session_send (session, msg, cancellable, &my_error);
-    g_debug ("Request send");
-
-    flow = (my_error != NULL) ? GTUBER_FLOW_ERROR :
-        website_class->parse_input_stream (website, stream, info, &my_error);
-
-    if (stream) {
-      if (g_input_stream_close (stream, NULL, NULL))
-        g_debug ("Input stream closed");
-      else
-        g_warning ("Input stream could not be closed");
-
-      g_object_unref (stream);
-    }
+  if (my_error) {
+    flow = GTUBER_FLOW_ERROR;
+  } else if (website_class->handles_input_stream) {
+    g_debug ("Parsing response as input stream...");
+    flow = website_class->parse_input_stream (website, stream, info, &my_error);
   } else {
-    GBytes *bytes;
+    GOutputStream *ostream;
+    gchar *data = NULL;
 
-    g_debug ("Sending request...");
-    bytes = soup_session_send_and_read (session, msg, cancellable, &my_error);
-    g_debug ("Request send");
-
-    if (my_error) {
-      flow = GTUBER_FLOW_ERROR;
-    } else {
-      gchar *data;
-      gsize size;
-
-      data = g_bytes_unref_to_data (bytes, &size);
-      flow = website_class->parse_response (website, data, info, &my_error);
-      g_free (data);
+    ostream = g_memory_output_stream_new_resizable ();
+    if (g_output_stream_splice (ostream, stream,
+        G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+        cancellable, &my_error) != -1) {
+      data = g_memory_output_stream_steal_data (G_MEMORY_OUTPUT_STREAM (ostream));
+      g_debug ("Parsing response as data...");
     }
+    g_object_unref (ostream);
+
+    flow = (my_error != NULL)
+        ? GTUBER_FLOW_ERROR
+        : website_class->parse_response (website, data, info, &my_error);
+
+    g_free (data);
   }
 
+  if (stream) {
+    if (g_input_stream_close (stream, NULL, NULL))
+      g_debug ("Input stream closed");
+    else
+      g_warning ("Input stream could not be closed");
+
+    g_object_unref (stream);
+  }
   if (flow != GTUBER_FLOW_OK)
     goto decide_flow;
 
