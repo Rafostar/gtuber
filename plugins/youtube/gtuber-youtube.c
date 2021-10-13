@@ -33,6 +33,8 @@ struct _GtuberYoutube
   gchar *visitor_data;
   gchar *client_version;
   gchar *locale;
+
+  guint try_count;
 };
 
 struct _GtuberYoutubeClass
@@ -55,6 +57,7 @@ gtuber_youtube_init (GtuberYoutube *self)
 {
   const gchar * const *langs;
 
+  self->try_count = 0;
   self->hls_uri = NULL;
 
   /* FIXME: get from cache */
@@ -283,19 +286,25 @@ update_info_hls (GtuberMediaInfo *info)
   g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _update_hls_stream_cb, NULL);
 }
 
-static void
+static GtuberFlow
 parse_response_data (GtuberYoutube *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
   const gchar *status, *visitor_data;
+  GtuberFlow flow = GTUBER_FLOW_OK;
 
   /* Check if video is playable */
   status = gtuber_utils_json_get_string (reader, "playabilityStatus", "status", NULL);
   if (g_strcmp0 (status, "OK")) {
-    g_set_error (error, GTUBER_WEBSITE_ERROR,
-        GTUBER_WEBSITE_ERROR_OTHER,
-        "Video is not playable");
+    if (self->try_count < 2) {
+      flow = GTUBER_FLOW_RESTART;
+      g_debug ("Video is not playable, trying again...");
+    } else {
+      g_set_error (error, GTUBER_WEBSITE_ERROR,
+          GTUBER_WEBSITE_ERROR_OTHER,
+          "Video is not playable");
+    }
     goto finish;
   }
 
@@ -346,13 +355,25 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
   }
 
 finish:
+  if (*error)
+    flow = GTUBER_FLOW_ERROR;
+
   g_object_unref (reader);
+
+  return flow;
 }
 
 static gchar *
 obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
 {
   gchar *req_body, **parts;
+  const gchar *cliScreen;
+
+  /* Get EMBED video info on first try.
+   * If it fails, try default one on next try */
+  cliScreen = (self->try_count == 1)
+      ? "\"EMBED\""
+      : "null";
 
   parts = g_strsplit (self->locale, "_", 0);
   req_body = g_strdup_printf ("{\n"
@@ -360,7 +381,7 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
   "    \"client\": {\n"
   "      \"clientName\": \"ANDROID\",\n"
   "      \"clientVersion\": \"%s\",\n"
-  "      \"clientScreen\": \"EMBED\",\n"
+  "      \"clientScreen\": %s,\n"
   "      \"hl\": \"%s\",\n"
   "      \"gl\": \"%s\",\n"
   "      \"visitorData\": \"%s\"\n"
@@ -374,7 +395,7 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
   "  },\n"
   "  \"video_id\": \"%s\"\n"
   "}",
-      self->client_version, parts[0], parts[1],
+      self->client_version, cliScreen, parts[0], parts[1],
       self->visitor_data, self->video_id, self->video_id);
 
   g_strfreev (parts);
@@ -391,6 +412,9 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   gchar *req_body, *ua;
 
   if (!self->hls_uri) {
+    self->try_count++;
+    g_debug ("Try number: %i", self->try_count);
+
     *msg = soup_message_new ("POST",
         "https://www.youtube.com/youtubei/v1/player?"
         "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
@@ -419,6 +443,7 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
     GInputStream *stream, GtuberMediaInfo *info, GError **error)
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
+  GtuberFlow flow = GTUBER_FLOW_OK;
   JsonParser *parser;
 
   if (self->hls_uri) {
@@ -435,7 +460,7 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
     goto finish;
 
   gtuber_utils_json_parser_debug (parser);
-  parse_response_data (self, parser, info, error);
+  flow = parse_response_data (self, parser, info, error);
 
 finish:
   g_object_unref (parser);
@@ -445,7 +470,7 @@ finish:
   if (self->hls_uri)
     return GTUBER_FLOW_RESTART;
 
-  return GTUBER_FLOW_OK;
+  return flow;
 }
 
 GtuberWebsite *
