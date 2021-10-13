@@ -41,11 +41,7 @@ static GtuberFlow gtuber_website_parse_input_stream (GtuberWebsite *website,
 static void
 gtuber_website_init (GtuberWebsite *self)
 {
-  self = gtuber_website_get_instance_private (self);
-
   self->uri = NULL;
-  self->user_agent = NULL;
-  self->browser_version = NULL;
 }
 
 static void
@@ -70,8 +66,6 @@ gtuber_website_finalize (GObject *object)
   g_debug ("Website finalize");
 
   g_free (self->uri);
-  g_free (self->user_agent);
-  g_free (self->browser_version);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -129,57 +123,4 @@ gtuber_website_set_uri (GtuberWebsite *self, const gchar *uri)
 
   g_free (self->uri);
   self->uri = g_strdup (uri);
-}
-
-/**
- * gtuber_website_get_user_agent: (skip)
- * @website: a #GtuberWebsite
- *
- * Returns: (transfer none): advertised user agent string.
- */
-const gchar *
-gtuber_website_get_user_agent (GtuberWebsite *self)
-{
-  g_return_val_if_fail (GTUBER_IS_WEBSITE (self), NULL);
-
-  return self->user_agent;
-}
-
-/**
- * gtuber_website_get_browser_version: (skip)
- * @website: a #GtuberWebsite
- *
- * Returns: (transfer none): advertised browser version.
- */
-const gchar *
-gtuber_website_get_browser_version (GtuberWebsite *self)
-{
-  g_return_val_if_fail (GTUBER_IS_WEBSITE (self), NULL);
-
-  return self->browser_version;
-}
-
-/**
- * gtuber_website_set_browser: (skip)
- * @website: a #GtuberWebsite
- * @user_agent: an user agent string
- * @browser_version: web browser version
- *
- * Set current user agent and browser version strings.
- *
- * This is only useful for plugin implementations where
- * they need to be altered, otherwise #GtuberClient
- * will set them automatically.
- */
-void
-gtuber_website_set_browser (GtuberWebsite *self, const gchar *user_agent,
-    const gchar *browser_version)
-{
-  g_return_if_fail (GTUBER_IS_WEBSITE (self));
-
-  g_free (self->user_agent);
-  self->user_agent = g_strdup (user_agent);
-
-  g_free (self->browser_version);
-  self->browser_version = g_strdup (browser_version);
 }

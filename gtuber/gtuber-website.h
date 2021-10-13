@@ -59,8 +59,6 @@ struct _GtuberWebsite
   GObject parent;
 
   gchar *uri;
-  gchar *user_agent;
-  gchar *browser_version;
 };
 
 /**
@@ -98,11 +96,6 @@ GType         gtuber_website_get_type              (void);
 
 const gchar * gtuber_website_get_uri               (GtuberWebsite *website);
 void          gtuber_website_set_uri               (GtuberWebsite *website, const gchar *uri);
-
-const gchar * gtuber_website_get_user_agent        (GtuberWebsite *website);
-const gchar * gtuber_website_get_browser_version   (GtuberWebsite *website);
-
-void          gtuber_website_set_browser           (GtuberWebsite *website, const gchar *user_agent, const gchar *browser_version);
 
 GQuark        gtuber_website_error_quark           (void);
 

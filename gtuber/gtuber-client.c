@@ -38,9 +38,6 @@ struct _GtuberClient
 {
   GObject parent;
 
-  gchar *user_agent;
-  gchar *browser_version;
-
   /* Private */
   gchar *module_name;
 };
@@ -59,14 +56,6 @@ static void gtuber_client_finalize (GObject *object);
 static void
 gtuber_client_init (GtuberClient *self)
 {
-  self = gtuber_client_get_instance_private (self);
-
-  /* TODO: Make it always up-to-date */
-  self->browser_version = g_strdup ("86.0");
-  self->user_agent = g_strdup_printf (
-      "Mozilla/5.0 (X11; Linux x86_64; rv:%s) Gecko/20100101 Firefox/%s",
-      self->browser_version, self->browser_version);
-
   self->module_name = NULL;
 }
 
@@ -85,9 +74,6 @@ gtuber_client_finalize (GObject *object)
 
   g_debug ("Client finalize");
 
-  g_free (self->browser_version);
-  g_free (self->user_agent);
-
   g_free (self->module_name);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
@@ -101,9 +87,20 @@ gtuber_client_configure_website (GtuberClient *self,
    * otherwise set it with current values */
   if (!gtuber_website_get_uri (website))
     gtuber_website_set_uri (website, uri);
-  if (!gtuber_website_get_user_agent (website) ||
-      !gtuber_website_get_browser_version (website)) {
-    gtuber_website_set_browser (website, self->user_agent, self->browser_version);
+}
+
+static void
+gtuber_client_configure_msg (GtuberClient *self, SoupMessage *msg)
+{
+  SoupMessageHeaders *headers;
+
+  /* Set some default headers if plugin did not */
+  headers = soup_message_get_request_headers (msg);
+
+  if (!soup_message_headers_get_one (headers, "User-Agent")) {
+    /* User-Agent: privacy.resistFingerprining */
+    soup_message_headers_replace (headers, "User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0");
   }
 }
 
@@ -219,7 +216,6 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   session = soup_session_new_with_options (
       "timeout", 7,
       "max_conns_per_host", 1,
-      "user_agent", self->user_agent,
       NULL);
 
 beginning:
@@ -232,6 +228,8 @@ beginning:
     goto decide_flow;
   if (!msg)
     goto no_message;
+
+  gtuber_client_configure_msg (self, msg);
 
   g_debug ("Sending request...");
   stream = soup_session_send (session, msg, cancellable, &my_error);
