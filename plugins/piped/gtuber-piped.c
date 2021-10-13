@@ -185,7 +185,8 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
   gtuber_media_info_set_description (info, gtuber_utils_json_get_string (reader, "description", NULL));
   gtuber_media_info_set_duration (info, gtuber_utils_json_get_int (reader, "duration", NULL));
 
-  self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hls", NULL));
+  if (gtuber_utils_json_get_boolean (reader, "livestream", NULL))
+    self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hls", NULL));
 
   if (!self->hls_uri) {
     if (gtuber_utils_json_go_to (reader, "videoStreams", NULL)) {
