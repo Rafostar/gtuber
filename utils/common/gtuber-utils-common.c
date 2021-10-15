@@ -44,9 +44,14 @@ gtuber_utils_common_uri_matches_hosts (GUri *uri, guint *match, const gchar *sea
   gboolean found = FALSE;
   const gchar *host = g_uri_get_host (uri);
 
+  if (!host)
+    return FALSE;
+
   /* Skip common prefixes */
   if (g_str_has_prefix (host, "www."))
     offset = 4;
+  else if (g_str_has_prefix (host, "m."))
+    offset = 2;
 
   va_start (args, search_host);
   while (search_host) {
