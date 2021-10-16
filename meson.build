@@ -1,6 +1,6 @@
 project('gtuber', 'c',
   version: '0.0.1',
-  meson_version: '>=0.53.0',
+  meson_version: '>=0.58.0',
   license: 'LGPLv2.1+',
   default_options: [
     'warning_level=1',
@@ -85,3 +85,5 @@ summary('doc', build_doc, section: 'Build')
 
 subdir('utils')
 subdir('plugins')
+
+subdir('bindings')

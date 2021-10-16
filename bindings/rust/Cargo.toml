@@ -1,0 +1,30 @@
+[package]
+name = "gtuber"
+version = "0.0.1"
+edition = "2018"
+description = "Rust bindings for gtuber"
+license = "LGPL-3.0-or-later"
+readme = "../../README.md"
+repository = "https://github.com/Rafostar/gtuber"
+keywords = ["glib", "clapper"]
+categories = ["api-bindings", "multimedia"]
+
+
+[features]
+default = []
+dox = []
+
+[package.metadata.docs.rs]
+features = ["dox"]
+
+[dependencies]
+
+[dependencies.glib]
+git = "https://github.com/gtk-rs/gtk-rs-core.git"
+
+[dependencies.gio]
+git = "https://github.com/gtk-rs/gtk-rs-core.git"
+
+[dependencies.ffi]
+package = "gtuber-sys"
+path = "./sys"

@@ -1,0 +1,8 @@
+# i don't know why this is here. It should be in $MESON_BUILD_ROOT but it isn't ._.
+'_build'
+
+Cargo.lock
+src/auto
+
+sys/*
+!sys/Gir.toml

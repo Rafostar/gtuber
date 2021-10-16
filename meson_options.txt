@@ -12,3 +12,6 @@ option('bilibili', type: 'feature', value: 'auto')
 option('piped', type: 'feature', value: 'auto')
 option('twitch', type: 'feature', value: 'auto')
 option('youtube', type: 'feature', value: 'auto')
+
+# Bindings
+option('rs', type: 'feature', value: 'auto')

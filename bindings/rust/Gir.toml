@@ -1,0 +1,26 @@
+[options]
+library = "Gtuber"
+version = "0.0"
+work_mode = "normal"
+
+girs_directories = ["/usr/share/gir-1.0/"]
+
+external_libraries = [
+    "GLib",
+    "Gio"
+]
+
+generate = [
+	"Gtuber.AdaptiveStream",
+	"Gtuber.Client",
+	"Gtuber.ManifestGenerator",
+	"Gtuber.MediaInfo",
+	"Gtuber.Stream",
+	"Gtuber.AdaptiveStreamManifest",
+	"Gtuber.StreamMimeType"
+]
+
+manual = [
+	"GLib.Error",
+	"Gio.Cancellable"
+]

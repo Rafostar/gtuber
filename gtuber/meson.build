@@ -118,6 +118,8 @@ gtuber_lib = library(
 
 install_headers(gtuber_headers, install_dir: gtuber_headers_dir)
 
+gtuber_build_dir = meson.current_build_dir()
+
 gir = find_program('g-ir-scanner', required: get_option('introspection'))
 build_gir = (gir.found() and not get_option('introspection').disabled())
 
