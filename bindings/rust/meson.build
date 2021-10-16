@@ -23,12 +23,24 @@ gir_rs = custom_target(
 	]
 )
 
-
-run_command(generator,
-	'--gir-files-directories', '/usr/share/gir-1.0/', '/usr/local/share/gir-1.0/', gtuber_build_dir,
-	'--gir-path', gir_rs.full_path(),
-	current_srcdir
+custom_target('rust_bindings',
+	build_by_default: true,
+	depends: [
+		gir_rs,
+		gtuber_gir
+	],
+	input: files(),
+	output: 'nothing',
+	console: true,
+	install: false,
+	command: [
+		generator,
+		'--gir-files-directories', '/usr/share/gir-1.0/', '/usr/local/share/gir-1.0/', gtuber_build_dir,
+		'--gir-path', gir_rs.full_path(),
+		'--no-fmt', current_srcdir
+	]
 )
+run_command(cargo, 'fmt')
 
 crate_dir = join_paths(datadir, 'cargo/registry/gtuber-0.0.1/')
 install_data('Cargo.toml', install_dir: crate_dir)

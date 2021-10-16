@@ -1,0 +1,75 @@
+# vim: set ts=2 sw=2 expandtab:
+name: Deploy to sp1ritCS/gtuber-rs
+
+on:
+  push:
+    branches:
+      - rust
+      - actions
+
+jobs:
+  deploy:
+    name: Deploy to seperate repository
+    runs-on: ubuntu-latest
+    container:
+      # image: registry.opensuse.org/opensuse/tumbleweed:latest
+      image: registry.fedoraproject.org/fedora
+      options: --privileged
+    steps:
+      #- name: Download dependencies 🦎
+      #  run: |
+      #    zypper dup -y
+      #    zypper in -y --no-recommends tar gzip git gcc rust cargo meson "pkgconfig(glib-2.0)" "pkgconfig(gobject-2.0)" "pkgconfig(gio-2.0)" "pkgconfig(gmodule-2.0)" "pkgconfig(libsoup-3.0)" "gobject-introspection" "pkgconfig(gobject-introspection-1.0)"
+      #  env:
+      #    ZYPP_SINGLE_RPMTRANS: 1
+      #    ZYPP_MEDIANETWORK: 1
+      - name: Download dependencies 🎩
+        run: dnf --refresh install -y tar gzip git gcc rust cargo meson "pkgconfig(glib-2.0)" "pkgconfig(gobject-2.0)" "pkgconfig(gio-2.0)" "pkgconfig(gmodule-2.0)" "pkgconfig(libsoup-2.4)" "gobject-introspection" "pkgconfig(gobject-introspection-1.0)"
+
+      - name: Checkout Repository 🛎️
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Configure git 🔧
+        run: |
+          git config --global user.name "Autodeploy Bot (github.com/sp1ritCS/gtuber)"
+          git config --global user.email "noreply@bot.sp1rit.arpa"
+      - name: Setup SSH Keys 🔑
+        run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          base64 -d <<< "${{ secrets.DEPLOY_KEY }}" | ssh-add -
+          # this is insecure. however GHA behaves very wierdly
+          git config --global core.sshCommand 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      - name: Build gtuber 🔨
+        run: |
+          mkdir -p "/usr/local/share/gir-1.0"
+          TRI=$(gcc -dumpmachine)
+          meson $TRI -Dintrospection=enabled -Drs=enabled -Dvapi=disabled
+          ninja -C $TRI
+      - name: Pull in gtuber-rs 🌐
+        run: |
+          pushd bindings/rust/
+          git clone --depth=1 git@github.com:sp1ritCS/gtuber-rs.git
+          cp -rf src/ sys/ gtuber-rs/
+          cat Cargo.toml | sed -E 's/^readme ?=.*$/readme = "README.md"/' > gtuber-rs/Cargo.toml
+          cp -f $(git rev-parse --show-toplevel)/README.md gtuber-rs/
+          popd
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      - name: Add & commit updated crate 📦
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          pushd bindings/rust/gtuber-rs/
+          git add .
+          git commit -m "Updated gtuber-rs for gtuber@$COMMIT" && git push origin master || echo "No changes to commit"
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+      - name: Cleanup Secrets 🔒
+        if: always()
+        run: |
+          ssh-add -D
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
