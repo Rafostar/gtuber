@@ -3,7 +3,7 @@ library = "Gtuber"
 version = "0.0"
 work_mode = "sys"
 
-girs_directories = ["/usr/share/gir-1.0/"]
+girs_directories = ["/usr/share/gir-1.0/", "/usr/local/share/gir-1.0/"]
 
 external_libraries = [
     "GLib",

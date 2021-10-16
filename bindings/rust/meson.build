@@ -24,9 +24,8 @@ gir_rs = custom_target(
 )
 
 
-generator = find_program('gir/generator.py')
 run_command(generator,
-	'--gir-files-directories', '/usr/share/gir-1.0/', gtuber_build_dir,
+	'--gir-files-directories', '/usr/share/gir-1.0/', '/usr/local/share/gir-1.0/', gtuber_build_dir,
 	'--gir-path', gir_rs.full_path(),
 	current_srcdir
 )
