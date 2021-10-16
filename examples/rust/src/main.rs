@@ -10,9 +10,8 @@ fn print_stream_meta<S: StreamExt>(stream: &S) {
 	if let Some(audio) = stream.audio_codec() {
 		println!("Audio codec: {}", audio);
 	}
-	if let Some(uri) = stream.uri() {
-		println!("URI: {}", uri);
-	}
+
+	println!("URI: {}", stream.uri());
 }
 
 fn main() -> Result<()> {

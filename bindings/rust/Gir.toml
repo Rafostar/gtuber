@@ -15,7 +15,7 @@ generate = [
 	"Gtuber.Client",
 	"Gtuber.ManifestGenerator",
 	"Gtuber.MediaInfo",
-	"Gtuber.Stream",
+#	"Gtuber.Stream",
 	"Gtuber.AdaptiveStreamManifest",
 	"Gtuber.StreamMimeType"
 ]
@@ -24,3 +24,11 @@ manual = [
 	"GLib.Error",
 	"Gio.Cancellable"
 ]
+
+[[object]]
+name = "Gtuber.Stream"
+status = "generate"
+	[[object.function]]
+	name = "get_uri"
+		[object.function.return]
+		nullable = false

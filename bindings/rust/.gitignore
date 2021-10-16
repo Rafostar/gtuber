@@ -1,6 +1,7 @@
 # i don't know why this is here. It should be in $MESON_BUILD_ROOT but it isn't ._.
 '_build'
 
+target/
 Cargo.lock
 src/auto
 
