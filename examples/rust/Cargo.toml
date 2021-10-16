@@ -9,9 +9,7 @@ edition = "2018"
 anyhow = "1.0"
 
 [dependencies.gtuber]
-package = "gtuber-rs"
-path = "../../gtuber-rs"
-
+git = "https://github.com/sp1ritCS/gtuber-rs.git"
 [dependencies.glib]
 git = "https://github.com/gtk-rs/gtk-rs-core.git"
 [dependencies.gio]
