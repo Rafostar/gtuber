@@ -130,52 +130,16 @@ _read_stream_info (JsonReader *reader, GtuberStream *stream)
 
   /* Parse mime type and codecs */
   if ((yt_mime = gtuber_utils_json_get_string (reader, "mimeType", NULL))) {
-    gchar **strv;
+    GtuberStreamMimeType mime_type = GTUBER_STREAM_MIME_TYPE_UNKNOWN;
+    gchar *vcodec = NULL;
+    gchar *acodec = NULL;
 
-    strv = g_strsplit (yt_mime, ";", 2);
-    if (strv[1]) {
-      GHashTable *params;
-      gchar *codecs = NULL;
+    gtuber_utils_common_parse_yt_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
+    gtuber_stream_set_mime_type (stream, mime_type);
+    gtuber_stream_set_codecs (stream, vcodec, acodec);
 
-      g_strstrip (strv[1]);
-      params = g_uri_parse_params (strv[1], -1, ";", G_URI_PARAMS_WWW_FORM, NULL);
-
-      if (params) {
-        codecs = g_strdup (g_hash_table_lookup (params, "codecs"));
-        g_hash_table_unref (params);
-      }
-
-      if (codecs) {
-        GtuberStreamMimeType mime_type;
-
-        mime_type = gtuber_utils_common_get_mime_type_from_string (strv[0]);
-        gtuber_stream_set_mime_type (stream, mime_type);
-
-        g_strstrip (g_strdelimit (codecs, "\"", ' '));
-
-        switch (mime_type) {
-          case GTUBER_STREAM_MIME_TYPE_AUDIO_MP4:
-          case GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM:
-            /* codecs contain only one (audio) codec */
-            gtuber_stream_set_audio_codec (stream, codecs);
-            break;
-          default:{
-            gchar **cstrv;
-
-            cstrv = g_strsplit (codecs, ",", 2);
-            if (g_strv_length (cstrv) > 1)
-              g_strstrip (cstrv[1]);
-
-            gtuber_stream_set_codecs (stream, cstrv[0], cstrv[1]);
-
-            g_strfreev (cstrv);
-            break;
-          }
-        }
-        g_free (codecs);
-      }
-    }
-    g_strfreev (strv);
+    g_free (vcodec);
+    g_free (acodec);
   }
 }
 
