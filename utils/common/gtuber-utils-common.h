@@ -35,9 +35,15 @@ gchar *              gtuber_utils_common_obtain_uri_query_value         (GUri *u
 
 gchar *              gtuber_utils_common_obtain_uri_with_query_as_path  (const gchar *uri_str);
 
+gchar *              gtuber_utils_common_obtain_uri_source              (GUri *uri);
+
+gchar *              gtuber_utils_common_replace_uri_source             (const gchar *uri_str, const gchar *src_uri_str);
+
 void                 gtuber_utils_common_msg_take_request               (SoupMessage *msg, const gchar *content_type, gchar *req_body);
 
 GtuberStreamMimeType gtuber_utils_common_get_mime_type_from_string      (const gchar *string);
+
+void                 gtuber_utils_common_parse_yt_mime_type_string      (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
 
 gboolean             gtuber_utils_common_parse_hls_input_stream         (GInputStream *stream, GtuberMediaInfo *info, GError **error);
 

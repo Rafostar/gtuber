@@ -192,6 +192,53 @@ gtuber_utils_common_obtain_uri_with_query_as_path (const gchar *uri_str)
   return mod_uri;
 }
 
+gchar *
+gtuber_utils_common_obtain_uri_source (GUri *uri)
+{
+  gchar *uri_str, *source;
+
+  uri_str = g_uri_to_string_partial (uri, G_URI_HIDE_QUERY | G_URI_HIDE_FRAGMENT);
+  source = g_uri_resolve_relative (uri_str, "/", G_URI_FLAGS_ENCODED, NULL);
+
+  g_free (uri_str);
+
+  return source;
+}
+
+gchar *
+gtuber_utils_common_replace_uri_source (const gchar *uri_str, const gchar *src_uri_str)
+{
+  GUri *uri, *src_uri, *mod_uri;
+  gchar *mod_uri_str;
+
+  uri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
+  if (!uri)
+    return NULL;
+
+  src_uri = g_uri_parse (src_uri_str, G_URI_FLAGS_ENCODED, NULL);
+  if (!src_uri) {
+    g_uri_unref (uri);
+    return NULL;
+  }
+
+  mod_uri = g_uri_build (G_URI_FLAGS_ENCODED,
+      g_uri_get_scheme (src_uri),
+      g_uri_get_userinfo (src_uri),
+      g_uri_get_host (src_uri),
+      g_uri_get_port (src_uri),
+      g_uri_get_path (uri),
+      g_uri_get_query (uri),
+      g_uri_get_fragment (uri));
+
+  mod_uri_str = g_uri_to_string (mod_uri);
+
+  g_uri_unref (uri);
+  g_uri_unref (src_uri);
+  g_uri_unref (mod_uri);
+
+  return mod_uri_str;
+}
+
 /**
  * gtuber_utils_common_msg_take_request:
  * @msg: a #SoupMessage
@@ -249,6 +296,57 @@ gtuber_utils_common_get_mime_type_from_string (const gchar *string)
 
 unknown:
   return GTUBER_STREAM_MIME_TYPE_UNKNOWN;
+}
+
+/* Parse YT mime type and codecs */
+void
+gtuber_utils_common_parse_yt_mime_type_string (const gchar *yt_mime,
+    GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec)
+{
+  gchar **strv;
+
+  strv = g_strsplit (yt_mime, ";", 2);
+  if (strv[1]) {
+    GHashTable *params;
+    gchar *codecs = NULL;
+
+    g_strstrip (strv[1]);
+    params = g_uri_parse_params (strv[1], -1, ";", G_URI_PARAMS_WWW_FORM, NULL);
+
+    if (params) {
+      codecs = g_strdup (g_hash_table_lookup (params, "codecs"));
+      g_hash_table_unref (params);
+    }
+
+    if (codecs) {
+      *mime_type = gtuber_utils_common_get_mime_type_from_string (strv[0]);
+
+      g_strstrip (g_strdelimit (codecs, "\"", ' '));
+
+      switch (*mime_type) {
+        case GTUBER_STREAM_MIME_TYPE_AUDIO_MP4:
+        case GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM:
+          /* codecs contain only one (audio) codec */
+          *acodec = codecs;
+          break;
+        default:{
+          gchar **cstrv;
+
+          cstrv = g_strsplit (codecs, ",", 2);
+          if (g_strv_length (cstrv) > 1)
+            g_strstrip (cstrv[1]);
+
+          *vcodec = g_strdup (cstrv[0]);
+          *acodec = g_strdup (cstrv[1]);
+
+          g_strfreev (cstrv);
+          g_free (codecs);
+          break;
+        }
+      }
+    }
+  }
+  g_strfreev (strv);
 }
 
 typedef enum
