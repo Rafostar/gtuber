@@ -85,3 +85,5 @@ summary('doc', build_doc, section: 'Build')
 
 subdir('utils')
 subdir('plugins')
+
+subdir('tests')

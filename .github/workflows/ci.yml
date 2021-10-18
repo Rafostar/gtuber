@@ -24,6 +24,11 @@ jobs:
 
       - name: Build
         run: |
-          meson builddir --prefix=/usr
+          meson builddir --prefix=/usr -Dtests=true
           cd builddir
           meson install
+
+      - name: Run Tests
+        run: |
+          cd builddir
+          meson test

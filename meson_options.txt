@@ -2,6 +2,7 @@
 option('introspection', type: 'feature', value: 'auto', description: 'Build GObject Introspection data')
 option('vapi', type: 'feature', value: 'auto', description: 'Build Vala bindings')
 option('doc', type: 'boolean', value: false, description: 'Build documentation')
+option('tests', type: 'boolean', value: false, description: 'Build tests')
 
 # Utils
 option('utils-common', type: 'feature', value: 'auto')
