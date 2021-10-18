@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.fedoraproject.org/fedora
+      options: --privileged
+
+    steps:
+      - name: Prepare
+        run: |
+          dnf install -y git gcc meson glib2-devel libsoup-devel json-glib-devel gobject-introspection-devel
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          meson builddir --prefix=/usr
+          cd builddir
+          meson install
