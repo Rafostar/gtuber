@@ -7,15 +7,13 @@ int main (int argc, char **argv)                           \
 {                                                          \
   GtuberClient *client = gtuber_client_new ();             \
   gint _arg_num = 0;                                       \
-  if (argc > 1) {                                          \
+  if (argc > 1)                                            \
     _arg_num = g_ascii_strtoll (argv[argc - 1], NULL, 10);
 
 #define GTUBER_TEST_CASE(_num)                             \
-  }                                                        \
-  if (_num == _arg_num || _arg_num == 0) {
+  if (_num == _arg_num || _arg_num == 0)
 
 #define GTUBER_TEST_MAIN_END()                             \
-  }                                                        \
   g_object_unref (client);                                 \
   return 0;                                                \
 }
