@@ -63,6 +63,17 @@ gtuber_bilibili_finalize (GObject *object)
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
+void bilibili_set_media_info_id_from_cid (GtuberBilibili *self, GtuberMediaInfo *info)
+{
+  gchar *id;
+
+  id = g_strdup_printf ("%i", self->cid);
+  gtuber_media_info_set_id (info, id);
+  g_debug ("Video ID: %s", id);
+
+  g_free (id);
+}
+
 static const gchar *
 _get_id_name (GtuberBilibili *self)
 {

@@ -72,4 +72,6 @@ gchar * bilibili_bangumi_obtain_media_uri (GtuberBilibili *self, const gchar *id
 GtuberFlow bilibili_normal_parse_info (GtuberBilibili *self, JsonReader *reader, GtuberMediaInfo *info, GError **error);
 GtuberFlow bilibili_bangumi_parse_info (GtuberBilibili *self, JsonReader *reader, GtuberMediaInfo *info, GError **error);
 
+void bilibili_set_media_info_id_from_cid (GtuberBilibili *self, GtuberMediaInfo *info);
+
 G_END_DECLS

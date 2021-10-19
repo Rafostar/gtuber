@@ -70,6 +70,8 @@ _read_episodes (GtuberBilibili *self, JsonReader *reader,
           const gchar *title, *l_title;
           guint duration;
 
+          bilibili_set_media_info_id_from_cid (self, info);
+
           title = gtuber_utils_json_get_string (reader, "title", NULL);
           l_title = gtuber_utils_json_get_string (reader, "long_title", NULL);
 

@@ -41,7 +41,6 @@ bilibili_normal_parse_info (GtuberBilibili *self, JsonReader *reader,
     GtuberMediaInfo *info, GError **error)
 {
   const gchar *title, *description, *redirect;
-  gchar *id;
   GtuberFlow res = GTUBER_FLOW_ERROR;
 
   /* We need a complete set */
@@ -53,10 +52,7 @@ bilibili_normal_parse_info (GtuberBilibili *self, JsonReader *reader,
   if (res == GTUBER_FLOW_ERROR)
     goto finish;
 
-  id = g_strdup_printf ("%i", self->cid);
-  gtuber_media_info_set_id (info, id);
-  g_debug ("Video ID: %s", id);
-  g_free (id);
+  bilibili_set_media_info_id_from_cid (self, info);
 
   title = gtuber_utils_json_get_string (reader, "data", "title", NULL);
   gtuber_media_info_set_title (info, title);
