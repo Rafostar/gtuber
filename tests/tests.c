@@ -110,3 +110,19 @@ check_adaptive_streams (GtuberMediaInfo *info)
   g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _check_adaptive_stream_cb, session);
   g_object_unref (session);
 }
+
+void assert_no_streams (GtuberMediaInfo *info)
+{
+  const GPtrArray *streams;
+
+  streams = gtuber_media_info_get_streams (info);
+  assert_equals_int (streams->len, 0);
+}
+
+void assert_no_adaptive_streams (GtuberMediaInfo *info)
+{
+  const GPtrArray *astreams;
+
+  astreams = gtuber_media_info_get_adaptive_streams (info);
+  assert_equals_int (astreams->len, 0);
+}

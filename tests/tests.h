@@ -26,3 +26,7 @@ void compare_fetch (GtuberClient *client, const gchar *uri, GtuberMediaInfo *exp
 void check_streams (GtuberMediaInfo *info);
 
 void check_adaptive_streams (GtuberMediaInfo *info);
+
+void assert_no_streams (GtuberMediaInfo *info);
+
+void assert_no_adaptive_streams (GtuberMediaInfo *info);

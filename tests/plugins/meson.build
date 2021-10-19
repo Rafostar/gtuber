@@ -2,6 +2,7 @@
 all_tests = {
   'invidious': [1, 2],
   'piped': [1, 2],
+  'twitch': [1, 2],
   'youtube': [1, 2, 3],
 }
 
