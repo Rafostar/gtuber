@@ -1,6 +1,6 @@
 # Tests
 all_tests = {
-  'youtube': [1, 2],
+  'youtube': [1, 2, 3],
 }
 
 foreach name, plugin_tests : all_tests

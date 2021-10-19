@@ -37,8 +37,76 @@ compare_fetch (GtuberClient *client, const gchar *uri,
           gtuber_media_info_get_duration (expect));
   }
 
+  g_test_message ("Tested MediaInfo ID: %s",
+      gtuber_media_info_get_id (fetch));
+
   if (out)
     *out = fetch;
   else
     g_object_unref (fetch);
+}
+
+static void
+_check_stream_cb (GtuberStream *stream, SoupSession *session)
+{
+  SoupMessage *msg;
+  GInputStream *input_stream;
+  guint status_code;
+
+  g_assert_nonnull (stream);
+  g_assert_cmpuint (gtuber_stream_get_itag (stream), >, 0);
+
+  msg = soup_message_new ("HEAD", gtuber_stream_get_uri (stream));
+  input_stream = soup_session_send (session, msg, NULL, NULL);
+
+  g_object_get (msg, "status-code", &status_code, NULL);
+
+  if (input_stream) {
+    g_input_stream_close (input_stream, NULL, NULL);
+    g_object_unref (input_stream);
+  }
+  g_object_unref (msg);
+
+  g_test_message ("Stream itag: %u, status code: %u",
+    gtuber_stream_get_itag (stream), status_code);
+
+  g_assert_cmpuint (status_code, <, 400);
+}
+
+static void
+_check_adaptive_stream_cb (GtuberAdaptiveStream *astream, SoupSession *session)
+{
+  _check_stream_cb (GTUBER_STREAM (astream), session);
+}
+
+void
+check_streams (GtuberMediaInfo *info)
+{
+  const GPtrArray *streams;
+  SoupSession *session;
+
+  g_assert_nonnull (info);
+
+  streams = gtuber_media_info_get_streams (info);
+  g_assert_true (streams->len > 0);
+
+  session = soup_session_new ();
+  g_ptr_array_foreach ((GPtrArray *) streams, (GFunc) _check_stream_cb, session);
+  g_object_unref (session);
+}
+
+void
+check_adaptive_streams (GtuberMediaInfo *info)
+{
+  const GPtrArray *astreams;
+  SoupSession *session;
+
+  g_assert_nonnull (info);
+
+  astreams = gtuber_media_info_get_adaptive_streams (info);
+  g_assert_true (astreams->len > 0);
+
+  session = soup_session_new ();
+  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _check_adaptive_stream_cb, session);
+  g_object_unref (session);
 }

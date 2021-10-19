@@ -21,3 +21,7 @@ if (a != 0) return;
 #define assert_equals_string(a, b) g_assert_cmpstr (a, ==, b)
 
 void compare_fetch (GtuberClient *client, const gchar *uri, GtuberMediaInfo *expect, GtuberMediaInfo **out);
+
+void check_streams (GtuberMediaInfo *info);
+
+void check_adaptive_streams (GtuberMediaInfo *info);

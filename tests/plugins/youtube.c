@@ -28,6 +28,18 @@ test_2 (GtuberClient *client)
 }
 
 static void
+test_3 (GtuberClient *client)
+{
+  GtuberMediaInfo *info = NULL;
+
+  compare_fetch (client, "https://youtu.be/BaW_jenozKc", NULL, &info);
+  check_streams (info);
+  check_adaptive_streams (info);
+
+  g_object_unref (info);
+}
+
+static void
 run_test (GtuberClient *client, gint num)
 {
   switch (num) {
@@ -37,6 +49,9 @@ run_test (GtuberClient *client, gint num)
       return_if_not_zero (num);
     case 2:
       test_2 (client);
+      return_if_not_zero (num);
+    case 3:
+      test_3 (client);
       return_if_not_zero (num);
   }
 }
