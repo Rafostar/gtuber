@@ -1,7 +1,8 @@
 #include "../tests.h"
 
-static void
-test_1 (GtuberClient *client)
+GTUBER_TEST_MAIN_START ()
+
+GTUBER_TEST_CASE (1)
 {
   GtuberMediaInfo *info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
@@ -13,8 +14,7 @@ test_1 (GtuberClient *client)
   g_object_unref (info);
 }
 
-static void
-test_2 (GtuberClient *client)
+GTUBER_TEST_CASE (2)
 {
   GtuberMediaInfo *info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
@@ -27,8 +27,7 @@ test_2 (GtuberClient *client)
   g_object_unref (info);
 }
 
-static void
-test_3 (GtuberClient *client)
+GTUBER_TEST_CASE (3)
 {
   GtuberMediaInfo *info = NULL;
 
@@ -39,21 +38,4 @@ test_3 (GtuberClient *client)
   g_object_unref (info);
 }
 
-static void
-run_test (GtuberClient *client, gint num)
-{
-  switch (num) {
-    default:
-    case 1:
-      test_1 (client);
-      return_if_not_zero (num);
-    case 2:
-      test_2 (client);
-      return_if_not_zero (num);
-    case 3:
-      test_3 (client);
-      return_if_not_zero (num);
-  }
-}
-
-GTUBER_TEST_MAIN ()
+GTUBER_TEST_MAIN_END ()
