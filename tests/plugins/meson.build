@@ -1,5 +1,6 @@
 # Tests
 all_tests = {
+  'piped': [1, 2],
   'youtube': [1, 2, 3],
 }
 
