@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gtuber/gtuber-plugin-devel.h"
+#include <gtuber/gtuber-plugin-devel.h>
 
 G_BEGIN_DECLS
 

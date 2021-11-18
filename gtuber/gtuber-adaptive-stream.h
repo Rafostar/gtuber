@@ -21,7 +21,7 @@
 #define __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_H__
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
-#error "Only <gtuber/gtuber.h> can be included directly."
+#error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
 #endif
 
 #include <glib.h>

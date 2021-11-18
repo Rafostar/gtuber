@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gtuber/gtuber-plugin-devel.h"
+#include <gtuber/gtuber-plugin-devel.h>
 
 #define GTUBER_TEST_MAIN_START()                           \
 int main (int argc, char **argv)                           \

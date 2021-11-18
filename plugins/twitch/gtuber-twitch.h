@@ -20,7 +20,7 @@
 #ifndef __GTUBER_TWITCH_H__
 #define __GTUBER_TWITCH_H__
 
-#include "gtuber/gtuber-plugin-devel.h"
+#include <gtuber/gtuber-plugin-devel.h>
 
 G_BEGIN_DECLS
 

@@ -20,8 +20,8 @@
 #ifndef __GTUBER_WEBSITE_H__
 #define __GTUBER_WEBSITE_H__
 
-#if !defined(__GTUBER_PLUGIN_DEVEL_INSIDE__) && !defined(GTUBER_COMPILATION)
-#error "Only "gtuber/gtuber-plugin-devel.h" can be included directly."
+#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
+#error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
 #endif
 
 #include <glib-object.h>

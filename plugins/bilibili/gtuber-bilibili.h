@@ -20,8 +20,7 @@
 #pragma once
 
 #include <json-glib/json-glib.h>
-
-#include "gtuber/gtuber-plugin-devel.h"
+#include <gtuber/gtuber-plugin-devel.h>
 
 G_BEGIN_DECLS
 

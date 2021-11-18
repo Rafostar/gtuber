@@ -74,6 +74,14 @@ gtuber_headers = [
   'gtuber-manifest-generator.h',
   gtuber_version_header,
 ]
+gtuber_plugin_devel_headers = [
+  'gtuber-plugin-devel.h',
+  'gtuber-website.h',
+  'gtuber-stream-devel.h',
+  'gtuber-adaptive-stream-devel.h',
+  'gtuber-media-info-devel.h',
+  'gtuber-soup-compat.h',
+]
 gtuber_sources = [
   'gtuber-client.c',
   'gtuber-stream.c',
@@ -116,7 +124,9 @@ gtuber_lib = library(
   install: true,
 )
 
-install_headers(gtuber_headers, install_dir: gtuber_headers_dir)
+install_headers(gtuber_headers + gtuber_plugin_devel_headers,
+  install_dir: gtuber_headers_dir
+)
 
 gir = find_program('g-ir-scanner', required: get_option('introspection'))
 build_gir = (gir.found() and not get_option('introspection').disabled())
