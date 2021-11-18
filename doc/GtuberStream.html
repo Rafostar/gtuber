@@ -66,10 +66,10 @@
 </tr>
 <tr>
 <td class="function_type">
-<span class="returnvalue">gboolean</span>
+<span class="returnvalue">gchar</span> *
 </td>
 <td class="function_name">
-<a class="link" href="GtuberStream.html#gtuber-stream-get-codecs" title="gtuber_stream_get_codecs ()">gtuber_stream_get_codecs</a> <span class="c_punctuation">()</span>
+<a class="link" href="GtuberStream.html#gtuber-stream-obtain-codecs-string" title="gtuber_stream_obtain_codecs_string ()">gtuber_stream_obtain_codecs_string</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -131,6 +131,12 @@
 </colgroup>
 <tbody>
 <tr>
+<td class="property_type">
+<span class="type">char</span> *</td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--audio-codec" title="The “audio-codec” property">audio-codec</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
 <td class="property_type"><span class="type">guint</span></td>
 <td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--bitrate" title="The “bitrate” property">bitrate</a></td>
 <td class="property_flags">Read</td>
@@ -159,6 +165,12 @@
 <td class="property_type">
 <span class="type">char</span> *</td>
 <td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--uri" title="The “uri” property">uri</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<span class="type">char</span> *</td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--video-codec" title="The “video-codec” property">video-codec</a></td>
 <td class="property_flags">Read</td>
 </tr>
 <tr>
@@ -272,42 +284,30 @@ MIME type of the stream.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="gtuber-stream-get-codecs"></a><h3>gtuber_stream_get_codecs ()</h3>
-<pre class="programlisting"><span class="returnvalue">gboolean</span>
-gtuber_stream_get_codecs (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>,
-                          <em class="parameter"><code>const <span class="type">gchar</span> **vcodec</code></em>,
-                          <em class="parameter"><code>const <span class="type">gchar</span> **acodec</code></em>);</pre>
-<p>Gets the video and audio codecs used to encode the stream.</p>
+<a name="gtuber-stream-obtain-codecs-string"></a><h3>gtuber_stream_obtain_codecs_string ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *
+gtuber_stream_obtain_codecs_string (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<p>Obtains a single string with all codecs used to encode the stream.
+Multiple codecs will be separated by commas.</p>
 <div class="refsect3">
-<a name="gtuber-stream-get-codecs.parameters"></a><h4>Parameters</h4>
+<a name="gtuber-stream-obtain-codecs-string.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
 <col width="200px" class="parameters_annotations">
 </colgroup>
-<tbody>
-<tr>
+<tbody><tr>
 <td class="parameter_name"><p>stream</p></td>
 <td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
 <td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vcodec</p></td>
-<td class="parameter_description"><p>the stream video codec. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>][<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>acodec</p></td>
-<td class="parameter_description"><p>the stream audio codec. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL may be passed instead of a pointer to a location."><span class="acronym">optional</span></acronym>][<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="gtuber-stream-get-codecs.returns"></a><h4>Returns</h4>
-<p> <code class="literal">TRUE</code> if successful, with the out parameters set, <code class="literal">FALSE</code> otherwise.</p>
+<a name="gtuber-stream-obtain-codecs-string.returns"></a><h4>Returns</h4>
+<p>codecs string or <code class="literal">NULL</code> when none. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 </div>
 <hr>
@@ -474,6 +474,15 @@ gtuber_stream_get_bitrate (<em class="parameter"><code><a class="link" href="Gtu
 <div class="refsect1">
 <a name="GtuberStream.property-details"></a><h2>Property Details</h2>
 <div class="refsect2">
+<a name="GtuberStream--audio-codec"></a><h3>The <code class="literal">“audio-codec”</code> property</h3>
+<pre class="programlisting">  “audio-codec”              <span class="type">char</span> *</pre>
+<p>The stream audio codec.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
 <a name="GtuberStream--bitrate"></a><h3>The <code class="literal">“bitrate”</code> property</h3>
 <pre class="programlisting">  “bitrate”                  <span class="type">guint</span></pre>
 <p>Stream bitrate (bandwidth).</p>
@@ -522,6 +531,15 @@ gtuber_stream_get_bitrate (<em class="parameter"><code><a class="link" href="Gtu
 <a name="GtuberStream--uri"></a><h3>The <code class="literal">“uri”</code> property</h3>
 <pre class="programlisting">  “uri”                      <span class="type">char</span> *</pre>
 <p>The URI leading to stream.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--video-codec"></a><h3>The <code class="literal">“video-codec”</code> property</h3>
+<pre class="programlisting">  “video-codec”              <span class="type">char</span> *</pre>
+<p>The stream video codec.</p>
 <p>Owner: GtuberStream</p>
 <p>Flags: Read</p>
 <p>Default value: NULL</p>

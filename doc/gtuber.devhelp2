@@ -27,6 +27,7 @@
     <keyword type="enum" name="enum GtuberStreamMimeType" link="gtuber-Enumeration-Types.html#GtuberStreamMimeType"/>
     <keyword type="enum" name="enum GtuberAdaptiveStreamManifest" link="gtuber-Enumeration-Types.html#GtuberAdaptiveStreamManifest"/>
     <keyword type="enum" name="enum GtuberClientError" link="gtuber-Enumeration-Types.html#GtuberClientError"/>
+    <keyword type="enum" name="enum GtuberManifestGeneratorError" link="gtuber-Enumeration-Types.html#GtuberManifestGeneratorError"/>
     <keyword type="enum" name="enum GtuberWebsiteError" link="gtuber-Enumeration-Types.html#GtuberWebsiteError"/>
     <keyword type="enum" name="enum GtuberFlow" link="gtuber-Enumeration-Types.html#GtuberFlow"/>
     <keyword type="macro" name="GTUBER_ENCODE_VERSION()" link="gtuber-Gtuber-Version.html#GTUBER-ENCODE-VERSION:CAPS"/>
@@ -62,7 +63,7 @@
     <keyword type="function" name="gtuber_stream_get_uri ()" link="GtuberStream.html#gtuber-stream-get-uri"/>
     <keyword type="function" name="gtuber_stream_get_itag ()" link="GtuberStream.html#gtuber-stream-get-itag"/>
     <keyword type="function" name="gtuber_stream_get_mime_type ()" link="GtuberStream.html#gtuber-stream-get-mime-type"/>
-    <keyword type="function" name="gtuber_stream_get_codecs ()" link="GtuberStream.html#gtuber-stream-get-codecs"/>
+    <keyword type="function" name="gtuber_stream_obtain_codecs_string ()" link="GtuberStream.html#gtuber-stream-obtain-codecs-string"/>
     <keyword type="function" name="gtuber_stream_get_video_codec ()" link="GtuberStream.html#gtuber-stream-get-video-codec"/>
     <keyword type="function" name="gtuber_stream_get_audio_codec ()" link="GtuberStream.html#gtuber-stream-get-audio-codec"/>
     <keyword type="function" name="gtuber_stream_get_width ()" link="GtuberStream.html#gtuber-stream-get-width"/>
@@ -70,12 +71,14 @@
     <keyword type="function" name="gtuber_stream_get_fps ()" link="GtuberStream.html#gtuber-stream-get-fps"/>
     <keyword type="function" name="gtuber_stream_get_bitrate ()" link="GtuberStream.html#gtuber-stream-get-bitrate"/>
     <keyword type="struct" name="GtuberStream" link="GtuberStream.html#GtuberStream-struct"/>
+    <keyword type="property" name="The “audio-codec” property" link="GtuberStream.html#GtuberStream--audio-codec"/>
     <keyword type="property" name="The “bitrate” property" link="GtuberStream.html#GtuberStream--bitrate"/>
     <keyword type="property" name="The “fps” property" link="GtuberStream.html#GtuberStream--fps"/>
     <keyword type="property" name="The “height” property" link="GtuberStream.html#GtuberStream--height"/>
     <keyword type="property" name="The “itag” property" link="GtuberStream.html#GtuberStream--itag"/>
     <keyword type="property" name="The “mime-type” property" link="GtuberStream.html#GtuberStream--mime-type"/>
     <keyword type="property" name="The “uri” property" link="GtuberStream.html#GtuberStream--uri"/>
+    <keyword type="property" name="The “video-codec” property" link="GtuberStream.html#GtuberStream--video-codec"/>
     <keyword type="property" name="The “width” property" link="GtuberStream.html#GtuberStream--width"/>
     <keyword type="function" name="gtuber_adaptive_stream_get_manifest_type ()" link="GtuberAdaptiveStream.html#gtuber-adaptive-stream-get-manifest-type"/>
     <keyword type="function" name="gtuber_adaptive_stream_get_init_range ()" link="GtuberAdaptiveStream.html#gtuber-adaptive-stream-get-init-range"/>
@@ -84,6 +87,12 @@
     <keyword type="property" name="The “manifest-type” property" link="GtuberAdaptiveStream.html#GtuberAdaptiveStream--manifest-type"/>
     <keyword type="function" name="GtuberAdaptiveStreamFilter ()" link="GtuberManifestGenerator.html#GtuberAdaptiveStreamFilter"/>
     <keyword type="function" name="gtuber_manifest_generator_new ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-new"/>
+    <keyword type="function" name="gtuber_manifest_generator_get_pretty ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-get-pretty"/>
+    <keyword type="function" name="gtuber_manifest_generator_set_pretty ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-pretty"/>
+    <keyword type="function" name="gtuber_manifest_generator_get_indent ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-get-indent"/>
+    <keyword type="function" name="gtuber_manifest_generator_set_indent ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-indent"/>
+    <keyword type="function" name="gtuber_manifest_generator_get_manifest_type ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-get-manifest-type"/>
+    <keyword type="function" name="gtuber_manifest_generator_set_manifest_type ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-manifest-type"/>
     <keyword type="function" name="gtuber_manifest_generator_set_media_info ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-media-info"/>
     <keyword type="function" name="gtuber_manifest_generator_set_filter_func ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-set-filter-func"/>
     <keyword type="function" name="gtuber_manifest_generator_to_data ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-to-data"/>
@@ -91,11 +100,11 @@
     <keyword type="function" name="gtuber_manifest_generator_error_quark ()" link="GtuberManifestGenerator.html#gtuber-manifest-generator-error-quark"/>
     <keyword type="macro" name="GTUBER_MANIFEST_GENERATOR_ERROR" link="GtuberManifestGenerator.html#GTUBER-MANIFEST-GENERATOR-ERROR:CAPS"/>
     <keyword type="struct" name="GtuberManifestGenerator" link="GtuberManifestGenerator.html#GtuberManifestGenerator-struct"/>
+    <keyword type="property" name="The “indent” property" link="GtuberManifestGenerator.html#GtuberManifestGenerator--indent"/>
+    <keyword type="property" name="The “manifest-type” property" link="GtuberManifestGenerator.html#GtuberManifestGenerator--manifest-type"/>
+    <keyword type="property" name="The “pretty” property" link="GtuberManifestGenerator.html#GtuberManifestGenerator--pretty"/>
     <keyword type="function" name="gtuber_website_get_uri ()" link="GtuberWebsite.html#gtuber-website-get-uri"/>
     <keyword type="function" name="gtuber_website_set_uri ()" link="GtuberWebsite.html#gtuber-website-set-uri"/>
-    <keyword type="function" name="gtuber_website_get_user_agent ()" link="GtuberWebsite.html#gtuber-website-get-user-agent"/>
-    <keyword type="function" name="gtuber_website_get_browser_version ()" link="GtuberWebsite.html#gtuber-website-get-browser-version"/>
-    <keyword type="function" name="gtuber_website_set_browser ()" link="GtuberWebsite.html#gtuber-website-set-browser"/>
     <keyword type="function" name="gtuber_website_error_quark ()" link="GtuberWebsite.html#gtuber-website-error-quark"/>
     <keyword type="macro" name="GTUBER_WEBSITE_ERROR" link="GtuberWebsite.html#GTUBER-WEBSITE-ERROR:CAPS"/>
     <keyword type="struct" name="struct GtuberWebsite" link="GtuberWebsite.html#GtuberWebsite-struct"/>
@@ -131,6 +140,7 @@
     <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-HLS:CAPS"/>
     <keyword type="constant" name="GTUBER_CLIENT_ERROR_NO_PLUGIN" link="gtuber-Enumeration-Types.html#GTUBER-CLIENT-ERROR-NO-PLUGIN:CAPS"/>
     <keyword type="constant" name="GTUBER_CLIENT_ERROR_MISSING_INFO" link="gtuber-Enumeration-Types.html#GTUBER-CLIENT-ERROR-MISSING-INFO:CAPS"/>
+    <keyword type="constant" name="GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA" link="gtuber-Enumeration-Types.html#GTUBER-MANIFEST-GENERATOR-ERROR-NO-DATA:CAPS"/>
     <keyword type="constant" name="GTUBER_WEBSITE_ERROR_REQUEST_CREATE_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-REQUEST-CREATE-FAILED:CAPS"/>
     <keyword type="constant" name="GTUBER_WEBSITE_ERROR_PARSE_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-PARSE-FAILED:CAPS"/>
     <keyword type="constant" name="GTUBER_WEBSITE_ERROR_OTHER" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-OTHER:CAPS"/>
