@@ -286,33 +286,6 @@ gtuber_stream_set_mime_type (GtuberStream *self, GtuberStreamMimeType mime_type)
 }
 
 /**
- * gtuber_stream_get_codecs:
- * @stream: a #GtuberStream
- * @vcodec: (out) (optional) (transfer none): the stream video codec
- * @acodec: (out) (optional) (transfer none): the stream audio codec
- *
- * Gets the video and audio codecs used to encode the stream.
- *
- * Returns: %TRUE if successful, with the out parameters set, %FALSE otherwise.
- **/
-gboolean
-gtuber_stream_get_codecs (GtuberStream *self,
-    const gchar **vcodec, const gchar **acodec)
-{
-  g_return_val_if_fail (GTUBER_IS_STREAM (self), FALSE);
-
-  if (!self->vcodec && !self->acodec)
-    return FALSE;
-
-  if (vcodec)
-    *vcodec = self->vcodec;
-  if (acodec)
-    *acodec = self->acodec;
-
-  return TRUE;
-}
-
-/**
  * gtuber_stream_obtain_codecs_string:
  * @stream: a #GtuberStream
  *
@@ -325,17 +298,18 @@ gchar *
 gtuber_stream_obtain_codecs_string (GtuberStream *self)
 {
   const gchar *vcodec, *acodec;
-  gchar *codecs_str = NULL;
+  gchar *codecs_str;
 
   g_return_val_if_fail (GTUBER_IS_STREAM (self), NULL);
 
-  if (gtuber_stream_get_codecs (self, &vcodec, &acodec)) {
-    codecs_str = (vcodec && acodec)
-        ? g_strdup_printf ("%s,%s", vcodec, acodec)
-        : (vcodec)
-        ? g_strdup (vcodec)
-        : g_strdup (acodec);
-  }
+  vcodec = gtuber_stream_get_video_codec (self);
+  acodec = gtuber_stream_get_audio_codec (self);
+
+  codecs_str = (vcodec && acodec)
+      ? g_strdup_printf ("%s,%s", vcodec, acodec)
+      : (vcodec)
+      ? g_strdup (vcodec)
+      : g_strdup (acodec);
 
   return codecs_str;
 }

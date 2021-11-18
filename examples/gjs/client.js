@@ -24,11 +24,8 @@ if (info) {
 
   for(let arr of [streams, adaptiveStreams]) {
     for(let stream of arr) {
-      const [success, vcodec, acodec] = stream.get_codecs();
-      if(success) {
-        log("VIDEO CODEC: " + vcodec);
-        log("AUDIO CODEC: " + acodec);
-      }
+      log(`VIDEO CODEC: ${stream.video_codec}`);
+      log(`AUDIO CODEC: ${stream.audio_codec}`);
       log(`RESOLUTION: ${stream.width}x${stream.height}@${stream.fps}`);
       log(`URI: ${stream.uri}\n`);
     }

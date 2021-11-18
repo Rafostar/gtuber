@@ -3,13 +3,8 @@
 static void
 print_stream_info (GtuberStream *stream, gpointer user_data)
 {
-  const gchar *vcodec = NULL;
-  const gchar *acodec = NULL;
-
-  if (gtuber_stream_get_codecs (stream, &vcodec, &acodec)) {
-    g_print ("VIDEO CODEC: %s\n", vcodec);
-    g_print ("AUDIO CODEC: %s\n", acodec);
-  }
+  g_print ("VIDEO CODEC: %s\n", gtuber_stream_get_video_codec (stream));
+  g_print ("AUDIO CODEC: %s\n", gtuber_stream_get_audio_codec (stream));
   g_print ("RESOLUTION: %ix%ix%i\n",
       gtuber_stream_get_width (stream),
       gtuber_stream_get_height (stream),

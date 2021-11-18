@@ -511,7 +511,7 @@ static void
 _add_representation_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
 {
   GtuberStream *stream;
-  const gchar *vcodec, *acodec;
+  gchar *codecs_str;
   guint width, height, fps;
   guint64 start, end;
 
@@ -525,21 +525,11 @@ _add_representation_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
   add_line_no_newline (data->gen, data->string, 3, "<Representation");
   add_option_int (data->string, "id", gtuber_stream_get_itag (stream));
 
-  if (gtuber_stream_get_codecs (stream, &vcodec, &acodec)) {
-    if (vcodec && acodec) {
-      gchar *codecs_str;
-
-      codecs_str = g_strdup_printf ("%s, %s", vcodec, acodec);
-      add_option_string (data->string, "codecs", codecs_str);
-
-      g_free (codecs_str);
-    } else {
-      if (vcodec)
-        add_option_string (data->string, "codecs", vcodec);
-      else
-        add_option_string (data->string, "codecs", acodec);
-    }
+  if ((codecs_str = gtuber_stream_obtain_codecs_string (stream))) {
+    add_option_string (data->string, "codecs", codecs_str);
+    g_free (codecs_str);
   }
+
   add_option_int (data->string, "bandwidth", gtuber_stream_get_bitrate (stream));
 
   if (width)

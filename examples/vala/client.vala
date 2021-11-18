@@ -1,12 +1,8 @@
 static void
 print_stream_info (Gtuber.Stream stream)
 {
-  string vcodec, acodec;
-
-  if (stream.get_codecs (out vcodec, out acodec)) {
-    stdout.printf ("VIDEO CODEC: %s\n", vcodec);
-    stdout.printf ("AUDIO CODEC: %s\n", acodec);
-  }
+  stdout.printf ("VIDEO CODEC: %s\n", stream.video_codec);
+  stdout.printf ("AUDIO CODEC: %s\n", stream.audio_codec);
   stdout.printf ("RESOLUTION: %ux%ux%u\n", stream.width, stream.height, stream.fps);
   stdout.printf ("URI: %s\n\n", stream.uri);
 }

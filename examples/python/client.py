@@ -26,10 +26,7 @@ if info:
 
     for arr in streams, adaptive_streams:
         for stream in arr:
-            [success, vcodec, acodec] = stream.get_codecs()
-            if success:
-                print("VIDEO CODEC: {}".format(vcodec))
-                print("AUDIO CODEC: {}".format(acodec))
-
+            print("VIDEO CODEC: {}".format(stream.props.video_codec))
+            print("AUDIO CODEC: {}".format(stream.props.audio_codec))
             print("RESOLUTION: {}x{}@{}".format(stream.props.width, stream.props.height, stream.props.fps))
             print("URI: {}\n".format(stream.props.uri))
