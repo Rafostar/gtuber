@@ -21,10 +21,22 @@
 
 #if !SOUP_CHECK_VERSION (2, 99, 1)
 
+SoupStatus
+soup_message_get_status (SoupMessage *msg)
+{
+  return msg->status_code;
+}
+
 SoupMessageHeaders *
 soup_message_get_request_headers (SoupMessage *msg)
 {
   return msg->request_headers;
+}
+
+SoupMessageHeaders *
+soup_message_get_response_headers (SoupMessage *msg)
+{
+  return msg->response_headers;
 }
 
 void

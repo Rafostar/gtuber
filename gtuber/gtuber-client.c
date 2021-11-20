@@ -234,10 +234,23 @@ beginning:
   g_debug ("Sending request...");
   stream = soup_session_send (session, msg, cancellable, &my_error);
 
+  if (!my_error) {
+    SoupStatus status;
+    SoupMessageHeaders *resp_headers;
+
+    g_debug ("Reading response...");
+    status = soup_message_get_status (msg);
+    resp_headers = soup_message_get_response_headers (msg);
+    flow = website_class->read_response (website, status, resp_headers, &my_error);
+
+    if (flow != GTUBER_FLOW_OK)
+      goto decide_flow;
+  }
+
   if (my_error) {
     flow = GTUBER_FLOW_ERROR;
   } else if (website_class->handles_input_stream) {
-    g_debug ("Parsing response as input stream...");
+    g_debug ("Parsing response input stream...");
     flow = website_class->parse_input_stream (website, stream, info, &my_error);
   } else {
     GOutputStream *ostream;
@@ -248,13 +261,13 @@ beginning:
         G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
         cancellable, &my_error) != -1) {
       data = g_memory_output_stream_steal_data (G_MEMORY_OUTPUT_STREAM (ostream));
-      g_debug ("Parsing response as data...");
+      g_debug ("Parsing response data...");
     }
     g_object_unref (ostream);
 
     flow = (my_error != NULL)
         ? GTUBER_FLOW_ERROR
-        : website_class->parse_response (website, data, info, &my_error);
+        : website_class->parse_data (website, data, info, &my_error);
 
     g_free (data);
   }

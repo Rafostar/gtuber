@@ -67,7 +67,8 @@ struct _GtuberWebsite
  * @handles_input_stream: When set to %TRUE, parse_input_stream() will be called
  *   at parsing stage otherwise parse_response() will be used.
  * @create_request: Create and pass #SoupMessage to send.
- * @parse_response: Read #SoupMessage response body and fill #GtuberMediaInfo.
+ * @read_response: Check #SoupStatus and response #SoupMessageHeaders.
+ * @parse_data: Read data of response body and fill #GtuberMediaInfo.
  * @parse_input_stream: Read #GInputStream and fill #GtuberMediaInfo.
  */
 struct _GtuberWebsiteClass
@@ -81,10 +82,15 @@ struct _GtuberWebsiteClass
                                  SoupMessage    **msg,
                                  GError         **error);
 
-  GtuberFlow (* parse_response) (GtuberWebsite   *website,
-                                 gchar           *data,
-                                 GtuberMediaInfo *info,
-                                 GError         **error);
+  GtuberFlow (* read_response) (GtuberWebsite       *website,
+                                SoupStatus           status,
+                                SoupMessageHeaders  *resp_headers,
+                                GError             **error);
+
+  GtuberFlow (* parse_data) (GtuberWebsite   *website,
+                             gchar           *data,
+                             GtuberMediaInfo *info,
+                             GError         **error);
 
   GtuberFlow (* parse_input_stream) (GtuberWebsite   *website,
                                      GInputStream    *stream,

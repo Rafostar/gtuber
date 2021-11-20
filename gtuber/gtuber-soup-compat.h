@@ -31,7 +31,11 @@
 
 G_BEGIN_DECLS
 
+SoupStatus soup_message_get_status (SoupMessage *msg);
+
 SoupMessageHeaders * soup_message_get_request_headers (SoupMessage *msg);
+
+SoupMessageHeaders * soup_message_get_response_headers (SoupMessage *msg);
 
 void soup_message_set_request_body (SoupMessage *msg, const char *content_type, GInputStream *stream, gssize content_length);
 
