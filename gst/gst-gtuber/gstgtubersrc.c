@@ -1,0 +1,365 @@
+/*
+ * Copyright (C) 2021 Rafał Dzięgiel <rafostar.github@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <gtuber/gtuber.h>
+
+#include "gstgtubersrc.h"
+#include "gstgtuberelement.h"
+
+GST_DEBUG_CATEGORY_STATIC (gst_gtuber_src_debug);
+#define GST_CAT_DEFAULT gst_gtuber_src_debug
+
+enum
+{
+  PROP_0,
+  PROP_LOCATION
+};
+
+static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
+#define gst_gtuber_src_parent_class parent_class
+G_DEFINE_TYPE_WITH_CODE (GstGtuberSrc, gst_gtuber_src,
+    GST_TYPE_PUSH_SRC, gst_gtuber_uri_handler_do_init (g_define_type_id));
+GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtubersrc, "gtubersrc",
+    GST_RANK_NONE, GST_TYPE_GTUBER_SRC, gst_gtuber_element_init (plugin));
+
+/* GObject */
+static void gst_gtuber_src_finalize (GObject *object);
+static void gst_gtuber_src_set_property (GObject *object, guint prop_id,
+    const GValue *value, GParamSpec *pspec);
+static void gst_gtuber_src_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec);
+
+/* GstBaseSrc */
+static gboolean gst_gtuber_src_start (GstBaseSrc *base_src);
+static gboolean gst_gtuber_src_stop (GstBaseSrc *base_src);
+static gboolean gst_gtuber_src_get_size (GstBaseSrc *base_src,
+    guint64 *size);
+static gboolean gst_gtuber_src_is_seekable (GstBaseSrc *base_src);
+static gboolean gst_gtuber_src_unlock (GstBaseSrc *base_src);
+static gboolean gst_gtuber_src_unlock_stop (GstBaseSrc *base_src);
+static gboolean gst_gtuber_src_query (GstBaseSrc *base_src,
+    GstQuery *query);
+
+/* GstPushSrc */
+static GstFlowReturn gst_gtuber_src_create (GstPushSrc *push_src,
+    GstBuffer **buf);
+
+/* GstGtuberSrc */
+static gboolean gst_gtuber_src_set_location (GstGtuberSrc *self,
+    const gchar *uri);
+
+static void
+gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+  GstBaseSrcClass *gstbasesrc_class = (GstBaseSrcClass *) klass;
+  GstPushSrcClass *gstpushsrc_class = (GstPushSrcClass *) klass;
+
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_src_debug, "gtuber_src", 0,
+      "Gtuber source");
+
+  gobject_class->finalize = gst_gtuber_src_finalize;
+  gobject_class->set_property = gst_gtuber_src_set_property;
+  gobject_class->get_property = gst_gtuber_src_get_property;
+
+  g_object_class_install_property (gobject_class, PROP_LOCATION,
+      g_param_spec_string ("location", "Location", "Media location", "",
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  gst_element_class_add_static_pad_template (gstelement_class, &src_factory);
+
+  gstbasesrc_class->start = GST_DEBUG_FUNCPTR (gst_gtuber_src_start);
+  gstbasesrc_class->stop = GST_DEBUG_FUNCPTR (gst_gtuber_src_stop);
+  gstbasesrc_class->get_size = GST_DEBUG_FUNCPTR (gst_gtuber_src_get_size);
+  gstbasesrc_class->is_seekable = GST_DEBUG_FUNCPTR (gst_gtuber_src_is_seekable);
+  gstbasesrc_class->unlock = GST_DEBUG_FUNCPTR (gst_gtuber_src_unlock);
+  gstbasesrc_class->unlock_stop = GST_DEBUG_FUNCPTR (gst_gtuber_src_unlock_stop);
+  gstbasesrc_class->query = GST_DEBUG_FUNCPTR (gst_gtuber_src_query);
+
+  gstpushsrc_class->create = GST_DEBUG_FUNCPTR (gst_gtuber_src_create);
+
+  gst_element_class_set_static_metadata (gstelement_class, "Gtuber source",
+      "Source", "Source plugin that uses Gtuber API",
+      "Rafał Dzięgiel <rafostar.github@gmail.com>");
+
+  gst_type_mark_as_plugin_api (GST_TYPE_GTUBER_SRC, 0);
+}
+
+static void
+gst_gtuber_src_init (GstGtuberSrc *self)
+{
+  self->cancellable = g_cancellable_new ();
+  self->buf_size = 0;
+}
+
+static void
+gst_gtuber_src_finalize (GObject *object)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (object);
+
+  GST_DEBUG ("Finalize");
+
+  g_clear_object (&self->cancellable);
+  g_free (self->location);
+
+  GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
+}
+
+static void
+gst_gtuber_src_set_property (GObject *object, guint prop_id,
+    const GValue *value, GParamSpec *pspec)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (object);
+
+  switch (prop_id) {
+    case PROP_LOCATION:{
+      const gchar *location;
+
+      location = g_value_get_string (value);
+
+      if (location == NULL)
+        GST_WARNING ("Location property cannot be NULL");
+      else if (!gst_gtuber_src_set_location (self, location))
+        GST_WARNING ("Badly formatted location");
+
+      break;
+    }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gst_gtuber_src_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (object);
+
+  switch (prop_id) {
+    case PROP_LOCATION:
+      g_value_set_string (value, self->location);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static gboolean
+gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri)
+{
+  g_free (self->location);
+  self->location = g_strdup (uri);
+
+  GST_DEBUG_OBJECT (self, "Location changed to: %s", self->location);
+
+  return TRUE;
+}
+
+static gboolean
+gst_gtuber_src_start (GstBaseSrc *base_src)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+
+  GST_DEBUG_OBJECT (self, "Start");
+  if (G_UNLIKELY (!self->location)) {
+    GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ, (NULL),
+        ("No media location provided"));
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static gboolean
+gst_gtuber_src_stop (GstBaseSrc *base_src)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+
+  GST_DEBUG_OBJECT (self, "Stop");
+
+  gst_gtuber_src_set_location (self, NULL);
+  self->buf_size = 0;
+
+  return TRUE;
+}
+
+static gboolean
+gst_gtuber_src_get_size (GstBaseSrc *base_src, guint64 *size)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+
+  if (self->buf_size > 0) {
+    *size = self->buf_size;
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+static gboolean
+gst_gtuber_src_is_seekable (GstBaseSrc *base_src)
+{
+  return FALSE;
+}
+
+static gboolean
+gst_gtuber_src_unlock (GstBaseSrc *base_src)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+
+  GST_LOG_OBJECT (self, "Cancel triggered");
+  g_cancellable_cancel (self->cancellable);
+
+  return TRUE;
+}
+
+static gboolean
+gst_gtuber_src_unlock_stop (GstBaseSrc *base_src)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+
+  GST_LOG_OBJECT (self, "Resetting cancellable");
+
+  g_object_unref (self->cancellable);
+  self->cancellable = g_cancellable_new ();
+
+  return TRUE;
+}
+
+static gboolean
+stream_filter_func (GtuberAdaptiveStream *stream, GstGtuberSrc *self)
+{
+  guint itag;
+
+  itag = gtuber_stream_get_itag (GTUBER_STREAM (stream));
+
+  /* FIXME: expand and allow fine configure via props */
+  return (itag == 136 || itag == 140);
+}
+
+static GstBuffer *
+gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
+    GError **error)
+{
+  GtuberManifestGenerator *gen;
+  GstBuffer *buffer;
+  gchar *data;
+
+  gen = gtuber_manifest_generator_new ();
+  gtuber_manifest_generator_set_media_info (gen, info);
+
+  gtuber_manifest_generator_set_filter_func (gen,
+      (GtuberAdaptiveStreamFilter) stream_filter_func, self, NULL);
+
+  data = gtuber_manifest_generator_to_data (gen);
+  g_object_unref (gen);
+
+  if (!data) {
+    g_set_error (error, GTUBER_MANIFEST_GENERATOR_ERROR,
+        GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA,
+        "No manifest data was generated");
+    return FALSE;
+  }
+
+  self->buf_size = strlen (data);
+  buffer = gst_buffer_new_wrapped (data, self->buf_size);
+
+  return buffer;
+}
+
+static gboolean
+gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
+    GError **error)
+{
+  GtuberClient *client;
+  GtuberMediaInfo *info;
+
+  client = gtuber_client_new ();
+  info = gtuber_client_fetch_media_info (client, self->location,
+      self->cancellable, error);
+  g_object_unref (client);
+
+  if (!info)
+    return FALSE;
+
+  *outbuf = gst_gtuber_media_info_to_buffer (self, info, error);
+  g_object_unref (info);
+
+  return (*outbuf) ? TRUE : FALSE;
+}
+
+static GstFlowReturn
+gst_gtuber_src_create (GstPushSrc *push_src, GstBuffer **outbuf)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (push_src);
+  GError *error = NULL;
+
+  /* When non-zero, we already returned complete data */
+  if (self->buf_size > 0)
+    return GST_FLOW_EOS;
+
+  if (!gst_gtuber_fetch_into_buffer (self, outbuf, &error)) {
+    GST_ERROR_OBJECT (self, "%s", error->message);
+    g_clear_error (&error);
+
+    return GST_FLOW_ERROR;
+  }
+
+  return GST_FLOW_OK;
+}
+
+static gboolean
+gst_gtuber_src_query (GstBaseSrc *base_src, GstQuery *query)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+  gboolean ret = FALSE;
+
+  switch (GST_QUERY_TYPE (query)) {
+    case GST_QUERY_URI:
+      if (GST_IS_URI_HANDLER (self)) {
+        gchar *uri;
+
+        uri = gst_uri_handler_get_uri (GST_URI_HANDLER (self));
+        gst_query_set_uri (query, uri);
+
+        g_free (uri);
+        ret = TRUE;
+      }
+      break;
+    default:
+      ret = FALSE;
+      break;
+  }
+
+  if (!ret)
+    ret = GST_BASE_SRC_CLASS (parent_class)->query (base_src, query);
+
+  return ret;
+}

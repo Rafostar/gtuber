@@ -19,7 +19,6 @@ datadir = get_option('datadir')
 libdir = get_option('libdir')
 includedir = get_option('includedir')
 
-cdata = configuration_data()
 cc = meson.get_compiler('c')
 
 add_global_arguments(
@@ -37,8 +36,6 @@ gtuber_utils_prefix = meson.project_name() + '-utils-'
 gtuber_plugin_prefix = meson.project_name() + '-'
 
 gtuber_plugins_libdir = join_paths(prefix, libdir, gtuber_api_name)
-
-cdata.set('GTUBER_PLUGIN_PATH', '"@0@"'.format(gtuber_plugins_libdir))
 
 warning_flags = [
   '-Wmissing-declarations',
@@ -63,6 +60,18 @@ foreach extra_arg : warning_flags
   endif
 endforeach
 
+cdata = configuration_data()
+
+cdata.set('PACKAGE', '"@0@"'.format(meson.project_name()))
+cdata.set('VERSION', '"@0@"'.format(meson.project_version()))
+cdata.set('PACKAGE_VERSION', '"@0@"'.format(meson.project_version()))
+
+cdata.set('GTUBER_PLUGIN_PATH', '"@0@"'.format(gtuber_plugins_libdir))
+
+cdata.set('GST_PACKAGE_NAME', '"gst-gtuber"')
+cdata.set('GST_PACKAGE_ORIGIN', '"Unknown package origin"')
+cdata.set('GST_LICENSE', '"LGPL"')
+
 configure_file(
   output: 'config.h',
   configuration: cdata,
@@ -84,6 +93,8 @@ subdir('doc')
 summary('doc', build_doc, section: 'Build')
 
 subdir('utils')
+subdir('gst')
+
 subdir('plugins')
 
 subdir('tests')
