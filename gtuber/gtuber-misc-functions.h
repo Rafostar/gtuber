@@ -17,22 +17,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_H__
-#define __GTUBER_H__
+#ifndef __GTUBER_MISC_FUNCTIONS_H__
+#define __GTUBER_MISC_FUNCTIONS_H__
 
-#define __GTUBER_INSIDE__
+#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
+#error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
+#endif
 
-#include <gtuber/gtuber-types.h>
-#include <gtuber/gtuber-enum-types.h>
-#include <gtuber/gtuber-enums.h>
-#include <gtuber/gtuber-client.h>
-#include <gtuber/gtuber-stream.h>
-#include <gtuber/gtuber-adaptive-stream.h>
-#include <gtuber/gtuber-media-info.h>
-#include <gtuber/gtuber-manifest-generator.h>
-#include <gtuber/gtuber-misc-functions.h>
-#include <gtuber/gtuber-version.h>
+#include <glib.h>
 
-#undef __GTUBER_INSIDE__
+G_BEGIN_DECLS
 
-#endif /* __GTUBER_H__ */
+gboolean          gtuber_has_plugin_for_uri                (const gchar *uri, gchar **plugin_name);
+
+G_END_DECLS
+
+#endif /* __GTUBER_MISC_FUNCTIONS_H__ */

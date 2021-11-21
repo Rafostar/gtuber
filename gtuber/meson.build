@@ -72,6 +72,7 @@ gtuber_headers = [
   'gtuber-adaptive-stream.h',
   'gtuber-media-info.h',
   'gtuber-manifest-generator.h',
+  'gtuber-misc-functions.h',
   gtuber_version_header,
 ]
 gtuber_plugin_devel_headers = [
@@ -88,6 +89,7 @@ gtuber_sources = [
   'gtuber-adaptive-stream.c',
   'gtuber-media-info.c',
   'gtuber-manifest-generator.c',
+  'gtuber-misc-functions.c',
 ]
 gtuber_sources_other = [
   'gtuber-loader.c',
