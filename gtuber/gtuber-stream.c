@@ -38,6 +38,7 @@ enum
   PROP_URI,
   PROP_ITAG,
   PROP_MIME_TYPE,
+  PROP_CODEC_FLAGS,
   PROP_VIDEO_CODEC,
   PROP_AUDIO_CODEC,
   PROP_WIDTH,
@@ -93,6 +94,10 @@ gtuber_stream_class_init (GtuberStreamClass *klass)
       "Stream MIME Type", "The MIME type of the stream", GTUBER_TYPE_STREAM_MIME_TYPE,
       GTUBER_STREAM_MIME_TYPE_UNKNOWN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_CODEC_FLAGS] = g_param_spec_flags ("codec-flags",
+      "Codec Flags", "Flags indicating which codecs were detected in stream",
+      GTUBER_TYPE_CODEC_FLAGS, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   param_specs[PROP_VIDEO_CODEC] = g_param_spec_string ("video-codec",
       "Video Codec", "The stream video codec", NULL,
       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
@@ -135,6 +140,9 @@ gtuber_stream_get_property (GObject *object, guint prop_id,
       break;
     case PROP_MIME_TYPE:
       g_value_set_enum (value, gtuber_stream_get_mime_type (self));
+      break;
+    case PROP_CODEC_FLAGS:
+      g_value_set_flags (value, gtuber_stream_get_codec_flags (self));
       break;
     case PROP_VIDEO_CODEC:
       g_value_set_string (value, gtuber_stream_get_video_codec (self));
@@ -283,6 +291,49 @@ gtuber_stream_set_mime_type (GtuberStream *self, GtuberStreamMimeType mime_type)
   g_return_if_fail (GTUBER_IS_STREAM (self));
 
   self->mime_type = mime_type;
+}
+
+/**
+ * gtuber_stream_get_codec_flags:
+ * @stream: a #GtuberStream
+ *
+ * Get flags indicating which codecs were detected in stream.
+ *
+ * Returns: #GtuberCodecFlags flags
+ **/
+GtuberCodecFlags
+gtuber_stream_get_codec_flags (GtuberStream *self)
+{
+  const gchar *vcodec, *acodec;
+  GtuberCodecFlags flags = 0;
+
+  g_return_val_if_fail (GTUBER_IS_STREAM (self), flags);
+
+  vcodec = gtuber_stream_get_video_codec (self);
+  if (vcodec) {
+    if (g_str_has_prefix (vcodec, "avc"))
+      flags |= GTUBER_CODEC_AVC;
+    else if (g_str_has_prefix (vcodec, "vp9"))
+      flags |= GTUBER_CODEC_VP9;
+    else if (g_str_has_prefix (vcodec, "hev"))
+      flags |= GTUBER_CODEC_HEVC;
+    else if (g_str_has_prefix (vcodec, "av01"))
+      flags |= GTUBER_CODEC_AV1;
+    else
+      flags |= GTUBER_CODEC_UNKNOWN_VIDEO;
+  }
+
+  acodec = gtuber_stream_get_audio_codec (self);
+  if (acodec) {
+    if (g_str_has_prefix (acodec, "mp4a"))
+      flags |= GTUBER_CODEC_MP4A;
+    else if (g_str_has_prefix (acodec, "opus"))
+      flags |= GTUBER_CODEC_OPUS;
+    else
+      flags |= GTUBER_CODEC_UNKNOWN_AUDIO;
+  }
+
+  return flags;
 }
 
 /**
