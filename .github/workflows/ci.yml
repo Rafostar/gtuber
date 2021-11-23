@@ -30,14 +30,15 @@ jobs:
           cd builddir
           meson install
 
-      - name: Run Tests
+      - name: Test
         run: |
           cd builddir
           meson test
 
       - name: Upload Results
+        if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tests-results
+          name: test-results
           path: builddir/meson-logs/testlog.txt
           if-no-files-found: error
