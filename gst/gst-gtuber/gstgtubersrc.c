@@ -29,11 +29,22 @@
 GST_DEBUG_CATEGORY_STATIC (gst_gtuber_src_debug);
 #define GST_CAT_DEFAULT gst_gtuber_src_debug
 
+#define DEFAULT_CODECS     GTUBER_CODEC_AVC | GTUBER_CODEC_MP4A
+#define DEFAULT_MAX_HEIGHT 0
+#define DEFAULT_MAX_FPS    0
+
 enum
 {
   PROP_0,
-  PROP_LOCATION
+  PROP_LOCATION,
+  PROP_CODECS,
+  PROP_MAX_HEIGHT,
+  PROP_MAX_FPS,
+  PROP_ITAGS,
+  PROP_LAST
 };
+
+static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
@@ -71,6 +82,8 @@ static GstFlowReturn gst_gtuber_src_create (GstPushSrc *push_src,
 /* GstGtuberSrc */
 static gboolean gst_gtuber_src_set_location (GstGtuberSrc *self,
     const gchar *uri);
+static void gst_gtuber_src_set_itags (GstGtuberSrc *self,
+    const gchar *itags_str);
 
 static void
 gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
@@ -87,9 +100,30 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
   gobject_class->set_property = gst_gtuber_src_set_property;
   gobject_class->get_property = gst_gtuber_src_get_property;
 
-  g_object_class_install_property (gobject_class, PROP_LOCATION,
-      g_param_spec_string ("location", "Location", "Media location", "",
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  param_specs[PROP_LOCATION] = g_param_spec_string ("location",
+      "Location", "Media location", NULL,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_CODECS] = g_param_spec_flags ("codecs",
+      "Codecs", "Allowed media codecs (0 = all)",
+      GTUBER_TYPE_CODEC_FLAGS, DEFAULT_CODECS,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_MAX_HEIGHT] = g_param_spec_uint64 ("max-height",
+      "Maximal Height", "Maximal allowed video height in pixels (0 = unlimited)",
+      0, G_MAXUINT64, DEFAULT_MAX_HEIGHT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_MAX_FPS] = g_param_spec_uint64 ("max-fps",
+      "Maximal FPS", "Maximal allowed video framerate (0 = unlimited)",
+       0, G_MAXUINT64, DEFAULT_MAX_FPS,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_ITAGS] = g_param_spec_string ("itags",
+      "Itags", "A comma separated list of allowed itags", NULL,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 
   gst_element_class_add_static_pad_template (gstelement_class, &src_factory);
 
@@ -113,6 +147,14 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
 static void
 gst_gtuber_src_init (GstGtuberSrc *self)
 {
+  self->location = NULL;
+  self->codecs = DEFAULT_CODECS;
+  self->max_height = DEFAULT_MAX_HEIGHT;
+  self->max_fps = DEFAULT_MAX_FPS;
+  self->itags_str = NULL;
+
+  self->itags = g_array_new (FALSE, FALSE, sizeof (guint));
+
   self->cancellable = g_cancellable_new ();
   self->buf_size = 0;
 }
@@ -124,8 +166,12 @@ gst_gtuber_src_finalize (GObject *object)
 
   GST_DEBUG ("Finalize");
 
-  g_clear_object (&self->cancellable);
   g_free (self->location);
+  g_free (self->itags_str);
+
+  g_array_unref (self->itags);
+
+  g_clear_object (&self->cancellable);
 
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
 }
@@ -149,6 +195,18 @@ gst_gtuber_src_set_property (GObject *object, guint prop_id,
 
       break;
     }
+    case PROP_CODECS:
+      self->codecs = g_value_get_flags (value);
+      break;
+    case PROP_MAX_HEIGHT:
+      self->max_height = g_value_get_uint64 (value);
+      break;
+    case PROP_MAX_FPS:
+      self->max_fps = g_value_get_uint64 (value);
+      break;
+    case PROP_ITAGS:
+      gst_gtuber_src_set_itags (self, g_value_get_string (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -165,6 +223,18 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
     case PROP_LOCATION:
       g_value_set_string (value, self->location);
       break;
+    case PROP_CODECS:
+      g_value_set_flags (value, self->codecs);
+      break;
+    case PROP_MAX_HEIGHT:
+      g_value_set_uint64 (value, self->max_height);
+      break;
+    case PROP_MAX_FPS:
+      g_value_set_uint64 (value, self->max_fps);
+      break;
+    case PROP_ITAGS:
+      g_value_set_string (value, self->itags_str);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -180,6 +250,32 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri)
   GST_DEBUG_OBJECT (self, "Location changed to: %s", self->location);
 
   return TRUE;
+}
+
+static void
+gst_gtuber_src_set_itags (GstGtuberSrc *self, const gchar *itags_str)
+{
+  gchar **itags;
+  guint index = 0;
+
+  g_free (self->itags_str);
+  self->itags_str = g_strdup (itags_str);
+
+  g_array_remove_range (self->itags, 0, self->itags->len);
+
+  itags = g_strsplit (itags_str, ",", 0);
+  while (itags[index]) {
+    guint itag;
+
+    g_strstrip (itags[index]);
+    itag = g_ascii_strtoull (itags[index], NULL, 10);
+    if (itag > 0) {
+      g_array_append_val (self->itags, itag);
+      GST_DEBUG_OBJECT (self, "Added allowed itag: %u", itag);
+    }
+    index++;
+  }
+  g_strfreev (itags);
 }
 
 static gboolean
@@ -254,14 +350,46 @@ gst_gtuber_src_unlock_stop (GstBaseSrc *base_src)
 }
 
 static gboolean
-stream_filter_func (GtuberAdaptiveStream *stream, GstGtuberSrc *self)
+stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
 {
-  guint itag;
+  GtuberStream *stream = (GtuberStream *) astream;
 
-  itag = gtuber_stream_get_itag (GTUBER_STREAM (stream));
+  if (self->codecs > 0) {
+    GtuberCodecFlags flags = gtuber_stream_get_codec_flags (stream);
 
-  /* FIXME: expand and allow fine configure via props */
-  return (itag == 136 || itag == 140);
+    if ((self->codecs & flags) != flags)
+      return FALSE;
+  }
+
+  if (gtuber_stream_get_video_codec (stream) != NULL) {
+    if (self->max_height > 0) {
+      guint height = gtuber_stream_get_height (stream);
+
+      if (height == 0 || height > self->max_height)
+        return FALSE;
+    }
+    if (self->max_fps > 0) {
+      guint fps = gtuber_stream_get_fps (stream);
+
+      if (fps == 0 || fps > self->max_fps)
+        return FALSE;
+    }
+  }
+
+  if (self->itags->len > 0) {
+    guint i, itag = gtuber_stream_get_itag (stream);
+    gboolean found = FALSE;
+
+    for (i = 0; i < self->itags->len; i++) {
+      if ((found = itag == g_array_index (self->itags, guint, i)))
+        break;
+    }
+
+    if (!found)
+      return FALSE;
+  }
+
+  return TRUE;
 }
 
 static GstBuffer *
