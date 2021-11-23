@@ -49,23 +49,29 @@ compare_fetch (GtuberClient *client, const gchar *uri,
 static void
 _check_stream_cb (GtuberStream *stream, SoupSession *session)
 {
-  SoupMessage *msg;
-  GInputStream *input_stream;
-  guint status_code;
+  guint status_code, tries = 2;
 
   g_assert_nonnull (stream);
   g_assert_cmpuint (gtuber_stream_get_itag (stream), >, 0);
 
-  msg = soup_message_new ("HEAD", gtuber_stream_get_uri (stream));
-  input_stream = soup_session_send (session, msg, NULL, NULL);
+  while (tries--) {
+    SoupMessage *msg;
+    GInputStream *input_stream;
 
-  g_object_get (msg, "status-code", &status_code, NULL);
+    msg = soup_message_new ("HEAD", gtuber_stream_get_uri (stream));
+    input_stream = soup_session_send (session, msg, NULL, NULL);
 
-  if (input_stream) {
-    g_input_stream_close (input_stream, NULL, NULL);
-    g_object_unref (input_stream);
+    g_object_get (msg, "status-code", &status_code, NULL);
+
+    if (input_stream) {
+      g_input_stream_close (input_stream, NULL, NULL);
+      g_object_unref (input_stream);
+    }
+    g_object_unref (msg);
+
+    if (status_code < 400)
+      break;
   }
-  g_object_unref (msg);
 
   g_test_message ("Stream itag: %u, status code: %u",
     gtuber_stream_get_itag (stream), status_code);
