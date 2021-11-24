@@ -36,8 +36,6 @@ struct _GtuberPiped
 
   gchar *video_id;
   gchar *hls_uri;
-
-  PipedMediaType media_type;
 };
 
 struct _GtuberPipedClass
@@ -88,7 +86,8 @@ gtuber_piped_finalize (GObject *object)
 }
 
 static void
-_read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
+piped_read_stream (GtuberPiped *self, JsonReader *reader,
+    GtuberMediaInfo *info, PipedMediaType media_type)
 {
   GtuberAdaptiveStream *astream = NULL;
   GtuberStream *stream;
@@ -97,7 +96,7 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
   const gchar *uri;
   gboolean video_only;
 
-  if (self->media_type == PIPED_MEDIA_VIDEO_STREAM) {
+  if (media_type == PIPED_MEDIA_VIDEO_STREAM) {
     const gchar *format;
 
     format = gtuber_utils_json_get_string (reader, "format", NULL);
@@ -116,7 +115,7 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
 
   /* Piped API does not say if stream is adaptive or not,
    * assume that "all audio" and "video only" are adaptive */
-  if (self->media_type == PIPED_MEDIA_AUDIO_STREAM || video_only) {
+  if (media_type == PIPED_MEDIA_AUDIO_STREAM || video_only) {
     astream = gtuber_adaptive_stream_new ();
 
     gtuber_adaptive_stream_set_init_range (astream,
@@ -150,7 +149,7 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
   gtuber_stream_set_uri (stream, uri);
   gtuber_stream_set_bitrate (stream, gtuber_utils_json_get_int (reader, "bitrate", NULL));
 
-  switch (self->media_type) {
+  switch (media_type) {
     case PIPED_MEDIA_VIDEO_STREAM:
       gtuber_stream_set_width (stream, gtuber_utils_json_get_int (reader, "width", NULL));
       gtuber_stream_set_height (stream, gtuber_utils_json_get_int (reader, "height", NULL));
@@ -175,6 +174,18 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
 }
 
 static void
+_read_video_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
+{
+  piped_read_stream (self, reader, info, PIPED_MEDIA_VIDEO_STREAM);
+}
+
+static void
+_read_audio_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
+{
+  piped_read_stream (self, reader, info, PIPED_MEDIA_AUDIO_STREAM);
+}
+
+static void
 parse_response_data (GtuberPiped *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
@@ -190,15 +201,13 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
 
   if (!self->hls_uri) {
     if (gtuber_utils_json_go_to (reader, "videoStreams", NULL)) {
-      self->media_type = PIPED_MEDIA_VIDEO_STREAM;
       gtuber_utils_json_array_foreach (reader, info,
-          (GtuberFunc) _read_stream_cb, self);
+          (GtuberFunc) _read_video_stream_cb, self);
       gtuber_utils_json_go_back (reader, 1);
     }
     if (gtuber_utils_json_go_to (reader, "audioStreams", NULL)) {
-      self->media_type = PIPED_MEDIA_AUDIO_STREAM;
       gtuber_utils_json_array_foreach (reader, info,
-          (GtuberFunc) _read_stream_cb, self);
+          (GtuberFunc) _read_audio_stream_cb, self);
       gtuber_utils_json_go_back (reader, 1);
     }
   }
