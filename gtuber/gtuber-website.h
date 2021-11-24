@@ -70,6 +70,8 @@ struct _GtuberWebsite
  * @read_response: Check #SoupStatus and response #SoupMessageHeaders.
  * @parse_data: Read data of response body and fill #GtuberMediaInfo.
  * @parse_input_stream: Read #GInputStream and fill #GtuberMediaInfo.
+ * @set_user_req_headers: Set request headers for user. Default implementation
+ *   will set them from last #SoupMessage, skipping some common and invalid ones.
  */
 struct _GtuberWebsiteClass
 {
@@ -96,6 +98,11 @@ struct _GtuberWebsiteClass
                                      GInputStream    *stream,
                                      GtuberMediaInfo *info,
                                      GError         **error);
+
+  GtuberFlow (* set_user_req_headers) (GtuberWebsite      *website,
+                                       SoupMessageHeaders *req_headers,
+                                       GHashTable         *user_headers,
+                                       GError            **error);
 };
 
 GType         gtuber_website_get_type              (void);

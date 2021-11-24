@@ -39,6 +39,8 @@ static GtuberFlow gtuber_website_parse_data (GtuberWebsite *self,
     gchar *data, GtuberMediaInfo *info, GError **error);
 static GtuberFlow gtuber_website_parse_input_stream (GtuberWebsite *self,
     GInputStream *stream, GtuberMediaInfo *info, GError **error);
+static GtuberFlow gtuber_website_set_user_req_headers (GtuberWebsite *self,
+    SoupMessageHeaders *req_headers, GHashTable *user_headers, GError **error);
 
 static void
 gtuber_website_init (GtuberWebsite *self)
@@ -59,6 +61,7 @@ gtuber_website_class_init (GtuberWebsiteClass *klass)
   website_class->read_response = gtuber_website_read_response;
   website_class->parse_data = gtuber_website_parse_data;
   website_class->parse_input_stream = gtuber_website_parse_input_stream;
+  website_class->set_user_req_headers = gtuber_website_set_user_req_headers;
 }
 
 static void
@@ -99,6 +102,35 @@ gtuber_website_parse_input_stream (GtuberWebsite *self,
     GInputStream *stream, GtuberMediaInfo *info, GError **error)
 {
   return (*error == NULL) ? GTUBER_FLOW_OK : GTUBER_FLOW_ERROR;
+}
+
+static void
+insert_user_header (const gchar *name, const gchar *value, GHashTable *user_headers)
+{
+  gboolean addition;
+
+  if (G_UNLIKELY (name == NULL)
+      || !strcmp (name, "Content-Type")
+      || !strcmp (name, "Connection")
+      || !strcmp (name, "Content-Length")
+      || !strcmp (name, "Accept-Encoding"))
+    return;
+
+  addition = g_hash_table_insert (user_headers, g_strdup (name), g_strdup (value));
+  g_debug ("%s user request header, %s: %s", addition ? "Inserted" : "Replaced", name, value);
+}
+
+static GtuberFlow
+gtuber_website_set_user_req_headers (GtuberWebsite *self,
+    SoupMessageHeaders *req_headers, GHashTable *user_headers, GError **error)
+{
+  if (*error)
+    return GTUBER_FLOW_ERROR;
+
+  soup_message_headers_foreach (req_headers,
+      (SoupMessageHeadersForeachFunc) insert_user_header, user_headers);
+
+  return GTUBER_FLOW_OK;
 }
 
 /**

@@ -48,23 +48,25 @@ typedef struct _GtuberMediaInfoClass GtuberMediaInfoClass;
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberMediaInfo, g_object_unref)
 #endif
 
-GType gtuber_media_info_get_type                               (void);
+GType gtuber_media_info_get_type                                (void);
 
-const gchar *     gtuber_media_info_get_id                     (GtuberMediaInfo *info);
+const gchar *      gtuber_media_info_get_id                     (GtuberMediaInfo *info);
 
-const gchar *     gtuber_media_info_get_title                  (GtuberMediaInfo *info);
+const gchar *      gtuber_media_info_get_title                  (GtuberMediaInfo *info);
 
-const gchar *     gtuber_media_info_get_description            (GtuberMediaInfo *info);
+const gchar *      gtuber_media_info_get_description            (GtuberMediaInfo *info);
 
-guint             gtuber_media_info_get_duration               (GtuberMediaInfo *info);
+guint              gtuber_media_info_get_duration               (GtuberMediaInfo *info);
 
-gboolean          gtuber_media_info_get_has_streams            (GtuberMediaInfo *info);
+gboolean           gtuber_media_info_get_has_streams            (GtuberMediaInfo *info);
 
-const GPtrArray * gtuber_media_info_get_streams                (GtuberMediaInfo *info);
+const GPtrArray *  gtuber_media_info_get_streams                (GtuberMediaInfo *info);
 
-gboolean          gtuber_media_info_get_has_adaptive_streams   (GtuberMediaInfo *info);
+gboolean           gtuber_media_info_get_has_adaptive_streams   (GtuberMediaInfo *info);
 
-const GPtrArray * gtuber_media_info_get_adaptive_streams       (GtuberMediaInfo *info);
+const GPtrArray *  gtuber_media_info_get_adaptive_streams       (GtuberMediaInfo *info);
+
+const GHashTable * gtuber_media_info_get_request_headers        (GtuberMediaInfo *info);
 
 G_END_DECLS
 
