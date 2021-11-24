@@ -1,5 +1,30 @@
 #include "tests.h"
 
+typedef struct
+{
+  SoupSession *session;
+  const GHashTable *user_headers;
+} CheckStreamData;
+
+static CheckStreamData *
+check_stream_data_new (GtuberMediaInfo *info)
+{
+  CheckStreamData *data;
+
+  data = g_new (CheckStreamData, 1);
+  data->session = soup_session_new ();
+  data->user_headers = gtuber_media_info_get_request_headers (info);
+
+  return data;
+}
+
+static void
+check_stream_data_free (CheckStreamData *data)
+{
+  g_object_unref (data->session);
+  g_free (data);
+}
+
 void
 compare_fetch (GtuberClient *client, const gchar *uri,
     GtuberMediaInfo *expect, GtuberMediaInfo **out)
@@ -47,71 +72,99 @@ compare_fetch (GtuberClient *client, const gchar *uri,
 }
 
 static void
-_check_stream_cb (GtuberStream *stream, SoupSession *session)
+_insert_msg_header_cb (const gchar *name, const gchar *value, SoupMessageHeaders *hdrs)
 {
-  SoupMessage *msg;
-  GInputStream *input_stream;
-  guint status_code;
+  soup_message_headers_replace (hdrs, name, value);
+}
+
+static void
+_set_msg_req_headers (SoupMessage *msg, const GHashTable *user_headers)
+{
+  SoupMessageHeaders *req_headers;
+
+  req_headers = soup_message_get_request_headers (msg);
+  g_hash_table_foreach ((GHashTable *) user_headers,
+      (GHFunc) _insert_msg_header_cb, req_headers);
+}
+
+static void
+_check_stream_cb (GtuberStream *stream, CheckStreamData *data)
+{
+  guint status_code, tries = 2;
 
   g_assert_nonnull (stream);
   g_assert_cmpuint (gtuber_stream_get_itag (stream), >, 0);
 
-  msg = soup_message_new ("HEAD", gtuber_stream_get_uri (stream));
-  input_stream = soup_session_send (session, msg, NULL, NULL);
+  while (tries--) {
+    SoupMessage *msg;
+    GInputStream *input_stream;
 
-  g_object_get (msg, "status-code", &status_code, NULL);
+    msg = soup_message_new ("HEAD", gtuber_stream_get_uri (stream));
+    _set_msg_req_headers (msg, data->user_headers);
 
-  if (input_stream) {
-    g_input_stream_close (input_stream, NULL, NULL);
-    g_object_unref (input_stream);
+    input_stream = soup_session_send (data->session, msg, NULL, NULL);
+
+    g_object_get (msg, "status-code", &status_code, NULL);
+
+    if (input_stream) {
+      g_input_stream_close (input_stream, NULL, NULL);
+      g_object_unref (input_stream);
+    }
+    g_object_unref (msg);
+
+    g_test_message ("Stream itag: %u, status code: %u",
+        gtuber_stream_get_itag (stream), status_code);
+
+    if (status_code < 400)
+      break;
   }
-  g_object_unref (msg);
 
-  g_test_message ("Stream itag: %u, status code: %u",
-    gtuber_stream_get_itag (stream), status_code);
+  if (status_code >= 400)
+    g_test_message ("Failed URI: %s", gtuber_stream_get_uri (stream));
 
   g_assert_cmpuint (status_code, <, 400);
 }
 
 static void
-_check_adaptive_stream_cb (GtuberAdaptiveStream *astream, SoupSession *session)
+_check_adaptive_stream_cb (GtuberAdaptiveStream *astream, CheckStreamData *data)
 {
-  _check_stream_cb (GTUBER_STREAM (astream), session);
+  _check_stream_cb (GTUBER_STREAM (astream), data);
 }
 
 void
 check_streams (GtuberMediaInfo *info)
 {
   const GPtrArray *streams;
-  SoupSession *session;
+  CheckStreamData *data;
 
   g_assert_nonnull (info);
 
   streams = gtuber_media_info_get_streams (info);
   g_assert_true (streams->len > 0);
 
-  session = soup_session_new ();
-  g_ptr_array_foreach ((GPtrArray *) streams, (GFunc) _check_stream_cb, session);
-  g_object_unref (session);
+  data = check_stream_data_new (info);
+  g_ptr_array_foreach ((GPtrArray *) streams, (GFunc) _check_stream_cb, data);
+  check_stream_data_free (data);
 }
 
 void
 check_adaptive_streams (GtuberMediaInfo *info)
 {
   const GPtrArray *astreams;
-  SoupSession *session;
+  CheckStreamData *data;
 
   g_assert_nonnull (info);
 
   astreams = gtuber_media_info_get_adaptive_streams (info);
   g_assert_true (astreams->len > 0);
 
-  session = soup_session_new ();
-  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _check_adaptive_stream_cb, session);
-  g_object_unref (session);
+  data = check_stream_data_new (info);
+  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _check_adaptive_stream_cb, data);
+  check_stream_data_free (data);
 }
 
-void assert_no_streams (GtuberMediaInfo *info)
+void
+assert_no_streams (GtuberMediaInfo *info)
 {
   const GPtrArray *streams;
 
@@ -119,7 +172,8 @@ void assert_no_streams (GtuberMediaInfo *info)
   assert_equals_int (streams->len, 0);
 }
 
-void assert_no_adaptive_streams (GtuberMediaInfo *info)
+void
+assert_no_adaptive_streams (GtuberMediaInfo *info)
 {
   const GPtrArray *astreams;
 

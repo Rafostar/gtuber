@@ -17,25 +17,28 @@ jobs:
     steps:
       - name: Prepare
         run: |
-          dnf install -y git gcc meson glib2-devel libsoup-devel json-glib-devel gobject-introspection-devel
+          dnf install -y git gcc meson glib2-devel libsoup-devel \
+            json-glib-devel gobject-introspection-devel vala \
+            gstreamer1-devel gstreamer1-plugins-base-devel
 
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Build
         run: |
-          meson builddir --prefix=/usr -Dtests=true
+          meson builddir --prefix=/usr -Dauto_features=enabled -Dtests=true
           cd builddir
           meson install
 
-      - name: Run Tests
+      - name: Test
         run: |
           cd builddir
           meson test
 
       - name: Upload Results
+        if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tests-results
+          name: test-results
           path: builddir/meson-logs/testlog.txt
           if-no-files-found: error

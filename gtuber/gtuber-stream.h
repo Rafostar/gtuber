@@ -58,6 +58,8 @@ guint                gtuber_stream_get_itag             (GtuberStream *stream);
 
 GtuberStreamMimeType gtuber_stream_get_mime_type        (GtuberStream *stream);
 
+GtuberCodecFlags     gtuber_stream_get_codec_flags      (GtuberStream *stream);
+
 gchar *              gtuber_stream_obtain_codecs_string (GtuberStream *stream);
 
 const gchar *        gtuber_stream_get_video_codec      (GtuberStream *stream);

@@ -34,6 +34,12 @@ struct _GstGtuberSrc
 
   /* < properties > */
   gchar *location;
+  GtuberCodecFlags codecs;
+  guint max_height;
+  guint max_fps;
+  gchar *itags_str;
+
+  GArray *itags;
 
   /* < private > */
   GCancellable *cancellable;

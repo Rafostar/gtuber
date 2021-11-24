@@ -20,6 +20,7 @@ foreach name, plugin_tests : all_tests
       args: [test_num.to_string()],
       is_parallel: false,
       suite: name,
+      timeout: 90,
     )
   endforeach
 endforeach

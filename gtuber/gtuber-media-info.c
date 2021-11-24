@@ -56,6 +56,8 @@ struct _GtuberMediaInfo
 
   GPtrArray *streams;
   GPtrArray *adaptive_streams;
+
+  GHashTable *req_headers;
 };
 
 struct _GtuberMediaInfoClass
@@ -85,6 +87,10 @@ gtuber_media_info_init (GtuberMediaInfo *self)
       g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
   self->adaptive_streams =
       g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
+
+  self->req_headers =
+      g_hash_table_new_full ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal,
+          (GDestroyNotify) g_free, (GDestroyNotify) g_free);
 }
 
 static void
@@ -168,6 +174,8 @@ gtuber_media_info_finalize (GObject *object)
 
   g_ptr_array_unref (self->streams);
   g_ptr_array_unref (self->adaptive_streams);
+
+  g_hash_table_unref (self->req_headers);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -375,7 +383,6 @@ gtuber_media_info_get_has_adaptive_streams (GtuberMediaInfo *self)
  *
  * Returns: (transfer none) (element-type GtuberAdaptiveStream): a #GPtrArray of
  *   available #GtuberAdaptiveStream instances.
- *
  */
 const GPtrArray *
 gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
@@ -402,4 +409,23 @@ gtuber_media_info_add_adaptive_stream (GtuberMediaInfo *self, GtuberAdaptiveStre
   g_return_if_fail (GTUBER_IS_ADAPTIVE_STREAM (stream));
 
   g_ptr_array_add (self->adaptive_streams, stream);
+}
+
+/**
+ * gtuber_media_info_get_request_headers:
+ * @info: a #GtuberMediaInfo
+ *
+ * Get a #GHashTable with request headers name and key pairs.
+ *
+ * Users should use those headers for any future HTTP requests
+ * to URIs within specific #GtuberMediaInfo object.
+ *
+ * Returns: (transfer none): a #GHashTable with recommended request headers.
+ */
+const GHashTable *
+gtuber_media_info_get_request_headers (GtuberMediaInfo *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);
+
+  return self->req_headers;
 }
