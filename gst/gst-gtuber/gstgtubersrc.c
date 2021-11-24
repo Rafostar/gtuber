@@ -428,11 +428,18 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
 {
   GtuberClient *client;
   GtuberMediaInfo *info;
+  GMainContext *ctx;
+
+  ctx = g_main_context_new ();
+  g_main_context_push_thread_default (ctx);
 
   client = gtuber_client_new ();
   info = gtuber_client_fetch_media_info (client, self->location,
       self->cancellable, error);
   g_object_unref (client);
+
+  g_main_context_pop_thread_default (ctx);
+  g_main_context_unref (ctx);
 
   if (!info)
     return FALSE;
