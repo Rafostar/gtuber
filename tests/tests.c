@@ -112,12 +112,12 @@ _check_stream_cb (GtuberStream *stream, CheckStreamData *data)
     }
     g_object_unref (msg);
 
+    g_test_message ("Stream itag: %u, status code: %u",
+        gtuber_stream_get_itag (stream), status_code);
+
     if (status_code < 400)
       break;
   }
-
-  g_test_message ("Stream itag: %u, status code: %u",
-    gtuber_stream_get_itag (stream), status_code);
 
   if (status_code >= 400)
     g_test_message ("Failed URI: %s", gtuber_stream_get_uri (stream));
