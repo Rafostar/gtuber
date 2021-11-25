@@ -108,7 +108,7 @@ static void
 gtuber_client_verify_media_info (GtuberClient *self,
     GtuberMediaInfo *info, GError **error)
 {
-  const GPtrArray *streams, *adaptive_streams;
+  GPtrArray *streams, *adaptive_streams;
 
   streams = gtuber_media_info_get_streams (info);
   if (streams && streams->len)
@@ -287,14 +287,14 @@ beginning:
 
   if (!my_error) {
     SoupMessageHeaders *req_headers;
-    const GHashTable *user_headers;
+    GHashTable *user_headers;
 
     req_headers = soup_message_get_request_headers (msg);
     user_headers = gtuber_media_info_get_request_headers (info);
 
     g_debug ("Setting user request headers...");
     flow = website_class->set_user_req_headers (website, req_headers,
-        (GHashTable *) user_headers, &my_error);
+        user_headers, &my_error);
   }
   if (flow != GTUBER_FLOW_OK)
     goto decide_flow;

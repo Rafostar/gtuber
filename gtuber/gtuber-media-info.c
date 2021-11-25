@@ -332,7 +332,7 @@ gtuber_media_info_get_has_streams (GtuberMediaInfo *self)
  * Returns: (transfer none) (element-type GtuberStream): a #GPtrArray of
  *   available #GtuberStream instances.
  */
-const GPtrArray *
+GPtrArray *
 gtuber_media_info_get_streams (GtuberMediaInfo *self)
 {
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);
@@ -384,7 +384,7 @@ gtuber_media_info_get_has_adaptive_streams (GtuberMediaInfo *self)
  * Returns: (transfer none) (element-type GtuberAdaptiveStream): a #GPtrArray of
  *   available #GtuberAdaptiveStream instances.
  */
-const GPtrArray *
+GPtrArray *
 gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
 {
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);
@@ -422,7 +422,7 @@ gtuber_media_info_add_adaptive_stream (GtuberMediaInfo *self, GtuberAdaptiveStre
  *
  * Returns: (transfer none): a #GHashTable with recommended request headers.
  */
-const GHashTable *
+GHashTable *
 gtuber_media_info_get_request_headers (GtuberMediaInfo *self)
 {
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);

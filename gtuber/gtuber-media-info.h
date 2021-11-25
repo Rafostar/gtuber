@@ -60,13 +60,13 @@ guint              gtuber_media_info_get_duration               (GtuberMediaInfo
 
 gboolean           gtuber_media_info_get_has_streams            (GtuberMediaInfo *info);
 
-const GPtrArray *  gtuber_media_info_get_streams                (GtuberMediaInfo *info);
+GPtrArray *        gtuber_media_info_get_streams                (GtuberMediaInfo *info);
 
 gboolean           gtuber_media_info_get_has_adaptive_streams   (GtuberMediaInfo *info);
 
-const GPtrArray *  gtuber_media_info_get_adaptive_streams       (GtuberMediaInfo *info);
+GPtrArray *        gtuber_media_info_get_adaptive_streams       (GtuberMediaInfo *info);
 
-const GHashTable * gtuber_media_info_get_request_headers        (GtuberMediaInfo *info);
+GHashTable *       gtuber_media_info_get_request_headers        (GtuberMediaInfo *info);
 
 G_END_DECLS
 

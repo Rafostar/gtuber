@@ -741,8 +741,7 @@ dump_dash_data (GtuberManifestGenerator *self, GString *string)
   DumpStringData *data;
   SortStreamsData *sort_data;
 
-  GPtrArray *adaptations;
-  const GPtrArray *astreams;
+  GPtrArray *astreams, *adaptations;
   gchar *dur_pts, *buf_pts;
   guint buf_time, duration;
 
@@ -754,8 +753,7 @@ dump_dash_data (GtuberManifestGenerator *self, GString *string)
   astreams = gtuber_media_info_get_adaptive_streams (self->media_info);
   sort_data = sort_streams_data_new (self, adaptations);
 
-  g_ptr_array_foreach ((GPtrArray *) astreams,
-      (GFunc) _sort_dash_adaptations_cb, sort_data);
+  g_ptr_array_foreach (astreams, (GFunc) _sort_dash_adaptations_cb, sort_data);
 
   sort_streams_data_free (sort_data);
 
@@ -812,16 +810,14 @@ static gboolean
 dump_hls_data (GtuberManifestGenerator *self, GString *string)
 {
   DumpStringData *data;
-  GPtrArray *sorted_astreams;
-  const GPtrArray *astreams;
+  GPtrArray *astreams, *sorted_astreams;
 
   g_debug ("Generating HLS manifest data...");
 
   astreams = gtuber_media_info_get_adaptive_streams (self->media_info);
 
   /* Copy pointers only as we need to sort streams, not modify them */
-  sorted_astreams = g_ptr_array_copy ((GPtrArray *) astreams,
-      (GCopyFunc) g_object_ref, NULL);
+  sorted_astreams = g_ptr_array_copy (astreams, (GCopyFunc) g_object_ref, NULL);
 
   g_ptr_array_sort (sorted_astreams, (GCompareFunc) _sort_streams_cb);
 
