@@ -125,7 +125,7 @@ _read_clip_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberTwitch *s
   org_uri = gtuber_utils_json_get_string (reader, "sourceURL", NULL);
   if (org_uri) {
     GtuberStream *stream = gtuber_stream_new ();
-    const GPtrArray *streams = gtuber_media_info_get_streams (info);
+    GPtrArray *streams = gtuber_media_info_get_streams (info);
     const gchar *quality;
     gchar *mod_uri, *query;
     guint itag, fps, height = 0;
