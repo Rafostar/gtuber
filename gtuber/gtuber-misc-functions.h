@@ -28,7 +28,7 @@
 
 G_BEGIN_DECLS
 
-gboolean          gtuber_has_plugin_for_uri                (const gchar *uri, gchar **plugin_name);
+gboolean          gtuber_has_plugin_for_uri                (const gchar *uri, gchar **filename);
 
 G_END_DECLS
 

@@ -17,6 +17,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION:gtuber-misc-functions
+ * @title: Gtuber
+ * @short_description: misc functions
+ */
+
 #include <gmodule.h>
 
 #include "gtuber-misc-functions.h"
@@ -26,8 +32,8 @@
 /**
  * gtuber_has_plugin_for_uri:
  * @uri: a media source URI
- * @plugin_name: (out) (optional) (transfer full): return location
- *   for plugin name that handles given URI, or %NULL
+ * @filename: (out) (optional) (transfer full): return location
+ *   for plugin filename that handles given URI, or %NULL
  *
  * Checks if any among installed plugins advertises support for given URI.
  *
@@ -37,7 +43,7 @@
  * Returns: %TRUE when URI is supported with out parameters set, %FALSE otherwise.
  */
 gboolean
-gtuber_has_plugin_for_uri (const gchar *uri, gchar **plugin_name)
+gtuber_has_plugin_for_uri (const gchar *uri, gchar **filename)
 {
   GtuberWebsite *website;
   GUri *guri;
@@ -58,8 +64,8 @@ gtuber_has_plugin_for_uri (const gchar *uri, gchar **plugin_name)
   if (website) {
     g_object_unref (website);
 
-    if (plugin_name)
-      *plugin_name = g_strdup (g_module_name (module));
+    if (filename)
+      *filename = g_strdup (g_module_name (module));
 
     g_module_close (module);
     res = TRUE;
