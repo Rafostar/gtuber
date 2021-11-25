@@ -47,7 +47,8 @@ gtuber_loader_get_website_internal (gchar *module_path,
   *module = g_module_open (module_path, G_MODULE_BIND_LAZY);
 
   if (*module == NULL) {
-    g_warning ("Could not load plugin: %s", module_path);
+    g_warning ("Could not load plugin: %s, reason: %s",
+        module_path, g_module_error ());
     goto finish;
   }
   g_debug ("Opened plugin module: %s", module_path);
