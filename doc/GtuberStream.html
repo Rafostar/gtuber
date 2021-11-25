@@ -66,6 +66,14 @@
 </tr>
 <tr>
 <td class="function_type">
+<a class="link" href="gtuber-Enumeration-Types.html#GtuberCodecFlags" title="enum GtuberCodecFlags"><span class="returnvalue">GtuberCodecFlags</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberStream.html#gtuber-stream-get-codec-flags" title="gtuber_stream_get_codec_flags ()">gtuber_stream_get_codec_flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
 <span class="returnvalue">gchar</span> *
 </td>
 <td class="function_name">
@@ -139,6 +147,11 @@
 <tr>
 <td class="property_type"><span class="type">guint</span></td>
 <td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--bitrate" title="The “bitrate” property">bitrate</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><a class="link" href="gtuber-Enumeration-Types.html#GtuberCodecFlags" title="enum GtuberCodecFlags"><span class="type">GtuberCodecFlags</span></a></td>
+<td class="property_name"><a class="link" href="GtuberStream.html#GtuberStream--codec-flags" title="The “codec-flags” property">codec-flags</a></td>
 <td class="property_flags">Read</td>
 </tr>
 <tr>
@@ -280,6 +293,32 @@ gtuber_stream_get_mime_type (<em class="parameter"><code><a class="link" href="G
 <a name="gtuber-stream-get-mime-type.returns"></a><h4>Returns</h4>
 <p> a <a class="link" href="gtuber-Enumeration-Types.html#GtuberStreamMimeType" title="enum GtuberStreamMimeType"><span class="type">GtuberStreamMimeType</span></a> representing
 MIME type of the stream.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-stream-get-codec-flags"></a><h3>gtuber_stream_get_codec_flags ()</h3>
+<pre class="programlisting"><a class="link" href="gtuber-Enumeration-Types.html#GtuberCodecFlags" title="enum GtuberCodecFlags"><span class="returnvalue">GtuberCodecFlags</span></a>
+gtuber_stream_get_codec_flags (<em class="parameter"><code><a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> *stream</code></em>);</pre>
+<p>Get flags indicating which codecs were detected in stream.</p>
+<div class="refsect3">
+<a name="gtuber-stream-get-codec-flags.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>stream</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-stream-get-codec-flags.returns"></a><h4>Returns</h4>
+<p> <a class="link" href="gtuber-Enumeration-Types.html#GtuberCodecFlags" title="enum GtuberCodecFlags"><span class="type">GtuberCodecFlags</span></a> flags</p>
 </div>
 </div>
 <hr>
@@ -489,6 +528,14 @@ gtuber_stream_get_bitrate (<em class="parameter"><code><a class="link" href="Gtu
 <p>Owner: GtuberStream</p>
 <p>Flags: Read</p>
 <p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GtuberStream--codec-flags"></a><h3>The <code class="literal">“codec-flags”</code> property</h3>
+<pre class="programlisting">  “codec-flags”              <a class="link" href="gtuber-Enumeration-Types.html#GtuberCodecFlags" title="enum GtuberCodecFlags"><span class="type">GtuberCodecFlags</span></a></pre>
+<p>Flags indicating which codecs were detected in stream.</p>
+<p>Owner: GtuberStream</p>
+<p>Flags: Read</p>
 </div>
 <hr>
 <div class="refsect2">

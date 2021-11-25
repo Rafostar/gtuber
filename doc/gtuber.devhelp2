@@ -7,6 +7,7 @@
       <sub name="Gtuber Version" link="gtuber-Gtuber-Version.html"/>
     </sub>
     <sub name="API Reference" link="gtuber-api.html">
+      <sub name="Gtuber" link="gtuber-Gtuber.html"/>
       <sub name="GtuberClient" link="GtuberClient.html"/>
       <sub name="GtuberMediaInfo" link="GtuberMediaInfo.html"/>
       <sub name="GtuberStream" link="GtuberStream.html"/>
@@ -25,6 +26,7 @@
   </chapters>
   <functions>
     <keyword type="enum" name="enum GtuberStreamMimeType" link="gtuber-Enumeration-Types.html#GtuberStreamMimeType"/>
+    <keyword type="enum" name="enum GtuberCodecFlags" link="gtuber-Enumeration-Types.html#GtuberCodecFlags"/>
     <keyword type="enum" name="enum GtuberAdaptiveStreamManifest" link="gtuber-Enumeration-Types.html#GtuberAdaptiveStreamManifest"/>
     <keyword type="enum" name="enum GtuberClientError" link="gtuber-Enumeration-Types.html#GtuberClientError"/>
     <keyword type="enum" name="enum GtuberManifestGeneratorError" link="gtuber-Enumeration-Types.html#GtuberManifestGeneratorError"/>
@@ -38,6 +40,7 @@
     <keyword type="macro" name="GTUBER_VERSION" link="gtuber-Gtuber-Version.html#GTUBER-VERSION:CAPS"/>
     <keyword type="macro" name="GTUBER_VERSION_S" link="gtuber-Gtuber-Version.html#GTUBER-VERSION-S:CAPS"/>
     <keyword type="macro" name="GTUBER_VERSION_HEX" link="gtuber-Gtuber-Version.html#GTUBER-VERSION-HEX:CAPS"/>
+    <keyword type="function" name="gtuber_has_plugin_for_uri ()" link="gtuber-Gtuber.html#gtuber-has-plugin-for-uri"/>
     <keyword type="function" name="gtuber_client_new ()" link="GtuberClient.html#gtuber-client-new"/>
     <keyword type="function" name="gtuber_client_fetch_media_info ()" link="GtuberClient.html#gtuber-client-fetch-media-info"/>
     <keyword type="function" name="gtuber_client_fetch_media_info_async ()" link="GtuberClient.html#gtuber-client-fetch-media-info-async"/>
@@ -53,6 +56,7 @@
     <keyword type="function" name="gtuber_media_info_get_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-streams"/>
     <keyword type="function" name="gtuber_media_info_get_has_adaptive_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-has-adaptive-streams"/>
     <keyword type="function" name="gtuber_media_info_get_adaptive_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-adaptive-streams"/>
+    <keyword type="function" name="gtuber_media_info_get_request_headers ()" link="GtuberMediaInfo.html#gtuber-media-info-get-request-headers"/>
     <keyword type="struct" name="GtuberMediaInfo" link="GtuberMediaInfo.html#GtuberMediaInfo-struct"/>
     <keyword type="property" name="The “description” property" link="GtuberMediaInfo.html#GtuberMediaInfo--description"/>
     <keyword type="property" name="The “duration” property" link="GtuberMediaInfo.html#GtuberMediaInfo--duration"/>
@@ -63,6 +67,7 @@
     <keyword type="function" name="gtuber_stream_get_uri ()" link="GtuberStream.html#gtuber-stream-get-uri"/>
     <keyword type="function" name="gtuber_stream_get_itag ()" link="GtuberStream.html#gtuber-stream-get-itag"/>
     <keyword type="function" name="gtuber_stream_get_mime_type ()" link="GtuberStream.html#gtuber-stream-get-mime-type"/>
+    <keyword type="function" name="gtuber_stream_get_codec_flags ()" link="GtuberStream.html#gtuber-stream-get-codec-flags"/>
     <keyword type="function" name="gtuber_stream_obtain_codecs_string ()" link="GtuberStream.html#gtuber-stream-obtain-codecs-string"/>
     <keyword type="function" name="gtuber_stream_get_video_codec ()" link="GtuberStream.html#gtuber-stream-get-video-codec"/>
     <keyword type="function" name="gtuber_stream_get_audio_codec ()" link="GtuberStream.html#gtuber-stream-get-audio-codec"/>
@@ -73,6 +78,7 @@
     <keyword type="struct" name="GtuberStream" link="GtuberStream.html#GtuberStream-struct"/>
     <keyword type="property" name="The “audio-codec” property" link="GtuberStream.html#GtuberStream--audio-codec"/>
     <keyword type="property" name="The “bitrate” property" link="GtuberStream.html#GtuberStream--bitrate"/>
+    <keyword type="property" name="The “codec-flags” property" link="GtuberStream.html#GtuberStream--codec-flags"/>
     <keyword type="property" name="The “fps” property" link="GtuberStream.html#GtuberStream--fps"/>
     <keyword type="property" name="The “height” property" link="GtuberStream.html#GtuberStream--height"/>
     <keyword type="property" name="The “itag” property" link="GtuberStream.html#GtuberStream--itag"/>
@@ -135,6 +141,14 @@
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_AUDIO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-AUDIO-MP4:CAPS"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_VIDEO_WEBM" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-VIDEO-WEBM:CAPS"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-AUDIO-WEBM:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_UNKNOWN_VIDEO" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-UNKNOWN-VIDEO:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_AVC" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-AVC:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_HEVC" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-HEVC:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_VP9" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-VP9:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_AV1" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-AV1:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_UNKNOWN_AUDIO" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-UNKNOWN-AUDIO:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_MP4A" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-MP4A:CAPS"/>
+    <keyword type="constant" name="GTUBER_CODEC_OPUS" link="gtuber-Enumeration-Types.html#GTUBER-CODEC-OPUS:CAPS"/>
     <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-UNKNOWN:CAPS"/>
     <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-DASH:CAPS"/>
     <keyword type="constant" name="GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS" link="gtuber-Enumeration-Types.html#GTUBER-ADAPTIVE-STREAM-MANIFEST-HLS:CAPS"/>
@@ -149,7 +163,9 @@
     <keyword type="constant" name="GTUBER_FLOW_RESTART" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-RESTART:CAPS"/>
     <keyword type="member" name="GtuberWebsiteClass.handles-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.handles-input-stream"/>
     <keyword type="member" name="GtuberWebsiteClass.create-request" link="GtuberWebsite.html#GtuberWebsiteClass.create-request"/>
-    <keyword type="member" name="GtuberWebsiteClass.parse-response" link="GtuberWebsite.html#GtuberWebsiteClass.parse-response"/>
+    <keyword type="member" name="GtuberWebsiteClass.read-response" link="GtuberWebsite.html#GtuberWebsiteClass.read-response"/>
+    <keyword type="member" name="GtuberWebsiteClass.parse-data" link="GtuberWebsite.html#GtuberWebsiteClass.parse-data"/>
     <keyword type="member" name="GtuberWebsiteClass.parse-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.parse-input-stream"/>
+    <keyword type="member" name="GtuberWebsiteClass.set-user-req-headers" link="GtuberWebsite.html#GtuberWebsiteClass.set-user-req-headers"/>
   </functions>
 </book>

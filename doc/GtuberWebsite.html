@@ -193,15 +193,25 @@ gtuber_website_error_quark (<em class="parameter"><code><span class="type">void<
                                  SoupMessage    **msg,
                                  GError         **error);
 
-  GtuberFlow (* parse_response) (GtuberWebsite   *website,
-                                 gchar           *data,
-                                 GtuberMediaInfo *info,
-                                 GError         **error);
+  GtuberFlow (* read_response) (GtuberWebsite       *website,
+                                SoupStatus           status,
+                                SoupMessageHeaders  *resp_headers,
+                                GError             **error);
+
+  GtuberFlow (* parse_data) (GtuberWebsite   *website,
+                             gchar           *data,
+                             GtuberMediaInfo *info,
+                             GError         **error);
 
   GtuberFlow (* parse_input_stream) (GtuberWebsite   *website,
                                      GInputStream    *stream,
                                      GtuberMediaInfo *info,
                                      GError         **error);
+
+  GtuberFlow (* set_user_req_headers) (GtuberWebsite      *website,
+                                       SoupMessageHeaders *req_headers,
+                                       GHashTable         *user_headers,
+                                       GError            **error);
 };
 </pre>
 <div class="refsect3">
@@ -225,13 +235,24 @@ at parsing stage otherwise <code class="function">parse_response()</code> will b
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GtuberWebsiteClass.parse-response"></a>parse_response</code></em> ()</p></td>
-<td class="struct_member_description"><p>Read <span class="type">SoupMessage</span> response body and fill <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a>.</p></td>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GtuberWebsiteClass.read-response"></a>read_response</code></em> ()</p></td>
+<td class="struct_member_description"><p>Check <span class="type">SoupStatus</span> and response <span class="type">SoupMessageHeaders</span>.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GtuberWebsiteClass.parse-data"></a>parse_data</code></em> ()</p></td>
+<td class="struct_member_description"><p>Read data of response body and fill <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a>.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GtuberWebsiteClass.parse-input-stream"></a>parse_input_stream</code></em> ()</p></td>
 <td class="struct_member_description"><p>Read <span class="type">GInputStream</span> and fill <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a>.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GtuberWebsiteClass.set-user-req-headers"></a>set_user_req_headers</code></em> ()</p></td>
+<td class="struct_member_description"><p>Set request headers for user. Default implementation
+will set them from last <span class="type">SoupMessage</span>, skipping some common and invalid ones.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 </tbody>

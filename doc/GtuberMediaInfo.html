@@ -79,7 +79,8 @@
 </td>
 </tr>
 <tr>
-<td class="function_type">const <span class="returnvalue">GPtrArray</span> *
+<td class="function_type">
+<span class="returnvalue">GPtrArray</span> *
 </td>
 <td class="function_name">
 <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-streams" title="gtuber_media_info_get_streams ()">gtuber_media_info_get_streams</a> <span class="c_punctuation">()</span>
@@ -94,10 +95,19 @@
 </td>
 </tr>
 <tr>
-<td class="function_type">const <span class="returnvalue">GPtrArray</span> *
+<td class="function_type">
+<span class="returnvalue">GPtrArray</span> *
 </td>
 <td class="function_name">
 <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-adaptive-streams" title="gtuber_media_info_get_adaptive_streams ()">gtuber_media_info_get_adaptive_streams</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GHashTable</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-request-headers" title="gtuber_media_info_get_request_headers ()">gtuber_media_info_get_request_headers</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 </tbody>
@@ -302,7 +312,7 @@ gtuber_media_info_get_has_streams (<em class="parameter"><code><a class="link" h
 <hr>
 <div class="refsect2">
 <a name="gtuber-media-info-get-streams"></a><h3>gtuber_media_info_get_streams ()</h3>
-<pre class="programlisting">const <span class="returnvalue">GPtrArray</span> *
+<pre class="programlisting"><span class="returnvalue">GPtrArray</span> *
 gtuber_media_info_get_streams (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
 <p>Get a <span class="type">GPtrArray</span> of <a class="link" href="GtuberStream.html" title="GtuberStream"><span class="type">GtuberStream</span></a> instances. When no streams are available,
   an empty array is returned. Use <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-has-streams" title="gtuber_media_info_get_has_streams ()"><code class="function">gtuber_media_info_get_has_streams()</code></a>
@@ -358,7 +368,7 @@ gtuber_media_info_get_has_adaptive_streams
 <hr>
 <div class="refsect2">
 <a name="gtuber-media-info-get-adaptive-streams"></a><h3>gtuber_media_info_get_adaptive_streams ()</h3>
-<pre class="programlisting">const <span class="returnvalue">GPtrArray</span> *
+<pre class="programlisting"><span class="returnvalue">GPtrArray</span> *
 gtuber_media_info_get_adaptive_streams
                                (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
 <p>Get a <span class="type">GPtrArray</span> of <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> instances. When no adaptive streams are
@@ -384,6 +394,35 @@ gtuber_media_info_get_adaptive_streams
 <p>a <span class="type">GPtrArray</span> of
 available <a class="link" href="GtuberAdaptiveStream.html" title="GtuberAdaptiveStream"><span class="type">GtuberAdaptiveStream</span></a> instances. </p>
 <p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>][<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GtuberAdaptiveStream]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-request-headers"></a><h3>gtuber_media_info_get_request_headers ()</h3>
+<pre class="programlisting"><span class="returnvalue">GHashTable</span> *
+gtuber_media_info_get_request_headers (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<p>Get a <span class="type">GHashTable</span> with request headers name and key pairs.</p>
+<p>Users should use those headers for any future HTTP requests
+to URIs within specific <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> object.</p>
+<div class="refsect3">
+<a name="gtuber-media-info-get-request-headers.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-request-headers.returns"></a><h4>Returns</h4>
+<p>a <span class="type">GHashTable</span> with recommended request headers. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
 </div>
 </div>
 </div>
