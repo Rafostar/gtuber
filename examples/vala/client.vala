@@ -19,8 +19,10 @@ print_media_info (Gtuber.MediaInfo info)
   stdout.printf ("STREAMS: %i\n", streams.length);
   stdout.printf ("ADAPTIVE STREAMS: %i\n\n", adaptive_streams.length);
 
-  streams.foreach (print_stream_info);
-  adaptive_streams.foreach (print_stream_info);
+  foreach (Gtuber.Stream stream in streams)
+    print_stream_info (stream);
+  foreach (Gtuber.Stream stream in adaptive_streams)
+    print_stream_info (stream);
 }
 
 int
