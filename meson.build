@@ -1,7 +1,7 @@
 project('gtuber', 'c',
-  version: '0.0.1',
+  version: '0.1.0',
   meson_version: '>=0.53.0',
-  license: 'LGPLv2.1+',
+  license: 'LGPL-2.1-or-later',
   default_options: [
     'warning_level=1',
     'buildtype=debugoptimized',
