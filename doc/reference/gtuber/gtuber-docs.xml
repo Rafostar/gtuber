@@ -43,13 +43,7 @@
   <chapter id="gtuber-devel">
     <title>Plugin Development Reference</title>
     <para>
-      Functions meant for plugin development. This section describes an internal
-      Gtuber API to ease the creation of new plugins. Please note that those functions
-      should be considered an unstable API, and can change without prior notice.
-    </para>
-    <para>
-      The headers to these functions are not publically available and are meant only to
-      be used when creating a new plugin that will be send to Gtuber git as a MR.
+      Functions meant for plugin development.
     </para>
     <xi:include href="xml/gtuber-website.xml" />
     <xi:include href="xml/gtuber-media-info-devel.xml" />
