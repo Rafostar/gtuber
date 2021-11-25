@@ -247,10 +247,10 @@ _update_hls_stream_cb (GtuberAdaptiveStream *astream, gpointer user_data)
 static void
 update_info_hls (GtuberMediaInfo *info)
 {
-  const GPtrArray *astreams;
+  GPtrArray *astreams;
 
   astreams = gtuber_media_info_get_adaptive_streams (info);
-  g_ptr_array_foreach ((GPtrArray *) astreams, (GFunc) _update_hls_stream_cb, NULL);
+  g_ptr_array_foreach (astreams, (GFunc) _update_hls_stream_cb, NULL);
 }
 
 static GtuberFlow
