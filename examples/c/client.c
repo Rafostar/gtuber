@@ -38,7 +38,7 @@ main (int argc, char **argv)
     g_error_free (error);
   }
   if (info) {
-    const GPtrArray *streams, *adaptive_streams;
+    GPtrArray *streams, *adaptive_streams;
 
     g_print ("TITLE: %s\n", gtuber_media_info_get_title (info));
     g_print ("DURATION: %u\n\n", gtuber_media_info_get_duration (info));
@@ -49,8 +49,8 @@ main (int argc, char **argv)
     g_print ("STREAMS: %i\n", streams->len);
     g_print ("ADAPTIVE STREAMS: %i\n\n", adaptive_streams->len);
 
-    g_ptr_array_foreach ((GPtrArray *) streams, (GFunc) print_stream_info, NULL);
-    g_ptr_array_foreach ((GPtrArray *) adaptive_streams, (GFunc) print_adaptive_stream_info, NULL);
+    g_ptr_array_foreach (streams, (GFunc) print_stream_info, NULL);
+    g_ptr_array_foreach (adaptive_streams, (GFunc) print_adaptive_stream_info, NULL);
 
     g_object_unref (info);
   }
