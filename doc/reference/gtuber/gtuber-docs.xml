@@ -32,6 +32,7 @@
       Those functions are publically available as part of Gtuber API
       in both header files and generated introspection bindings.
     </para>
+    <xi:include href="xml/gtuber-misc-functions.xml" />
     <xi:include href="xml/gtuber-client.xml" />
     <xi:include href="xml/gtuber-media-info.xml" />
     <xi:include href="xml/gtuber-stream.xml" />
