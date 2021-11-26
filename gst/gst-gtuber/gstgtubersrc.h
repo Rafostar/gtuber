@@ -20,7 +20,6 @@
 #pragma once
 
 #include <gst/gst.h>
-#include <gio/gio.h>
 #include <gst/base/gstpushsrc.h>
 
 G_BEGIN_DECLS
