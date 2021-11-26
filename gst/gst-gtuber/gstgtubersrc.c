@@ -428,12 +428,12 @@ stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
   return TRUE;
 }
 
-static GstBuffer *
-gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
-    GError **error)
+static gchar *
+gst_gtuber_generate_manifest (GstGtuberSrc *self, GtuberMediaInfo *info,
+    GtuberAdaptiveStreamManifest *manifest_type)
 {
   GtuberManifestGenerator *gen;
-  GstBuffer *buffer;
+  GtuberAdaptiveStreamManifest type;
   gchar *data;
 
   gen = gtuber_manifest_generator_new ();
@@ -442,14 +442,68 @@ gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
   gtuber_manifest_generator_set_filter_func (gen,
       (GtuberAdaptiveStreamFilter) stream_filter_func, self, NULL);
 
-  data = gtuber_manifest_generator_to_data (gen);
+  for (type = GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH;
+      type <= GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS; type++) {
+    gtuber_manifest_generator_set_manifest_type (gen, type);
+
+    if ((data = gtuber_manifest_generator_to_data (gen)))
+      break;
+  }
+
   g_object_unref (gen);
+
+  if (manifest_type) {
+    if (!data)
+      type = GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN;
+
+    *manifest_type = type;
+  }
+
+  return data;
+}
+
+static GstBuffer *
+gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
+    GError **error)
+{
+  GtuberAdaptiveStreamManifest manifest_type;
+  GstBuffer *buffer;
+  GstCaps *caps = NULL;
+  gchar *data;
+
+  data = gst_gtuber_generate_manifest (self, info, &manifest_type);
+
+  /* TODO: Fallback to best combined URI */
+  if (!data)
+    GST_FIXME_OBJECT (self, "Implement fallback to best combined URI");
 
   if (!data) {
     g_set_error (error, GTUBER_MANIFEST_GENERATOR_ERROR,
         GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA,
         "No manifest data was generated");
     return FALSE;
+  }
+
+  switch (manifest_type) {
+    case GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH:
+      caps = gst_caps_new_empty_simple ("application/dash+xml");
+      break;
+    case GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS:
+      caps = gst_caps_new_empty_simple ("application/x-hls");
+      break;
+    default:
+      GST_WARNING_OBJECT (self, "Unsupported gtuber manifest type");
+      break;
+  }
+
+  if (caps) {
+    gst_caps_set_simple (caps,
+        "source", G_TYPE_STRING, "gtuber",
+        NULL);
+    if (gst_base_src_set_caps (GST_BASE_SRC (self), caps))
+      GST_INFO_OBJECT (self, "Using caps: %" GST_PTR_FORMAT, caps);
+
+    gst_caps_unref (caps);
   }
 
   self->buf_size = strlen (data);

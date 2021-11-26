@@ -30,7 +30,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_gtuber_dash_demux_debug);
 static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("application/dash+xml"));
+    GST_STATIC_CAPS ("application/dash+xml, source=(string)gtuber"));
 
 static GstStaticPadTemplate videosrc_template = GST_STATIC_PAD_TEMPLATE ("video_%02u",
     GST_PAD_SRC,
