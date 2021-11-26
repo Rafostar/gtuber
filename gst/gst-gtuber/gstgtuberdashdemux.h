@@ -20,13 +20,19 @@
 #pragma once
 
 #include <gst/gst.h>
+#include <gst/gstbin.h>
 
 G_BEGIN_DECLS
 
-GST_ELEMENT_REGISTER_DECLARE (gtubersrc);
-GST_ELEMENT_REGISTER_DECLARE (gtuberdashdemux);
+#define GST_TYPE_GTUBER_DASH_DEMUX (gst_gtuber_dash_demux_get_type())
+G_DECLARE_FINAL_TYPE (GstGtuberDashDemux, gst_gtuber_dash_demux, GST, GTUBER_DASH_DEMUX, GstBin)
 
-void gst_gtuber_element_init (GstPlugin *plugin);
-void gst_gtuber_uri_handler_do_init (GType type);
+struct _GstGtuberDashDemux
+{
+  GstBin parent;
+
+  GstElement *dashdemux;
+  GstStructure *gtuber_config;
+};
 
 G_END_DECLS

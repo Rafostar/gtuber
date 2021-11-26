@@ -1,4 +1,4 @@
-gst_req = '>= 1.6.0'
+gst_req = '>= 1.16.0'
 
 gst_dep = dependency('gstreamer-1.0',
   version: gst_req,

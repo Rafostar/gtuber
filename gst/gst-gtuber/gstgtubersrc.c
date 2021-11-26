@@ -349,6 +349,42 @@ gst_gtuber_src_unlock_stop (GstBaseSrc *base_src)
   return TRUE;
 }
 
+static void
+insert_header_cb (const gchar *name, const gchar *value, GstStructure *structure)
+{
+  if (strcmp (name, "User-Agent"))
+    gst_structure_set (structure, name, G_TYPE_STRING, value, NULL);
+}
+
+static void
+gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
+{
+  GHashTable *gtuber_headers;
+
+  gtuber_headers = gtuber_media_info_get_request_headers (info);
+
+  if (gtuber_headers && g_hash_table_size (gtuber_headers) > 0) {
+    GstStructure *config, *req_headers;
+    GstEvent *event;
+    const gchar *ua;
+
+    ua = g_hash_table_lookup (gtuber_headers, "User-Agent");
+    req_headers = gst_structure_new_empty ("request-headers");
+
+    g_hash_table_foreach (gtuber_headers,
+        (GHFunc) insert_header_cb, req_headers);
+
+    config = gst_structure_new ("gtuber-config",
+        "user-agent", G_TYPE_STRING, ua,
+        "extra-headers", GST_TYPE_STRUCTURE, req_headers,
+        NULL);
+    gst_structure_free (req_headers);
+
+    event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_STICKY, config);
+    gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
+  }
+}
+
 static gboolean
 stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
 {
@@ -445,6 +481,10 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
     return FALSE;
 
   *outbuf = gst_gtuber_media_info_to_buffer (self, info, error);
+
+  if (*outbuf)
+    gst_gtuber_src_push_config_event (self, info);
+
   g_object_unref (info);
 
   return (*outbuf) ? TRUE : FALSE;

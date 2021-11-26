@@ -26,11 +26,12 @@
 static gboolean
 plugin_init (GstPlugin *plugin)
 {
-  gboolean ret = FALSE;
+  gboolean res = FALSE;
 
-  ret |= GST_ELEMENT_REGISTER (gtubersrc, plugin);
+  res |= GST_ELEMENT_REGISTER (gtubersrc, plugin);
+  res |= GST_ELEMENT_REGISTER (gtuberdashdemux, plugin);
 
-  return ret;
+  return res;
 }
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR, GST_VERSION_MINOR,
