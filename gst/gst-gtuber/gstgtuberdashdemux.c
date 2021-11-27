@@ -91,8 +91,6 @@ gst_gtuber_dash_demux_class_init (GstGtuberDashDemuxClass *klass)
       "Codec/Demuxer/Adaptive",
       "Demuxer for Gtuber DASH data",
       "Rafał Dzięgiel <rafostar.github@gmail.com>");
-
-  gst_type_mark_as_plugin_api (GST_TYPE_GTUBER_DASH_DEMUX, 0);
 }
 
 static void

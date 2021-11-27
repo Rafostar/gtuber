@@ -144,8 +144,6 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
   gst_element_class_set_static_metadata (gstelement_class, "Gtuber source",
       "Source", "Source plugin that uses Gtuber API",
       "Rafał Dzięgiel <rafostar.github@gmail.com>");
-
-  gst_type_mark_as_plugin_api (GST_TYPE_GTUBER_SRC, 0);
 }
 
 static void
