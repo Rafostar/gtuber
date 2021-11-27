@@ -21,6 +21,8 @@
 
 #include <gst/gst.h>
 
+#define GST_GTUBER_CONFIG "gtuber-config"
+
 G_BEGIN_DECLS
 
 GST_ELEMENT_REGISTER_DECLARE (gtubersrc);

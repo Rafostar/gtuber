@@ -251,10 +251,10 @@ gst_gtuber_dash_demux_sink_event (GstPad *pad, GstObject *parent, GstEvent *even
     case GST_EVENT_CUSTOM_DOWNSTREAM_STICKY:{
       const GstStructure *structure = gst_event_get_structure (event);
 
-      if (gst_structure_has_name (structure, "gtuber-config")) {
+      if (gst_structure_has_name (structure, GST_GTUBER_CONFIG)) {
         GstGtuberDashDemux *self = GST_GTUBER_DASH_DEMUX (parent);
 
-        GST_DEBUG_OBJECT (self, "Received gtuber-config event");
+        GST_DEBUG_OBJECT (self, "Received " GST_GTUBER_CONFIG " event");
         GST_OBJECT_LOCK (self);
 
         gst_clear_structure (&self->gtuber_config);
