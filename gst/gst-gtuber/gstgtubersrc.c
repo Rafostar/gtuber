@@ -154,6 +154,9 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
 static void
 gst_gtuber_src_init (GstGtuberSrc *self)
 {
+  g_mutex_init (&self->client_lock);
+  g_cond_init (&self->client_finished);
+
   self->location = NULL;
   self->codecs = DEFAULT_CODECS;
   self->max_height = DEFAULT_MAX_HEIGHT;
@@ -173,12 +176,22 @@ gst_gtuber_src_finalize (GObject *object)
 
   GST_DEBUG ("Finalize");
 
+  g_mutex_lock (&self->client_lock);
+
+  if (self->client_thread)
+    g_thread_unref (self->client_thread);
+
+  g_mutex_unlock (&self->client_lock);
+
   g_free (self->location);
   g_free (self->itags_str);
 
   g_array_unref (self->itags);
 
   g_clear_object (&self->cancellable);
+
+  g_mutex_clear (&self->client_lock);
+  g_cond_clear (&self->client_finished);
 
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
 }
@@ -581,28 +594,60 @@ gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
   return buffer;
 }
 
-static gboolean
-gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
-    GError **error)
+typedef struct
 {
-  GtuberClient *client;
+  GstGtuberSrc *src;
   GtuberMediaInfo *info;
+  GError *error;
+} GstGtuberThreadData;
+
+static GstGtuberThreadData *
+gst_gtuber_thread_data_new (GstGtuberSrc *self)
+{
+  GstGtuberThreadData *data;
+
+  data = g_new (GstGtuberThreadData, 1);
+  data->src = gst_object_ref (self);
+  data->info = NULL;
+  data->error = NULL;
+
+  return data;
+}
+
+static void
+gst_gtuber_thread_data_free (GstGtuberThreadData *data)
+{
+  gst_object_unref (data->src);
+  g_clear_object (&data->info);
+  g_clear_error (&data->error);
+
+  g_free (data);
+}
+
+static gpointer
+client_thread_func (GstGtuberThreadData *data)
+{
+  GstGtuberSrc *self = data->src;
+  GtuberClient *client;
   GMainContext *ctx;
   gchar *uri;
+
+  g_mutex_lock (&self->client_lock);
+  GST_DEBUG ("Entered new GtuberClient thread");
 
   /* Gtuber is not guaranteed to handle "gtuber" URI scheme */
   uri = (g_str_has_prefix (self->location, "gtuber"))
       ? g_strconcat ("https", self->location + 6, NULL)
       : g_strdup (self->location);
 
-  GST_DEBUG_OBJECT (self, "Fetching media info for URI: %s", uri);
+  GST_INFO ("Fetching media info for URI: %s", uri);
 
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);
 
   client = gtuber_client_new ();
-  info = gtuber_client_fetch_media_info (client, uri,
-      self->cancellable, error);
+  data->info = gtuber_client_fetch_media_info (client, uri,
+      self->cancellable, &data->error);
   g_object_unref (client);
 
   g_main_context_pop_thread_default (ctx);
@@ -610,17 +655,50 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
 
   g_free (uri);
 
-  if (!info)
+  GST_DEBUG ("Leaving GtuberClient thread");
+
+  g_cond_signal (&self->client_finished);
+  g_mutex_unlock (&self->client_lock);
+
+  return NULL;
+}
+
+static gboolean
+gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
+    GError **error)
+{
+  GstGtuberThreadData *data;
+
+  GST_DEBUG_OBJECT (self, "Fetching media info");
+
+  g_mutex_lock (&self->client_lock);
+
+  data = gst_gtuber_thread_data_new (self);
+  self->client_thread = g_thread_new ("GstGtuberClientThread",
+      (GThreadFunc) client_thread_func, data);
+
+  g_cond_wait (&self->client_finished, &self->client_lock);
+
+  g_thread_unref (self->client_thread);
+  self->client_thread = NULL;
+
+  g_mutex_unlock (&self->client_lock);
+
+  if (!data->info) {
+    *error = g_error_copy (data->error);
+    gst_gtuber_thread_data_free (data);
+
     return FALSE;
+  }
 
   GST_DEBUG_OBJECT (self, "Fetched media info");
 
-  *outbuf = gst_gtuber_media_info_to_buffer (self, info, error);
+  *outbuf = gst_gtuber_media_info_to_buffer (self, data->info, error);
 
   if (*outbuf)
-    gst_gtuber_src_push_config_event (self, info);
+    gst_gtuber_src_push_config_event (self, data->info);
 
-  g_object_unref (info);
+  gst_gtuber_thread_data_free (data);
 
   return (*outbuf) ? TRUE : FALSE;
 }

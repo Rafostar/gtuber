@@ -31,6 +31,10 @@ struct _GstGtuberSrc
 {
   GstPushSrc src;
 
+  GMutex client_lock;
+  GCond client_finished;
+  GThread *client_thread;
+
   /* < properties > */
   gchar *location;
   GtuberCodecFlags codecs;
