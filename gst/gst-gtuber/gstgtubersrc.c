@@ -118,14 +118,14 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
       GTUBER_TYPE_CODEC_FLAGS, DEFAULT_CODECS,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_MAX_HEIGHT] = g_param_spec_uint64 ("max-height",
+  param_specs[PROP_MAX_HEIGHT] = g_param_spec_uint ("max-height",
       "Maximal Height", "Maximal allowed video height in pixels (0 = unlimited)",
-      0, G_MAXUINT64, DEFAULT_MAX_HEIGHT,
+      0, G_MAXUINT, DEFAULT_MAX_HEIGHT,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_MAX_FPS] = g_param_spec_uint64 ("max-fps",
+  param_specs[PROP_MAX_FPS] = g_param_spec_uint ("max-fps",
       "Maximal FPS", "Maximal allowed video framerate (0 = unlimited)",
-       0, G_MAXUINT64, DEFAULT_MAX_FPS,
+       0, G_MAXUINT, DEFAULT_MAX_FPS,
        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_ITAGS] = g_param_spec_string ("itags",
@@ -203,10 +203,10 @@ gst_gtuber_src_set_property (GObject *object, guint prop_id,
       self->codecs = g_value_get_flags (value);
       break;
     case PROP_MAX_HEIGHT:
-      self->max_height = g_value_get_uint64 (value);
+      self->max_height = g_value_get_uint (value);
       break;
     case PROP_MAX_FPS:
-      self->max_fps = g_value_get_uint64 (value);
+      self->max_fps = g_value_get_uint (value);
       break;
     case PROP_ITAGS:
       gst_gtuber_src_set_itags (self, g_value_get_string (value));
@@ -231,10 +231,10 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
       g_value_set_flags (value, self->codecs);
       break;
     case PROP_MAX_HEIGHT:
-      g_value_set_uint64 (value, self->max_height);
+      g_value_set_uint (value, self->max_height);
       break;
     case PROP_MAX_FPS:
-      g_value_set_uint64 (value, self->max_fps);
+      g_value_set_uint (value, self->max_fps);
       break;
     case PROP_ITAGS:
       g_value_set_string (value, self->itags_str);

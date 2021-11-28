@@ -40,7 +40,6 @@ struct _GstGtuberSrc
 
   GArray *itags;
 
-  /* < private > */
   GCancellable *cancellable;
   gsize buf_size;
 };
