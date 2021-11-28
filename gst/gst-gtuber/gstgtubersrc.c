@@ -29,6 +29,10 @@
 GST_DEBUG_CATEGORY_STATIC (gst_gtuber_src_debug);
 #define GST_CAT_DEFAULT gst_gtuber_src_debug
 
+#define GST_GTUBER_HEADER_UA           "User-Agent"
+#define GST_GTUBER_PROP_UA             "user-agent"
+#define GST_GTUBER_PROP_EXTRA_HEADERS  "extra-headers"
+
 #define DEFAULT_CODECS     GTUBER_CODEC_AVC | GTUBER_CODEC_MP4A
 #define DEFAULT_MAX_HEIGHT 0
 #define DEFAULT_MAX_FPS    0
@@ -42,6 +46,11 @@ enum
   PROP_MAX_FPS,
   PROP_ITAGS,
   PROP_LAST
+};
+
+static const gchar *hosts_blacklist[] = {
+  "googlevideo.com",
+  NULL
 };
 
 static GParamSpec *param_specs[PROP_LAST] = { NULL, };
@@ -81,7 +90,7 @@ static GstFlowReturn gst_gtuber_src_create (GstPushSrc *push_src,
 
 /* GstGtuberSrc */
 static gboolean gst_gtuber_src_set_location (GstGtuberSrc *self,
-    const gchar *uri);
+    const gchar *uri, GError **error);
 static void gst_gtuber_src_set_itags (GstGtuberSrc *self,
     const gchar *itags_str);
 
@@ -109,14 +118,14 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
       GTUBER_TYPE_CODEC_FLAGS, DEFAULT_CODECS,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_MAX_HEIGHT] = g_param_spec_uint64 ("max-height",
+  param_specs[PROP_MAX_HEIGHT] = g_param_spec_uint ("max-height",
       "Maximal Height", "Maximal allowed video height in pixels (0 = unlimited)",
-      0, G_MAXUINT64, DEFAULT_MAX_HEIGHT,
+      0, G_MAXUINT, DEFAULT_MAX_HEIGHT,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_MAX_FPS] = g_param_spec_uint64 ("max-fps",
+  param_specs[PROP_MAX_FPS] = g_param_spec_uint ("max-fps",
       "Maximal FPS", "Maximal allowed video framerate (0 = unlimited)",
-       0, G_MAXUINT64, DEFAULT_MAX_FPS,
+       0, G_MAXUINT, DEFAULT_MAX_FPS,
        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_ITAGS] = g_param_spec_string ("itags",
@@ -140,8 +149,6 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
   gst_element_class_set_static_metadata (gstelement_class, "Gtuber source",
       "Source", "Source plugin that uses Gtuber API",
       "Rafał Dzięgiel <rafostar.github@gmail.com>");
-
-  gst_type_mark_as_plugin_api (GST_TYPE_GTUBER_SRC, 0);
 }
 
 static void
@@ -184,25 +191,22 @@ gst_gtuber_src_set_property (GObject *object, guint prop_id,
 
   switch (prop_id) {
     case PROP_LOCATION:{
-      const gchar *location;
+      GError *error = NULL;
 
-      location = g_value_get_string (value);
-
-      if (location == NULL)
-        GST_WARNING ("Location property cannot be NULL");
-      else if (!gst_gtuber_src_set_location (self, location))
-        GST_WARNING ("Badly formatted location");
-
+      if (!gst_gtuber_src_set_location (self, g_value_get_string (value), &error)) {
+        GST_ERROR_OBJECT (self, "%s", error->message);
+        g_clear_error (&error);
+      }
       break;
     }
     case PROP_CODECS:
       self->codecs = g_value_get_flags (value);
       break;
     case PROP_MAX_HEIGHT:
-      self->max_height = g_value_get_uint64 (value);
+      self->max_height = g_value_get_uint (value);
       break;
     case PROP_MAX_FPS:
-      self->max_fps = g_value_get_uint64 (value);
+      self->max_fps = g_value_get_uint (value);
       break;
     case PROP_ITAGS:
       gst_gtuber_src_set_itags (self, g_value_get_string (value));
@@ -227,10 +231,10 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
       g_value_set_flags (value, self->codecs);
       break;
     case PROP_MAX_HEIGHT:
-      g_value_set_uint64 (value, self->max_height);
+      g_value_set_uint (value, self->max_height);
       break;
     case PROP_MAX_FPS:
-      g_value_set_uint64 (value, self->max_fps);
+      g_value_set_uint (value, self->max_fps);
       break;
     case PROP_ITAGS:
       g_value_set_string (value, self->itags_str);
@@ -242,9 +246,74 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
 }
 
 static gboolean
-gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri)
+gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri,
+    GError **error)
 {
+  GstElement *element = GST_ELEMENT (self);
+  GstUri *gst_uri;
+  const gchar *const *protocols;
+  const gchar *host;
+  gboolean supported = FALSE, blacklisted = FALSE;
+  guint i;
+
+  g_return_val_if_fail (GST_IS_ELEMENT (element), FALSE);
+
+  GST_DEBUG_OBJECT (self, "Changing location to: %s", uri);
+
   g_free (self->location);
+  self->location = NULL;
+
+  if (!uri) {
+    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
+        "Location property cannot be NULL");
+    return FALSE;
+  }
+  if (GST_STATE (element) == GST_STATE_PLAYING ||
+      GST_STATE (element) == GST_STATE_PAUSED) {
+    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_STATE,
+        "Cannot change location property while element is running");
+    return FALSE;
+  }
+
+  protocols = gst_uri_handler_get_protocols (GST_URI_HANDLER (self));
+  for (i = 0; protocols[i]; i++) {
+    if ((supported = gst_uri_has_protocol (uri, protocols[i])))
+      break;
+  }
+  if (!supported) {
+    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_UNSUPPORTED_PROTOCOL,
+        "Location URI protocol is not supported");
+    return FALSE;
+  }
+
+  gst_uri = gst_uri_from_string (uri);
+  if (!gst_uri) {
+    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
+        "URI could not be parsed");
+    return FALSE;
+  }
+
+  /* This is faster for URIs that we know are unsupported instead
+   * of letting gtuber query every available plugin. We need this
+   * to quickly fallback to lower ranked httpsrc plugins downstream */
+  host = gst_uri_get_host (gst_uri);
+  for (i = 0; hosts_blacklist[i]; i++) {
+    if ((blacklisted = g_str_has_suffix (host, hosts_blacklist[i])))
+      break;
+  }
+  gst_uri_unref (gst_uri);
+
+  if (blacklisted) {
+    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
+        "This URI is not meant for Gtuber");
+    return FALSE;
+  }
+  if (!gtuber_has_plugin_for_uri (uri, NULL)) {
+    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
+        "Gtuber does not have a plugin for this URI");
+    return FALSE;
+  }
+
   self->location = g_strdup (uri);
 
   GST_DEBUG_OBJECT (self, "Location changed to: %s", self->location);
@@ -284,9 +353,10 @@ gst_gtuber_src_start (GstBaseSrc *base_src)
   GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
 
   GST_DEBUG_OBJECT (self, "Start");
+
   if (G_UNLIKELY (!self->location)) {
     GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ, (NULL),
-        ("No media location provided"));
+        ("No media location"));
     return FALSE;
   }
 
@@ -300,7 +370,6 @@ gst_gtuber_src_stop (GstBaseSrc *base_src)
 
   GST_DEBUG_OBJECT (self, "Stop");
 
-  gst_gtuber_src_set_location (self, NULL);
   self->buf_size = 0;
 
   return TRUE;
@@ -349,6 +418,42 @@ gst_gtuber_src_unlock_stop (GstBaseSrc *base_src)
   return TRUE;
 }
 
+static void
+insert_header_cb (const gchar *name, const gchar *value, GstStructure *structure)
+{
+  if (strcmp (name, GST_GTUBER_HEADER_UA))
+    gst_structure_set (structure, name, G_TYPE_STRING, value, NULL);
+}
+
+static void
+gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
+{
+  GHashTable *gtuber_headers;
+
+  gtuber_headers = gtuber_media_info_get_request_headers (info);
+
+  if (gtuber_headers && g_hash_table_size (gtuber_headers) > 0) {
+    GstStructure *config, *req_headers;
+    GstEvent *event;
+    const gchar *ua;
+
+    ua = g_hash_table_lookup (gtuber_headers, GST_GTUBER_HEADER_UA);
+    req_headers = gst_structure_new_empty ("request-headers");
+
+    g_hash_table_foreach (gtuber_headers,
+        (GHFunc) insert_header_cb, req_headers);
+
+    config = gst_structure_new (GST_GTUBER_CONFIG,
+        GST_GTUBER_PROP_UA, G_TYPE_STRING, ua,
+        GST_GTUBER_PROP_EXTRA_HEADERS, GST_TYPE_STRUCTURE, req_headers,
+        NULL);
+    gst_structure_free (req_headers);
+
+    event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_STICKY, config);
+    gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
+  }
+}
+
 static gboolean
 stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
 {
@@ -392,12 +497,12 @@ stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
   return TRUE;
 }
 
-static GstBuffer *
-gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
-    GError **error)
+static gchar *
+gst_gtuber_generate_manifest (GstGtuberSrc *self, GtuberMediaInfo *info,
+    GtuberAdaptiveStreamManifest *manifest_type)
 {
   GtuberManifestGenerator *gen;
-  GstBuffer *buffer;
+  GtuberAdaptiveStreamManifest type;
   gchar *data;
 
   gen = gtuber_manifest_generator_new ();
@@ -406,14 +511,68 @@ gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
   gtuber_manifest_generator_set_filter_func (gen,
       (GtuberAdaptiveStreamFilter) stream_filter_func, self, NULL);
 
-  data = gtuber_manifest_generator_to_data (gen);
+  for (type = GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH;
+      type <= GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS; type++) {
+    gtuber_manifest_generator_set_manifest_type (gen, type);
+
+    if ((data = gtuber_manifest_generator_to_data (gen)))
+      break;
+  }
+
   g_object_unref (gen);
+
+  if (manifest_type) {
+    if (!data)
+      type = GTUBER_ADAPTIVE_STREAM_MANIFEST_UNKNOWN;
+
+    *manifest_type = type;
+  }
+
+  return data;
+}
+
+static GstBuffer *
+gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
+    GError **error)
+{
+  GtuberAdaptiveStreamManifest manifest_type;
+  GstBuffer *buffer;
+  GstCaps *caps = NULL;
+  gchar *data;
+
+  data = gst_gtuber_generate_manifest (self, info, &manifest_type);
+
+  /* TODO: Fallback to best combined URI */
+  if (!data)
+    GST_FIXME_OBJECT (self, "Implement fallback to best combined URI");
 
   if (!data) {
     g_set_error (error, GTUBER_MANIFEST_GENERATOR_ERROR,
         GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA,
         "No manifest data was generated");
     return FALSE;
+  }
+
+  switch (manifest_type) {
+    case GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH:
+      caps = gst_caps_new_empty_simple ("application/dash+xml");
+      break;
+    case GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS:
+      caps = gst_caps_new_empty_simple ("application/x-hls");
+      break;
+    default:
+      GST_WARNING_OBJECT (self, "Unsupported gtuber manifest type");
+      break;
+  }
+
+  if (caps) {
+    gst_caps_set_simple (caps,
+        "source", G_TYPE_STRING, "gtuber",
+        NULL);
+    if (gst_base_src_set_caps (GST_BASE_SRC (self), caps))
+      GST_INFO_OBJECT (self, "Using caps: %" GST_PTR_FORMAT, caps);
+
+    gst_caps_unref (caps);
   }
 
   self->buf_size = strlen (data);
@@ -429,22 +588,38 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
   GtuberClient *client;
   GtuberMediaInfo *info;
   GMainContext *ctx;
+  gchar *uri;
+
+  /* Gtuber is not guaranteed to handle "gtuber" URI scheme */
+  uri = (g_str_has_prefix (self->location, "gtuber"))
+      ? g_strconcat ("https", self->location + 6, NULL)
+      : g_strdup (self->location);
+
+  GST_DEBUG_OBJECT (self, "Fetching media info for URI: %s", uri);
 
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);
 
   client = gtuber_client_new ();
-  info = gtuber_client_fetch_media_info (client, self->location,
+  info = gtuber_client_fetch_media_info (client, uri,
       self->cancellable, error);
   g_object_unref (client);
 
   g_main_context_pop_thread_default (ctx);
   g_main_context_unref (ctx);
 
+  g_free (uri);
+
   if (!info)
     return FALSE;
 
+  GST_DEBUG_OBJECT (self, "Fetched media info");
+
   *outbuf = gst_gtuber_media_info_to_buffer (self, info, error);
+
+  if (*outbuf)
+    gst_gtuber_src_push_config_event (self, info);
+
   g_object_unref (info);
 
   return (*outbuf) ? TRUE : FALSE;
@@ -497,4 +672,67 @@ gst_gtuber_src_query (GstBaseSrc *base_src, GstQuery *query)
     ret = GST_BASE_SRC_CLASS (parent_class)->query (base_src, query);
 
   return ret;
+}
+
+/**
+ * GstURIHandlerInterface
+ */
+static GstURIType
+gst_gtuber_uri_handler_get_type_src (GType type)
+{
+  return GST_URI_SRC;
+}
+
+static const gchar *const *
+gst_gtuber_uri_handler_get_protocols (GType type)
+{
+  static const gchar *protocols[] = {
+    "https", "gtuber", NULL
+  };
+
+  return protocols;
+}
+
+static gchar *
+gst_gtuber_uri_handler_get_uri (GstURIHandler *handler)
+{
+  GstElement *element = GST_ELEMENT (handler);
+  gchar *uri;
+
+  g_return_val_if_fail (GST_IS_ELEMENT (element), NULL);
+
+  g_object_get (G_OBJECT (element), "location", &uri, NULL);
+
+  return uri;
+}
+
+static gboolean
+gst_gtuber_uri_handler_set_uri (GstURIHandler *handler, const gchar *uri, GError **error)
+{
+  GstGtuberSrc *self = GST_GTUBER_SRC (handler);
+
+  return gst_gtuber_src_set_location (self, uri, error);
+}
+
+static void
+gst_gtuber_uri_handler_init (gpointer g_iface, gpointer iface_data)
+{
+  GstURIHandlerInterface *iface = (GstURIHandlerInterface *) g_iface;
+
+  iface->get_type = gst_gtuber_uri_handler_get_type_src;
+  iface->get_protocols = gst_gtuber_uri_handler_get_protocols;
+  iface->get_uri = gst_gtuber_uri_handler_get_uri;
+  iface->set_uri = gst_gtuber_uri_handler_set_uri;
+}
+
+void
+gst_gtuber_uri_handler_do_init (GType type)
+{
+  GInterfaceInfo uri_handler_info = {
+    gst_gtuber_uri_handler_init,
+    NULL,
+    NULL
+  };
+
+  g_type_add_interface_static (type, GST_TYPE_URI_HANDLER, &uri_handler_info);
 }

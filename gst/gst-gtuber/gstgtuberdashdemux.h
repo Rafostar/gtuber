@@ -20,28 +20,19 @@
 #pragma once
 
 #include <gst/gst.h>
-#include <gst/base/gstpushsrc.h>
+#include <gst/gstbin.h>
 
 G_BEGIN_DECLS
 
-#define GST_TYPE_GTUBER_SRC (gst_gtuber_src_get_type())
-G_DECLARE_FINAL_TYPE (GstGtuberSrc, gst_gtuber_src, GST, GTUBER_SRC, GstPushSrc)
+#define GST_TYPE_GTUBER_DASH_DEMUX (gst_gtuber_dash_demux_get_type())
+G_DECLARE_FINAL_TYPE (GstGtuberDashDemux, gst_gtuber_dash_demux, GST, GTUBER_DASH_DEMUX, GstBin)
 
-struct _GstGtuberSrc
+struct _GstGtuberDashDemux
 {
-  GstPushSrc src;
+  GstBin parent;
 
-  /* < properties > */
-  gchar *location;
-  GtuberCodecFlags codecs;
-  guint max_height;
-  guint max_fps;
-  gchar *itags_str;
-
-  GArray *itags;
-
-  GCancellable *cancellable;
-  gsize buf_size;
+  GstElement *dashdemux;
+  GstStructure *gtuber_config;
 };
 
 G_END_DECLS
