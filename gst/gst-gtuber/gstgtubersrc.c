@@ -154,6 +154,8 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
 static void
 gst_gtuber_src_init (GstGtuberSrc *self)
 {
+  g_mutex_init (&self->prop_lock);
+
   g_mutex_init (&self->client_lock);
   g_cond_init (&self->client_finished);
 
@@ -193,6 +195,8 @@ gst_gtuber_src_finalize (GObject *object)
   g_mutex_clear (&self->client_lock);
   g_cond_clear (&self->client_finished);
 
+  g_mutex_clear (&self->prop_lock);
+
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
 }
 
@@ -213,13 +217,19 @@ gst_gtuber_src_set_property (GObject *object, guint prop_id,
       break;
     }
     case PROP_CODECS:
+      g_mutex_lock (&self->prop_lock);
       self->codecs = g_value_get_flags (value);
+      g_mutex_unlock (&self->prop_lock);
       break;
     case PROP_MAX_HEIGHT:
+      g_mutex_lock (&self->prop_lock);
       self->max_height = g_value_get_uint (value);
+      g_mutex_unlock (&self->prop_lock);
       break;
     case PROP_MAX_FPS:
+      g_mutex_lock (&self->prop_lock);
       self->max_fps = g_value_get_uint (value);
+      g_mutex_unlock (&self->prop_lock);
       break;
     case PROP_ITAGS:
       gst_gtuber_src_set_itags (self, g_value_get_string (value));
@@ -235,6 +245,8 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
     GValue *value, GParamSpec *pspec)
 {
   GstGtuberSrc *self = GST_GTUBER_SRC (object);
+
+  g_mutex_lock (&self->prop_lock);
 
   switch (prop_id) {
     case PROP_LOCATION:
@@ -256,6 +268,8 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
+
+  g_mutex_unlock (&self->prop_lock);
 }
 
 static gchar *
@@ -283,8 +297,12 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *location,
 
   GST_DEBUG_OBJECT (self, "Changing location to: %s", location);
 
+  g_mutex_lock (&self->prop_lock);
+
   g_free (self->location);
   self->location = NULL;
+
+  g_mutex_unlock (&self->prop_lock);
 
   if (!location) {
     g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
@@ -342,8 +360,12 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *location,
     return FALSE;
   }
 
+  g_mutex_lock (&self->prop_lock);
+
   self->location = g_strdup (location);
   GST_DEBUG_OBJECT (self, "Location changed to: %s", self->location);
+
+  g_mutex_unlock (&self->prop_lock);
 
   return TRUE;
 }
@@ -353,6 +375,8 @@ gst_gtuber_src_set_itags (GstGtuberSrc *self, const gchar *itags_str)
 {
   gchar **itags;
   guint index = 0;
+
+  g_mutex_lock (&self->prop_lock);
 
   g_free (self->itags_str);
   self->itags_str = g_strdup (itags_str);
@@ -371,6 +395,8 @@ gst_gtuber_src_set_itags (GstGtuberSrc *self, const gchar *itags_str)
     }
     index++;
   }
+
+  g_mutex_unlock (&self->prop_lock);
   g_strfreev (itags);
 }
 
@@ -378,10 +404,15 @@ static gboolean
 gst_gtuber_src_start (GstBaseSrc *base_src)
 {
   GstGtuberSrc *self = GST_GTUBER_SRC (base_src);
+  gboolean can_start;
 
   GST_DEBUG_OBJECT (self, "Start");
 
-  if (G_UNLIKELY (!self->location)) {
+  g_mutex_lock (&self->prop_lock);
+  can_start = (self->location != NULL);
+  g_mutex_unlock (&self->prop_lock);
+
+  if (G_UNLIKELY (!can_start)) {
     GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ, (NULL),
         ("No media location"));
     return FALSE;
@@ -481,6 +512,7 @@ gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
   }
 }
 
+/* Called with a lock on props */
 static gboolean
 stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
 {
@@ -542,7 +574,12 @@ gst_gtuber_generate_manifest (GstGtuberSrc *self, GtuberMediaInfo *info,
       type <= GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS; type++) {
     gtuber_manifest_generator_set_manifest_type (gen, type);
 
-    if ((data = gtuber_manifest_generator_to_data (gen)))
+    /* Props are accessed in filter callback */
+    g_mutex_lock (&self->prop_lock);
+    data = gtuber_manifest_generator_to_data (gen);
+    g_mutex_unlock (&self->prop_lock);
+
+    if (data)
       break;
   }
 
@@ -649,7 +686,9 @@ client_thread_func (GstGtuberThreadData *data)
   g_mutex_lock (&self->client_lock);
   GST_DEBUG ("Entered new GtuberClient thread");
 
+  g_mutex_lock (&self->prop_lock);
   uri = location_to_uri (self->location);
+  g_mutex_unlock (&self->prop_lock);
 
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);

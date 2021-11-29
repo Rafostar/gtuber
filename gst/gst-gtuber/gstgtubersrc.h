@@ -31,6 +31,8 @@ struct _GstGtuberSrc
 {
   GstPushSrc src;
 
+  GMutex prop_lock;
+
   GMutex client_lock;
   GCond client_finished;
   GThread *client_thread;
