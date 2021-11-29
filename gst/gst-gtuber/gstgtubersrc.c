@@ -90,7 +90,7 @@ static GstFlowReturn gst_gtuber_src_create (GstPushSrc *push_src,
 
 /* GstGtuberSrc */
 static gboolean gst_gtuber_src_set_location (GstGtuberSrc *self,
-    const gchar *uri, GError **error);
+    const gchar *location, GError **error);
 static void gst_gtuber_src_set_itags (GstGtuberSrc *self,
     const gchar *itags_str);
 
@@ -258,25 +258,35 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
   }
 }
 
+static gchar *
+location_to_uri (const gchar *location)
+{
+  /* Gtuber is not guaranteed to handle "gtuber" URI scheme */
+  return (g_str_has_prefix (location, "gtuber"))
+      ? g_strconcat ("https", location + 6, NULL)
+      : g_strdup (location);
+}
+
 static gboolean
-gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri,
+gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *location,
     GError **error)
 {
   GstElement *element = GST_ELEMENT (self);
   GstUri *gst_uri;
   const gchar *const *protocols;
   const gchar *host;
+  gchar *uri;
   gboolean supported = FALSE, blacklisted = FALSE;
   guint i;
 
   g_return_val_if_fail (GST_IS_ELEMENT (element), FALSE);
 
-  GST_DEBUG_OBJECT (self, "Changing location to: %s", uri);
+  GST_DEBUG_OBJECT (self, "Changing location to: %s", location);
 
   g_free (self->location);
   self->location = NULL;
 
-  if (!uri) {
+  if (!location) {
     g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
         "Location property cannot be NULL");
     return FALSE;
@@ -290,7 +300,7 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri,
 
   protocols = gst_uri_handler_get_protocols (GST_URI_HANDLER (self));
   for (i = 0; protocols[i]; i++) {
-    if ((supported = gst_uri_has_protocol (uri, protocols[i])))
+    if ((supported = gst_uri_has_protocol (location, protocols[i])))
       break;
   }
   if (!supported) {
@@ -299,7 +309,7 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri,
     return FALSE;
   }
 
-  gst_uri = gst_uri_from_string (uri);
+  gst_uri = gst_uri_from_string (location);
   if (!gst_uri) {
     g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
         "URI could not be parsed");
@@ -321,14 +331,18 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *uri,
         "This URI is not meant for Gtuber");
     return FALSE;
   }
-  if (!gtuber_has_plugin_for_uri (uri, NULL)) {
+
+  uri = location_to_uri (location);
+  supported = gtuber_has_plugin_for_uri (uri, NULL);
+  g_free (uri);
+
+  if (!supported) {
     g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
         "Gtuber does not have a plugin for this URI");
     return FALSE;
   }
 
-  self->location = g_strdup (uri);
-
+  self->location = g_strdup (location);
   GST_DEBUG_OBJECT (self, "Location changed to: %s", self->location);
 
   return TRUE;
@@ -635,15 +649,12 @@ client_thread_func (GstGtuberThreadData *data)
   g_mutex_lock (&self->client_lock);
   GST_DEBUG ("Entered new GtuberClient thread");
 
-  /* Gtuber is not guaranteed to handle "gtuber" URI scheme */
-  uri = (g_str_has_prefix (self->location, "gtuber"))
-      ? g_strconcat ("https", self->location + 6, NULL)
-      : g_strdup (self->location);
-
-  GST_INFO ("Fetching media info for URI: %s", uri);
+  uri = location_to_uri (self->location);
 
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);
+
+  GST_INFO ("Fetching media info for URI: %s", uri);
 
   client = gtuber_client_new ();
   data->info = gtuber_client_fetch_media_info (client, uri,
