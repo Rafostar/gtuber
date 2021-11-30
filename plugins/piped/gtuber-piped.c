@@ -267,7 +267,7 @@ finish:
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   guint uri_match;
   gchar *id;

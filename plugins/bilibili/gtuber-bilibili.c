@@ -318,7 +318,7 @@ bilibili_get_flow_from_plugin_props (GtuberBilibili *self, GError **error)
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   GtuberBilibili *bilibili = NULL;
   gchar *id;

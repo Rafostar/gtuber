@@ -568,7 +568,7 @@ gtuber_twitch_parse_input_stream (GtuberWebsite *website,
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   guint match;
   gchar *id;

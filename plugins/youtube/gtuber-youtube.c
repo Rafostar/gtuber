@@ -451,7 +451,7 @@ gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   guint uri_match;
   gchar *id;

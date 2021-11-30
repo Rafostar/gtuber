@@ -20,7 +20,7 @@
 #include "config.h"
 #include "gtuber-loader-private.h"
 
-typedef GtuberWebsite* (* QueryPlugin) (GUri *uri);
+typedef GtuberWebsite* (* PluginQuery) (GUri *uri);
 
 static gchar *
 gtuber_loader_get_plugin_dir_path (void)
@@ -40,7 +40,7 @@ static GtuberWebsite *
 gtuber_loader_get_website_internal (gchar *module_path,
     GUri *guri, GModule **module)
 {
-  QueryPlugin query_plugin;
+  PluginQuery plugin_query;
   GtuberWebsite *website = NULL;
 
   g_debug ("Opening module: %s", module_path);
@@ -53,8 +53,8 @@ gtuber_loader_get_website_internal (gchar *module_path,
   }
   g_debug ("Opened plugin module: %s", module_path);
 
-  if (!g_module_symbol (*module, "query_plugin", (gpointer *) &query_plugin)
-      || query_plugin == NULL) {
+  if (!g_module_symbol (*module, "plugin_query", (gpointer *) &plugin_query)
+      || plugin_query == NULL) {
     g_warning ("Query function missing in module");
     goto fail;
   }
@@ -63,7 +63,7 @@ gtuber_loader_get_website_internal (gchar *module_path,
    * it next time as we do not have to read its file again */
   g_module_make_resident (*module);
 
-  website = query_plugin (guri);
+  website = plugin_query (guri);
   if (website)
     goto finish;
 

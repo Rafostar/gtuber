@@ -54,7 +54,7 @@ G_BEGIN_DECLS
 #define GTUBER_WEBSITE_PLUGIN_DECLARE(camel,lower,upper)                            \
 G_DECLARE_FINAL_TYPE (Gtuber##camel, gtuber_##lower, GTUBER, upper, GtuberWebsite)  \
                                                                                     \
-G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);                            \
+G_MODULE_EXPORT GtuberWebsite *plugin_query (GUri *uri);                            \
                                                                                     \
 G_GNUC_UNUSED static inline Gtuber##camel * G_PASTE (gtuber_##lower, _new) (void) { \
     return g_object_new (G_PASTE (gtuber_##lower, _get_type) (), NULL); }
