@@ -20,11 +20,13 @@ gmodule_dep = dependency('gmodule-2.0',
 )
 
 soup_dep_name = 'libsoup-3.0'
+soup_gir_name = 'Soup-3.0'
 soup_dep = dependency(soup_dep_name,
   required: false,
 )
 if not soup_dep.found()
   soup_dep_name = 'libsoup-2.4'
+  soup_gir_name = 'Soup-2.4'
   soup_dep = dependency(soup_dep_name,
     required: true,
   )
@@ -81,6 +83,8 @@ gtuber_plugin_devel_headers = [
   'gtuber-stream-devel.h',
   'gtuber-adaptive-stream-devel.h',
   'gtuber-media-info-devel.h',
+]
+gtuber_headers_other = [
   'gtuber-soup-compat.h',
 ]
 gtuber_sources = [
@@ -91,9 +95,11 @@ gtuber_sources = [
   'gtuber-manifest-generator.c',
   'gtuber-misc-functions.c',
 ]
+gtuber_plugin_devel_sources = [
+  'gtuber-website.c',
+]
 gtuber_sources_other = [
   'gtuber-loader.c',
-  'gtuber-website.c',
   'gtuber-soup-compat.c',
 ]
 gtuber_c_args = [
@@ -118,7 +124,7 @@ gtuber_deps = [
 
 gtuber_lib = library(
   gtuber_api_name,
-  gtuber_sources + gtuber_sources_other + gtuber_enums,
+  gtuber_sources + gtuber_plugin_devel_sources + gtuber_sources_other + gtuber_enums,
   dependencies: gtuber_deps,
   include_directories: conf_inc,
   c_args: gtuber_c_args,
@@ -126,7 +132,7 @@ gtuber_lib = library(
   install: true,
 )
 
-install_headers(gtuber_headers + gtuber_plugin_devel_headers,
+install_headers(gtuber_headers + gtuber_plugin_devel_headers + gtuber_headers_other,
   install_dir: gtuber_headers_dir
 )
 
@@ -134,6 +140,7 @@ gir = find_program('g-ir-scanner', required: get_option('introspection'))
 build_gir = (gir.found() and not get_option('introspection').disabled())
 
 if build_gir
+  # Simplified GIR for interpreted languages
   gtuber_gir = gnome.generate_gir(
     gtuber_lib,
     sources: gtuber_sources + gtuber_headers + gtuber_enums,
@@ -151,6 +158,25 @@ if build_gir
     includes: ['GObject-2.0', 'Gio-2.0'],
     header: join_paths(meson.project_name(), 'gtuber.h'),
   )
+  # Full GIR for compiled languages
+  gtuber_plugin_devel_gir = gnome.generate_gir(
+    gtuber_lib,
+    sources: gtuber_sources + gtuber_plugin_devel_sources +
+      gtuber_headers + gtuber_plugin_devel_headers + gtuber_enums,
+    extra_args: [
+      '--quiet',
+      '--warn-all',
+      '-DGTUBER_COMPILATION'
+    ],
+    nsversion: version_array[0] + '.0',
+    namespace: 'GtuberPluginDevel',
+    identifier_prefix: 'Gtuber',
+    symbol_prefix: 'gtuber',
+    export_packages: gtuber_api_name,
+    install: false,
+    includes: ['GObject-2.0', 'Gio-2.0', 'GModule-2.0', soup_gir_name],
+    header: join_paths(meson.project_name(), 'gtuber-plugin-devel.h'),
+  )
 endif
 
 vapigen = find_program('vapigen', required: get_option('vapi'))
@@ -165,6 +191,11 @@ if build_vapi
     gnome.generate_vapi(gtuber_api_name,
       sources: gtuber_gir[0],
       packages: ['gobject-2.0', 'gio-2.0'],
+      install: true,
+    )
+    gnome.generate_vapi(gtuber_plugin_devel_api_name,
+      sources: gtuber_plugin_devel_gir[0],
+      packages: ['gobject-2.0', 'gio-2.0', 'gmodule-2.0', soup_dep_name],
       install: true,
     )
   endif

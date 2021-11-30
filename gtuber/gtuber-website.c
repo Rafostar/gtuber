@@ -135,7 +135,7 @@ gtuber_website_set_user_req_headers (GtuberWebsite *self,
 }
 
 /**
- * gtuber_website_get_uri: (skip)
+ * gtuber_website_get_uri:
  * @website: a #GtuberWebsite
  *
  * Returns: (transfer none): current requested URI.
@@ -149,7 +149,7 @@ gtuber_website_get_uri (GtuberWebsite *self)
 }
 
 /**
- * gtuber_website_set_uri: (skip)
+ * gtuber_website_set_uri:
  * @website: a #GtuberWebsite
  * @uri: requested URI
  *

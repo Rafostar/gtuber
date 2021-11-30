@@ -185,7 +185,7 @@ gtuber_media_info_finalize (GObject *object)
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none): media ID or %NULL when undetermined.
- **/
+ */
 const gchar *
 gtuber_media_info_get_id (GtuberMediaInfo *self)
 {
@@ -195,14 +195,14 @@ gtuber_media_info_get_id (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_id: (skip)
+ * gtuber_media_info_set_id:
  * @info: a #GtuberMediaInfo
  * @id: media ID
  *
  * Sets the media ID.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_id (GtuberMediaInfo *self, const gchar *id)
 {
@@ -217,7 +217,7 @@ gtuber_media_info_set_id (GtuberMediaInfo *self, const gchar *id)
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none): media title or %NULL when undetermined.
- **/
+ */
 const gchar *
 gtuber_media_info_get_title (GtuberMediaInfo *self)
 {
@@ -227,14 +227,14 @@ gtuber_media_info_get_title (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_description: (skip)
+ * gtuber_media_info_set_description:
  * @info: a #GtuberMediaInfo
  * @description: media description
  *
  * Sets the media description.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_description (GtuberMediaInfo *self, const gchar *description)
 {
@@ -249,7 +249,7 @@ gtuber_media_info_set_description (GtuberMediaInfo *self, const gchar *descripti
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none): media description or %NULL when undetermined.
- **/
+ */
 const gchar *
 gtuber_media_info_get_description (GtuberMediaInfo *self)
 {
@@ -259,14 +259,14 @@ gtuber_media_info_get_description (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_title: (skip)
+ * gtuber_media_info_set_title:
  * @info: a #GtuberMediaInfo
  * @title: media title
  *
  * Sets the media title.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_title (GtuberMediaInfo *self, const gchar *title)
 {
@@ -281,7 +281,7 @@ gtuber_media_info_set_title (GtuberMediaInfo *self, const gchar *title)
  * @info: a #GtuberMediaInfo
  *
  * Returns: media duration in seconds or 0 when undetermined.
- **/
+ */
 guint
 gtuber_media_info_get_duration (GtuberMediaInfo *self)
 {
@@ -291,14 +291,14 @@ gtuber_media_info_get_duration (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_duration: (skip)
+ * gtuber_media_info_set_duration:
  * @info: a #GtuberMediaInfo
  * @duration: media duration
  *
  * Sets the media duration in seconds.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_duration (GtuberMediaInfo *self, guint duration)
 {
@@ -341,7 +341,7 @@ gtuber_media_info_get_streams (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_add_stream: (skip)
+ * gtuber_media_info_add_stream:
  * @info: a #GtuberMediaInfo
  * @stream: a #GtuberStream
  *
@@ -393,7 +393,7 @@ gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_add_adaptive_stream: (skip)
+ * gtuber_media_info_add_adaptive_stream:
  * @info: a #GtuberMediaInfo
  * @stream: a #GtuberAdaptiveStream
  *
