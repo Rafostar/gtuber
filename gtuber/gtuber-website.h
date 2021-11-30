@@ -43,6 +43,34 @@ G_BEGIN_DECLS
 #define GTUBER_WEBSITE_ERROR           (gtuber_website_error_quark ())
 
 /**
+ * GTUBER_WEBSITE_PLUGIN_DECLARE:
+ * @camel: camel case name of the website.
+ * @lower: lowercase name of the website, with multiple words
+ *   separated by `_`.
+ * @upper: uppercase name of the website.
+ *
+ * Convenient macro to declare a new plugin that extends #GtuberWebsite.
+ */
+#define GTUBER_WEBSITE_PLUGIN_DECLARE(camel,lower,upper)                            \
+G_DECLARE_FINAL_TYPE (Gtuber##camel, gtuber_##lower, GTUBER, upper, GtuberWebsite)  \
+                                                                                    \
+G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);                            \
+                                                                                    \
+G_GNUC_UNUSED static inline Gtuber##camel * G_PASTE (gtuber_##lower, _new) (void) { \
+    return g_object_new (G_PASTE (gtuber_##lower, _get_type) (), NULL); }
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_DEFINE:
+ * @camel: camel case name of the website.
+ * @lower: lowercase name of the website, with multiple words
+ *   separated by `_`.
+ *
+ * Convenient macro that wraps around G_DEFINE_TYPE with #GtuberWebsite.
+ */
+#define GTUBER_WEBSITE_PLUGIN_DEFINE(camel,lower)                                   \
+G_DEFINE_TYPE (Gtuber##camel, gtuber_##lower, GTUBER_TYPE_WEBSITE)                  \
+
+/**
  * GtuberWebsite:
  *
  * Plugin website base class.

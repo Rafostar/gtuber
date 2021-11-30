@@ -17,9 +17,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
 #include <json-glib/json-glib.h>
 
-#include "gtuber-twitch.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
@@ -41,6 +41,8 @@ typedef enum
   TWITCH_MEDIA_CLIP,
 } TwitchMediaType;
 
+GTUBER_WEBSITE_PLUGIN_DECLARE (Twitch, twitch, TWITCH)
+
 struct _GtuberTwitch
 {
   GtuberWebsite parent;
@@ -56,13 +58,8 @@ struct _GtuberTwitch
   gboolean download_hls;
 };
 
-struct _GtuberTwitchClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
 #define parent_class gtuber_twitch_parent_class
-G_DEFINE_TYPE (GtuberTwitch, gtuber_twitch, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Twitch, twitch)
 
 static void gtuber_twitch_finalize (GObject *object);
 
@@ -586,7 +583,7 @@ query_plugin (GUri *uri)
       "/videos/",
       "/",
       NULL))) {
-    GtuberTwitch *twitch = g_object_new (GTUBER_TYPE_TWITCH, NULL);
+    GtuberTwitch *twitch = gtuber_twitch_new ();
     twitch->video_id = id;
 
     switch (match) {

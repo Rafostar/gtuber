@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include <json-glib/json-glib.h>
 #include <gtuber/gtuber-plugin-devel.h>
+#include <json-glib/json-glib.h>
 
 G_BEGIN_DECLS
 
@@ -33,8 +33,7 @@ typedef enum
   BILIBILI_BANGUMI_SS,
 } BilibiliType;
 
-#define GTUBER_TYPE_BILIBILI (gtuber_bilibili_get_type ())
-G_DECLARE_FINAL_TYPE (GtuberBilibili, gtuber_bilibili, GTUBER, BILIBILI, GtuberWebsite)
+GTUBER_WEBSITE_PLUGIN_DECLARE (Bilibili, bilibili, BILIBILI)
 
 struct _GtuberBilibili
 {
@@ -52,13 +51,6 @@ struct _GtuberBilibili
 
   gboolean had_info;
 };
-
-struct _GtuberBilibiliClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
-G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);
 
 GtuberFlow bilibili_get_flow_from_plugin_props (GtuberBilibili *self, GError **error);
 

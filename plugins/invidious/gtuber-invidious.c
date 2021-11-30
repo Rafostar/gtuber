@@ -17,11 +17,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
 #include <json-glib/json-glib.h>
 
-#include "gtuber-invidious.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+
+GTUBER_WEBSITE_PLUGIN_DECLARE (Invidious, invidious, INVIDIOUS)
 
 struct _GtuberInvidious
 {
@@ -32,13 +34,8 @@ struct _GtuberInvidious
   gchar *hls_uri;
 };
 
-struct _GtuberInvidiousClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
 #define parent_class gtuber_invidious_parent_class
-G_DEFINE_TYPE (GtuberInvidious, gtuber_invidious, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Invidious, invidious)
 
 static void gtuber_invidious_finalize (GObject *object);
 
@@ -333,7 +330,7 @@ query_plugin (GUri *uri)
   if (id) {
     GtuberInvidious *invidious;
 
-    invidious = g_object_new (GTUBER_TYPE_INVIDIOUS, NULL);
+    invidious = gtuber_invidious_new ();
     invidious->video_id = id;
     invidious->source = gtuber_utils_common_obtain_uri_source (uri);
 

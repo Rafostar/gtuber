@@ -17,11 +17,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
 #include <json-glib/json-glib.h>
 
-#include "gtuber-youtube.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+
+GTUBER_WEBSITE_PLUGIN_DECLARE (Youtube, youtube, YOUTUBE)
 
 struct _GtuberYoutube
 {
@@ -37,13 +39,8 @@ struct _GtuberYoutube
   guint try_count;
 };
 
-struct _GtuberYoutubeClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
 #define parent_class gtuber_youtube_parent_class
-G_DEFINE_TYPE (GtuberYoutube, gtuber_youtube, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
 
 static void gtuber_youtube_finalize (GObject *object);
 
@@ -476,7 +473,7 @@ query_plugin (GUri *uri)
   if (id) {
     GtuberYoutube *youtube;
 
-    youtube = g_object_new (GTUBER_TYPE_YOUTUBE, NULL);
+    youtube = gtuber_youtube_new ();
     youtube->video_id = id;
 
     g_debug ("Requested video: %s", youtube->video_id);
