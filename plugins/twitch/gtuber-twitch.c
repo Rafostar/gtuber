@@ -67,6 +67,8 @@ static GtuberFlow gtuber_twitch_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error);
 static GtuberFlow gtuber_twitch_parse_input_stream (GtuberWebsite *website,
     GInputStream *stream, GtuberMediaInfo *info, GError **error);
+static GtuberFlow gtuber_twitch_set_user_req_headers (GtuberWebsite *website,
+    SoupMessageHeaders *req_headers, GHashTable *user_headers, GError **error);
 
 static void
 gtuber_twitch_init (GtuberTwitch *self)
@@ -86,6 +88,7 @@ gtuber_twitch_class_init (GtuberTwitchClass *klass)
   website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_twitch_create_request;
   website_class->parse_input_stream = gtuber_twitch_parse_input_stream;
+  website_class->set_user_req_headers = gtuber_twitch_set_user_req_headers;
 }
 
 static void
@@ -565,6 +568,17 @@ gtuber_twitch_parse_input_stream (GtuberWebsite *website,
   }
 
   return parse_json_stream (self, stream, info, error);
+}
+
+static GtuberFlow
+gtuber_twitch_set_user_req_headers (GtuberWebsite *website,
+    SoupMessageHeaders *req_headers, GHashTable *user_headers, GError **error)
+{
+  /* Only used for API */
+  soup_message_headers_remove (req_headers, "Client-ID");
+
+  return GTUBER_WEBSITE_CLASS (parent_class)->set_user_req_headers (website,
+      req_headers, user_headers, error);
 }
 
 GtuberWebsite *
