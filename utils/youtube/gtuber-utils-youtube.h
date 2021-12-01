@@ -25,7 +25,9 @@
 
 G_BEGIN_DECLS
 
-void                 gtuber_utils_youtube_parse_mime_type_string      (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
+void       gtuber_utils_youtube_parse_mime_type_string           (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
+
+void       gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info, const gchar *description);
 
 G_END_DECLS
 

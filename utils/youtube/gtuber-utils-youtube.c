@@ -17,6 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
+
 #include "gtuber-utils-youtube.h"
 #include "utils/common/gtuber-utils-common.h"
 
@@ -74,4 +76,78 @@ gtuber_utils_youtube_parse_mime_type_string (const gchar *yt_mime,
     }
   }
   g_strfreev (strv);
+}
+
+/*
+ * gtuber_utils_youtube_insert_chapters_from_description:
+ *
+ * Parse YT video description string and add all found
+ * video chapters into #GtuberMediaInfo from it.
+ */
+void
+gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
+    const gchar *description)
+{
+  gchar **strv, *line;
+  gboolean inserted = FALSE;
+  guint index = 0;
+
+  g_return_if_fail (description != NULL);
+  g_return_if_fail (GTUBER_IS_MEDIA_INFO (info));
+
+  g_debug ("Inserting YT chapters");
+  strv = g_strsplit (description, "\n", 0);
+
+  while ((line = strv[index])) {
+    gchar **chapter_strv;
+
+    if (strlen (line) < 7
+        || line[2] != ':'
+        || !g_ascii_isdigit (line[0])
+        || !g_ascii_isdigit (line[3])) {
+      if (inserted) {
+        g_debug ("No more chapters");
+        break;
+      }
+
+      index++;
+      continue;
+    }
+
+    chapter_strv = g_strsplit (line, " ", 2);
+
+    if (chapter_strv[0] && chapter_strv[1]) {
+      guint len = strlen (chapter_strv[0]);
+
+      if (len == 5 || len == 8) {
+        guint pos = 0, hours = 0, minutes, seconds;
+        guint64 total;
+
+        /* Has hours */
+        if (len == 8) {
+          hours = g_ascii_strtoull (chapter_strv[0], NULL, 10);
+          pos += 3;
+        }
+        minutes = g_ascii_strtoull (chapter_strv[0] + pos, NULL, 10);
+        pos += 3;
+        seconds = g_ascii_strtoull (chapter_strv[0] + pos, NULL, 10);
+
+        total = hours * 60 * 60 * 1000;
+        total += minutes * 60 * 1000;
+        total += seconds * 1000;
+
+        g_debug ("Inserting YT chapter: %lu - %s", total, chapter_strv[1]);
+        gtuber_media_info_insert_chapter (info, total, chapter_strv[1]);
+
+        /* Inserted something, break on next non-chapter string */
+        inserted = TRUE;
+      }
+    }
+
+    g_strfreev (chapter_strv);
+    index++;
+  }
+
+  g_strfreev (strv);
+  g_debug ("Finished inserting YT chapters");
 }
