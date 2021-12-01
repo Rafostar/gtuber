@@ -550,6 +550,8 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
     GST_DEBUG_OBJECT (self, "No tags to push");
     gst_tag_list_unref (tags);
   } else {
+    gst_tag_list_set_scope (tags, GST_TAG_SCOPE_GLOBAL);
+
     gst_pad_push_event (GST_BASE_SRC_PAD (self),
         gst_event_new_tag (gst_tag_list_copy (tags)));
     gst_element_post_message (GST_ELEMENT (self),
