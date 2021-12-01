@@ -43,8 +43,6 @@ void                 gtuber_utils_common_msg_take_request               (SoupMes
 
 GtuberStreamMimeType gtuber_utils_common_get_mime_type_from_string      (const gchar *string);
 
-void                 gtuber_utils_common_parse_yt_mime_type_string      (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
-
 gboolean             gtuber_utils_common_parse_hls_input_stream         (GInputStream *stream, GtuberMediaInfo *info, GError **error);
 
 G_END_DECLS

@@ -2,6 +2,7 @@
 all_utils = [
   'common',
   'json',
+  'youtube',
 ]
 
 build_utils = []

@@ -22,6 +22,7 @@
 
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+#include "utils/youtube/gtuber-utils-youtube.h"
 
 GTUBER_WEBSITE_PLUGIN_DECLARE (Invidious, invidious, INVIDIOUS)
 
@@ -146,7 +147,7 @@ get_filled_stream (GtuberInvidious *self, JsonReader *reader,
       gchar *vcodec = NULL;
       gchar *acodec = NULL;
 
-      gtuber_utils_common_parse_yt_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
+      gtuber_utils_youtube_parse_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
       gtuber_stream_set_mime_type (stream, mime_type);
       gtuber_stream_set_codecs (stream, vcodec, acodec);
 
