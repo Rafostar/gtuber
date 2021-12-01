@@ -38,6 +38,8 @@ void              gtuber_media_info_set_description         (GtuberMediaInfo *in
 
 void              gtuber_media_info_set_duration            (GtuberMediaInfo *info, guint duration);
 
+void              gtuber_media_info_insert_chapter          (GtuberMediaInfo *info, guint64 start, const gchar *name);
+
 void              gtuber_media_info_add_stream              (GtuberMediaInfo *info, GtuberStream *stream);
 
 void              gtuber_media_info_add_adaptive_stream     (GtuberMediaInfo *info, GtuberAdaptiveStream *stream);
