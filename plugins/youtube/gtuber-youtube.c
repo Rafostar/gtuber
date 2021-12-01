@@ -284,6 +284,7 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
 
     desc = gtuber_utils_json_get_string (reader, "shortDescription", NULL);
     gtuber_media_info_set_description (info, desc);
+    gtuber_utils_youtube_insert_chapters_from_description (info, desc);
 
     duration = gtuber_utils_json_get_string (reader, "lengthSeconds", NULL);
     if (duration)
