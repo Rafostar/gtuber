@@ -484,9 +484,11 @@ insert_header_cb (const gchar *name, const gchar *value, GstStructure *structure
 }
 
 static void
-gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
+gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
 {
   GHashTable *gtuber_headers;
+  GstTagList *tags;
+  const gchar *tag;
 
   gtuber_headers = gtuber_media_info_get_request_headers (info);
 
@@ -494,6 +496,8 @@ gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
     GstStructure *config, *req_headers;
     GstEvent *event;
     const gchar *ua;
+
+    GST_DEBUG_OBJECT (self, "Creating " GST_GTUBER_CONFIG " event");
 
     ua = g_hash_table_lookup (gtuber_headers, GST_GTUBER_HEADER_UA);
     req_headers = gst_structure_new_empty ("request-headers");
@@ -509,6 +513,28 @@ gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
 
     event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_STICKY, config);
     gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
+
+    GST_DEBUG_OBJECT (self, "Pushed " GST_GTUBER_CONFIG " event");
+  }
+
+  GST_DEBUG_OBJECT (self, "Creating tags event");
+  tags = gst_tag_list_new_empty ();
+
+  if ((tag = gtuber_media_info_get_title (info)))
+    gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, tag, NULL);
+  if ((tag = gtuber_media_info_get_description (info)))
+    gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_DESCRIPTION, tag, NULL);
+
+  if (gst_tag_list_is_empty (tags)) {
+    GST_DEBUG_OBJECT (self, "No tags to push");
+    gst_tag_list_unref (tags);
+  } else {
+    gst_pad_push_event (GST_BASE_SRC_PAD (self),
+        gst_event_new_tag (gst_tag_list_copy (tags)));
+    gst_element_post_message (GST_ELEMENT (self),
+        gst_message_new_tag (GST_OBJECT (self), tags));
+
+    GST_DEBUG_OBJECT (self, "Pushed tags event");
   }
 }
 
@@ -746,7 +772,7 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
   *outbuf = gst_gtuber_media_info_to_buffer (self, data->info, error);
 
   if (*outbuf)
-    gst_gtuber_src_push_config_event (self, data->info);
+    gst_gtuber_src_push_events (self, data->info);
 
   gst_gtuber_thread_data_free (data);
 
