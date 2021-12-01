@@ -484,9 +484,30 @@ insert_header_cb (const gchar *name, const gchar *value, GstStructure *structure
 }
 
 static void
+insert_chapter_cb (guint64 time, const gchar *name, GstTocEntry *entry)
+{
+  GstTocEntry *subentry;
+  GstClockTime clock_time;
+  gchar *id;
+
+  clock_time = time * GST_MSECOND;
+  GST_DEBUG ("Inserting TOC chapter, time: %lu, name: %s", clock_time, name);
+
+  id = g_strdup_printf ("chap.%lu", time);
+  subentry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_CHAPTER, id);
+  g_free (id);
+
+  gst_toc_entry_set_tags (subentry,
+      gst_tag_list_new (GST_TAG_TITLE, name, NULL));
+  gst_toc_entry_set_start_stop_times (subentry, clock_time, GST_CLOCK_TIME_NONE);
+
+  gst_toc_entry_append_sub_entry (entry, subentry);
+}
+
+static void
 gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
 {
-  GHashTable *gtuber_headers;
+  GHashTable *gtuber_headers, *gtuber_chapters;
   GstTagList *tags;
   const gchar *tag;
 
@@ -535,6 +556,31 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
         gst_message_new_tag (GST_OBJECT (self), tags));
 
     GST_DEBUG_OBJECT (self, "Pushed tags event");
+  }
+
+  gtuber_chapters = gtuber_media_info_get_chapters (info);
+
+  if (gtuber_chapters && g_hash_table_size (gtuber_chapters) > 0) {
+    GstToc *toc;
+    GstTocEntry *toc_entry;
+
+    toc = gst_toc_new (GST_TOC_SCOPE_GLOBAL);
+    toc_entry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_EDITION, "00");
+
+    gst_toc_entry_set_start_stop_times (toc_entry, 0,
+        gtuber_media_info_get_duration (info) * GST_SECOND);
+
+    g_hash_table_foreach (gtuber_chapters,
+        (GHFunc) insert_chapter_cb, toc_entry);
+
+    gst_toc_append_entry (toc, toc_entry);
+
+    gst_pad_push_event (GST_BASE_SRC_PAD (self),
+        gst_event_new_toc (toc, FALSE));
+    gst_element_post_message (GST_ELEMENT (self),
+        gst_message_new_toc (GST_OBJECT (self), toc, FALSE));
+
+    gst_toc_unref (toc);
   }
 }
 
