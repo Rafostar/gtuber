@@ -78,6 +78,37 @@ gtuber_utils_youtube_parse_mime_type_string (const gchar *yt_mime,
   g_strfreev (strv);
 }
 
+static gboolean
+decs_line_is_chapter (const gchar *line, gboolean *has_hours)
+{
+  if (g_ascii_isdigit (line[0]) && strlen (line) > 6) {
+    guint i;
+
+    /* Possible time formats:
+     * 0:00, 00:00, 0:00:00, 00:00:00 */
+    for (i = 1; i <= 2; i++) {
+      if (line[i] == ':'
+          && g_ascii_isdigit (line[i + 1])
+          && g_ascii_isdigit (line[i + 2])) {
+        if (line[i + 3] == ' ') {
+          *has_hours = FALSE;
+          return TRUE;
+        } else if (line[i + 3] == ':'
+            && g_ascii_isdigit (line[i + 4])
+            && g_ascii_isdigit (line[i + 5])
+            && line[i + 6] == ' ') {
+          *has_hours = TRUE;
+          return TRUE;
+        }
+      } else if (!g_ascii_isdigit (line[i])) {
+        break;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
 /*
  * gtuber_utils_youtube_insert_chapters_from_description:
  *
@@ -88,8 +119,9 @@ void
 gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
     const gchar *description)
 {
-  gchar **strv, *line;
+  gchar **strv;
   gboolean inserted = FALSE;
+  gboolean has_hours;
   guint index = 0;
 
   g_return_if_fail (description != NULL);
@@ -98,13 +130,10 @@ gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
   g_debug ("Inserting YT chapters");
   strv = g_strsplit (description, "\n", 0);
 
-  while ((line = strv[index])) {
+  while (strv[index]) {
     gchar **chapter_strv;
 
-    if (strlen (line) < 7
-        || line[2] != ':'
-        || !g_ascii_isdigit (line[0])
-        || !g_ascii_isdigit (line[3])) {
+    if (!decs_line_is_chapter (strv[index], &has_hours)) {
       if (inserted) {
         g_debug ("No more chapters");
         break;
@@ -114,34 +143,39 @@ gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
       continue;
     }
 
-    chapter_strv = g_strsplit (line, " ", 2);
+    chapter_strv = g_strsplit (strv[index], " ", 2);
 
     if (chapter_strv[0] && chapter_strv[1]) {
-      guint len = strlen (chapter_strv[0]);
+      guint pos = 0, hours, minutes, seconds;
+      guint64 total = 0;
+      gint offset = 0;
 
-      if (len == 5 || len == 8) {
-        guint pos = 0, hours = 0, minutes, seconds;
-        guint64 total;
-
-        /* Has hours */
-        if (len == 8) {
-          hours = g_ascii_strtoull (chapter_strv[0], NULL, 10);
-          pos += 3;
-        }
-        minutes = g_ascii_strtoull (chapter_strv[0] + pos, NULL, 10);
-        pos += 3;
-        seconds = g_ascii_strtoull (chapter_strv[0] + pos, NULL, 10);
-
-        total = hours * 60 * 60 * 1000;
-        total += minutes * 60 * 1000;
-        total += seconds * 1000;
-
-        g_debug ("Inserting YT chapter: %lu - %s", total, chapter_strv[1]);
-        gtuber_media_info_insert_chapter (info, total, chapter_strv[1]);
-
-        /* Inserted something, break on next non-chapter string */
-        inserted = TRUE;
+      if (has_hours) {
+        hours = g_ascii_strtoull (chapter_strv[0], NULL, 10);
+        pos += 2;
+        if ((chapter_strv[0])[pos] == ':')
+          pos++;
+        total += hours * 60 * 60 * 1000;
       }
+      minutes = g_ascii_strtoull (chapter_strv[0] + pos, NULL, 10);
+      pos += 2;
+      if ((chapter_strv[0])[pos] == ':')
+        pos++;
+      seconds = g_ascii_strtoull (chapter_strv[0] + pos, NULL, 10);
+
+      total += minutes * 60 * 1000;
+      total += seconds * 1000;
+
+      if (G_UNLIKELY (
+          (chapter_strv[1])[0] == '-'
+          && (chapter_strv[1])[1] == ' '))
+        offset = 2;
+
+      g_debug ("Inserting YT chapter, %lu: %s", total, chapter_strv[1] + offset);
+      gtuber_media_info_insert_chapter (info, total, chapter_strv[1] + offset);
+
+      /* Inserted something, break on next non-chapter string */
+      inserted = TRUE;
     }
 
     g_strfreev (chapter_strv);
@@ -149,5 +183,9 @@ gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
   }
 
   g_strfreev (strv);
-  g_debug ("Finished inserting YT chapters");
+
+  if (inserted)
+    g_debug ("Finished inserting YT chapters");
+  else
+    g_debug ("No YT chapters found");
 }
