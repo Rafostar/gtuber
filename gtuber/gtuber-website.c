@@ -110,10 +110,11 @@ insert_user_header (const gchar *name, const gchar *value, GHashTable *user_head
   gboolean addition;
 
   if (G_UNLIKELY (name == NULL)
-      || !strcmp (name, "Content-Type")
+      || !strcmp (name, "Accept-Encoding")
       || !strcmp (name, "Connection")
       || !strcmp (name, "Content-Length")
-      || !strcmp (name, "Accept-Encoding"))
+      || !strcmp (name, "Content-Type")
+      || !strcmp (name, "Host"))
     return;
 
   addition = g_hash_table_insert (user_headers, g_strdup (name), g_strdup (value));
@@ -134,7 +135,7 @@ gtuber_website_set_user_req_headers (GtuberWebsite *self,
 }
 
 /**
- * gtuber_website_get_uri: (skip)
+ * gtuber_website_get_uri:
  * @website: a #GtuberWebsite
  *
  * Returns: (transfer none): current requested URI.
@@ -148,7 +149,7 @@ gtuber_website_get_uri (GtuberWebsite *self)
 }
 
 /**
- * gtuber_website_set_uri: (skip)
+ * gtuber_website_set_uri:
  * @website: a #GtuberWebsite
  * @uri: requested URI
  *

@@ -57,6 +57,7 @@ struct _GtuberMediaInfo
   GPtrArray *streams;
   GPtrArray *adaptive_streams;
 
+  GHashTable *chapters;
   GHashTable *req_headers;
 };
 
@@ -88,6 +89,9 @@ gtuber_media_info_init (GtuberMediaInfo *self)
   self->adaptive_streams =
       g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
 
+  self->chapters =
+      g_hash_table_new_full ((GHashFunc) g_direct_hash, (GEqualFunc) g_direct_equal,
+          NULL, (GDestroyNotify) g_free);
   self->req_headers =
       g_hash_table_new_full ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal,
           (GDestroyNotify) g_free, (GDestroyNotify) g_free);
@@ -175,6 +179,7 @@ gtuber_media_info_finalize (GObject *object)
   g_ptr_array_unref (self->streams);
   g_ptr_array_unref (self->adaptive_streams);
 
+  g_hash_table_unref (self->chapters);
   g_hash_table_unref (self->req_headers);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
@@ -185,7 +190,7 @@ gtuber_media_info_finalize (GObject *object)
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none): media ID or %NULL when undetermined.
- **/
+ */
 const gchar *
 gtuber_media_info_get_id (GtuberMediaInfo *self)
 {
@@ -195,14 +200,14 @@ gtuber_media_info_get_id (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_id: (skip)
+ * gtuber_media_info_set_id:
  * @info: a #GtuberMediaInfo
  * @id: media ID
  *
  * Sets the media ID.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_id (GtuberMediaInfo *self, const gchar *id)
 {
@@ -217,7 +222,7 @@ gtuber_media_info_set_id (GtuberMediaInfo *self, const gchar *id)
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none): media title or %NULL when undetermined.
- **/
+ */
 const gchar *
 gtuber_media_info_get_title (GtuberMediaInfo *self)
 {
@@ -227,14 +232,14 @@ gtuber_media_info_get_title (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_description: (skip)
+ * gtuber_media_info_set_description:
  * @info: a #GtuberMediaInfo
  * @description: media description
  *
  * Sets the media description.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_description (GtuberMediaInfo *self, const gchar *description)
 {
@@ -249,7 +254,7 @@ gtuber_media_info_set_description (GtuberMediaInfo *self, const gchar *descripti
  * @info: a #GtuberMediaInfo
  *
  * Returns: (transfer none): media description or %NULL when undetermined.
- **/
+ */
 const gchar *
 gtuber_media_info_get_description (GtuberMediaInfo *self)
 {
@@ -259,14 +264,14 @@ gtuber_media_info_get_description (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_title: (skip)
+ * gtuber_media_info_set_title:
  * @info: a #GtuberMediaInfo
  * @title: media title
  *
  * Sets the media title.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_title (GtuberMediaInfo *self, const gchar *title)
 {
@@ -281,7 +286,7 @@ gtuber_media_info_set_title (GtuberMediaInfo *self, const gchar *title)
  * @info: a #GtuberMediaInfo
  *
  * Returns: media duration in seconds or 0 when undetermined.
- **/
+ */
 guint
 gtuber_media_info_get_duration (GtuberMediaInfo *self)
 {
@@ -291,20 +296,56 @@ gtuber_media_info_get_duration (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_set_duration: (skip)
+ * gtuber_media_info_set_duration:
  * @info: a #GtuberMediaInfo
  * @duration: media duration
  *
  * Sets the media duration in seconds.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_media_info_set_duration (GtuberMediaInfo *self, guint duration)
 {
   g_return_if_fail (GTUBER_IS_MEDIA_INFO (self));
 
   self->duration = duration;
+}
+
+/**
+ * gtuber_media_info_insert_chapter:
+ * @info: a #GtuberMediaInfo
+ * @start: time in milliseconds when this chapter starts.
+ * @name: name of the chapter.
+ *
+ * Inserts a new chapter to chapters #GHashTable. If a chapter with
+ *   given time already exists, it will be replaced with the new one.
+ *
+ * This is mainly useful for plugin development.
+ */
+void
+gtuber_media_info_insert_chapter (GtuberMediaInfo *self, guint64 start, const gchar *name)
+{
+  g_return_if_fail (GTUBER_IS_MEDIA_INFO (self));
+  g_return_if_fail (name != NULL);
+
+  g_hash_table_insert (self->chapters, GINT_TO_POINTER (start), g_strdup (name));
+}
+
+/**
+ * gtuber_media_info_get_chapters:
+ * @info: a #GtuberMediaInfo
+ *
+ * Get a #GHashTable with chapter start time and name pairs.
+ *
+ * Returns: (transfer none): a #GHashTable with chapters, or %NULL when none.
+ */
+GHashTable *
+gtuber_media_info_get_chapters (GtuberMediaInfo *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);
+
+  return self->chapters;
 }
 
 /**
@@ -341,7 +382,7 @@ gtuber_media_info_get_streams (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_add_stream: (skip)
+ * gtuber_media_info_add_stream:
  * @info: a #GtuberMediaInfo
  * @stream: a #GtuberStream
  *
@@ -393,7 +434,7 @@ gtuber_media_info_get_adaptive_streams (GtuberMediaInfo *self)
 }
 
 /**
- * gtuber_media_info_add_adaptive_stream: (skip)
+ * gtuber_media_info_add_adaptive_stream:
  * @info: a #GtuberMediaInfo
  * @stream: a #GtuberAdaptiveStream
  *

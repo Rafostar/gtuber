@@ -17,11 +17,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
 #include <json-glib/json-glib.h>
 
-#include "gtuber-invidious.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+#include "utils/youtube/gtuber-utils-youtube.h"
+
+GTUBER_WEBSITE_PLUGIN_DECLARE (Invidious, invidious, INVIDIOUS)
 
 struct _GtuberInvidious
 {
@@ -32,13 +35,8 @@ struct _GtuberInvidious
   gchar *hls_uri;
 };
 
-struct _GtuberInvidiousClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
 #define parent_class gtuber_invidious_parent_class
-G_DEFINE_TYPE (GtuberInvidious, gtuber_invidious, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Invidious, invidious)
 
 static void gtuber_invidious_finalize (GObject *object);
 
@@ -149,7 +147,7 @@ get_filled_stream (GtuberInvidious *self, JsonReader *reader,
       gchar *vcodec = NULL;
       gchar *acodec = NULL;
 
-      gtuber_utils_common_parse_yt_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
+      gtuber_utils_youtube_parse_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
       gtuber_stream_set_mime_type (stream, mime_type);
       gtuber_stream_set_codecs (stream, vcodec, acodec);
 
@@ -311,7 +309,7 @@ finish:
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   gchar *id;
 
@@ -333,7 +331,7 @@ query_plugin (GUri *uri)
   if (id) {
     GtuberInvidious *invidious;
 
-    invidious = g_object_new (GTUBER_TYPE_INVIDIOUS, NULL);
+    invidious = gtuber_invidious_new ();
     invidious->video_id = id;
     invidious->source = gtuber_utils_common_obtain_uri_source (uri);
 

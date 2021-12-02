@@ -17,14 +17,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <json-glib/json-glib.h>
-
 #include "gtuber-bilibili.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
 #define parent_class gtuber_bilibili_parent_class
-G_DEFINE_TYPE (GtuberBilibili, gtuber_bilibili, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Bilibili, bilibili)
 
 static void gtuber_bilibili_finalize (GObject *object);
 
@@ -320,7 +318,7 @@ bilibili_get_flow_from_plugin_props (GtuberBilibili *self, GError **error)
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   GtuberBilibili *bilibili = NULL;
   gchar *id;
@@ -350,7 +348,7 @@ query_plugin (GUri *uri)
       : BILIBILI_UNKNOWN;
 
     if (bili_type != BILIBILI_UNKNOWN) {
-      bilibili = g_object_new (GTUBER_TYPE_BILIBILI, NULL);
+      bilibili = gtuber_bilibili_new ();
       bilibili->bili_type = bili_type;
       bilibili->video_id = g_strdup (id + 2);
 

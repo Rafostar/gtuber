@@ -17,11 +17,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
 #include <json-glib/json-glib.h>
 
-#include "gtuber-youtube.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+#include "utils/youtube/gtuber-utils-youtube.h"
+
+GTUBER_WEBSITE_PLUGIN_DECLARE (Youtube, youtube, YOUTUBE)
 
 struct _GtuberYoutube
 {
@@ -37,13 +40,8 @@ struct _GtuberYoutube
   guint try_count;
 };
 
-struct _GtuberYoutubeClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
 #define parent_class gtuber_youtube_parent_class
-G_DEFINE_TYPE (GtuberYoutube, gtuber_youtube, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
 
 static void gtuber_youtube_finalize (GObject *object);
 
@@ -137,7 +135,7 @@ _read_stream_info (JsonReader *reader, GtuberStream *stream)
     gchar *vcodec = NULL;
     gchar *acodec = NULL;
 
-    gtuber_utils_common_parse_yt_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
+    gtuber_utils_youtube_parse_mime_type_string (yt_mime, &mime_type, &vcodec, &acodec);
     gtuber_stream_set_mime_type (stream, mime_type);
     gtuber_stream_set_codecs (stream, vcodec, acodec);
 
@@ -286,6 +284,7 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
 
     desc = gtuber_utils_json_get_string (reader, "shortDescription", NULL);
     gtuber_media_info_set_description (info, desc);
+    gtuber_utils_youtube_insert_chapters_from_description (info, desc);
 
     duration = gtuber_utils_json_get_string (reader, "lengthSeconds", NULL);
     if (duration)
@@ -454,7 +453,7 @@ gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   guint uri_match;
   gchar *id;
@@ -476,7 +475,7 @@ query_plugin (GUri *uri)
   if (id) {
     GtuberYoutube *youtube;
 
-    youtube = g_object_new (GTUBER_TYPE_YOUTUBE, NULL);
+    youtube = gtuber_youtube_new ();
     youtube->video_id = id;
 
     g_debug ("Requested video: %s", youtube->video_id);

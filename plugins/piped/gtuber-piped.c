@@ -17,9 +17,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <gtuber/gtuber-plugin-devel.h>
 #include <json-glib/json-glib.h>
 
-#include "gtuber-piped.h"
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
@@ -30,6 +30,8 @@ typedef enum
   PIPED_MEDIA_AUDIO_STREAM,
 } PipedMediaType;
 
+GTUBER_WEBSITE_PLUGIN_DECLARE (Piped, piped, PIPED)
+
 struct _GtuberPiped
 {
   GtuberWebsite parent;
@@ -38,13 +40,8 @@ struct _GtuberPiped
   gchar *hls_uri;
 };
 
-struct _GtuberPipedClass
-{
-  GtuberWebsiteClass parent_class;
-};
-
 #define parent_class gtuber_piped_parent_class
-G_DEFINE_TYPE (GtuberPiped, gtuber_piped, GTUBER_TYPE_WEBSITE)
+GTUBER_WEBSITE_PLUGIN_DEFINE (Piped, piped)
 
 static void gtuber_piped_finalize (GObject *object);
 
@@ -270,7 +267,7 @@ finish:
 }
 
 GtuberWebsite *
-query_plugin (GUri *uri)
+plugin_query (GUri *uri)
 {
   guint uri_match;
   gchar *id;
@@ -287,7 +284,7 @@ query_plugin (GUri *uri)
   if (id) {
     GtuberPiped *piped;
 
-    piped = g_object_new (GTUBER_TYPE_PIPED, NULL);
+    piped = gtuber_piped_new ();
     piped->video_id = id;
 
     g_debug ("Requested video: %s", piped->video_id);

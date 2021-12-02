@@ -484,9 +484,32 @@ insert_header_cb (const gchar *name, const gchar *value, GstStructure *structure
 }
 
 static void
-gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
+insert_chapter_cb (guint64 time, const gchar *name, GstTocEntry *entry)
 {
-  GHashTable *gtuber_headers;
+  GstTocEntry *subentry;
+  GstClockTime clock_time;
+  gchar *id;
+
+  clock_time = time * GST_MSECOND;
+  GST_DEBUG ("Inserting TOC chapter, time: %lu, name: %s", clock_time, name);
+
+  id = g_strdup_printf ("chap.%lu", time);
+  subentry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_CHAPTER, id);
+  g_free (id);
+
+  gst_toc_entry_set_tags (subentry,
+      gst_tag_list_new (GST_TAG_TITLE, name, NULL));
+  gst_toc_entry_set_start_stop_times (subentry, clock_time, GST_CLOCK_TIME_NONE);
+
+  gst_toc_entry_append_sub_entry (entry, subentry);
+}
+
+static void
+gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
+{
+  GHashTable *gtuber_headers, *gtuber_chapters;
+  GstTagList *tags;
+  const gchar *tag;
 
   gtuber_headers = gtuber_media_info_get_request_headers (info);
 
@@ -494,6 +517,8 @@ gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
     GstStructure *config, *req_headers;
     GstEvent *event;
     const gchar *ua;
+
+    GST_DEBUG_OBJECT (self, "Creating " GST_GTUBER_CONFIG " event");
 
     ua = g_hash_table_lookup (gtuber_headers, GST_GTUBER_HEADER_UA);
     req_headers = gst_structure_new_empty ("request-headers");
@@ -509,6 +534,55 @@ gst_gtuber_src_push_config_event (GstGtuberSrc *self, GtuberMediaInfo *info)
 
     event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_STICKY, config);
     gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
+
+    GST_DEBUG_OBJECT (self, "Pushed " GST_GTUBER_CONFIG " event");
+  }
+
+  GST_DEBUG_OBJECT (self, "Creating tags event");
+  tags = gst_tag_list_new_empty ();
+
+  if ((tag = gtuber_media_info_get_title (info)))
+    gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, tag, NULL);
+  if ((tag = gtuber_media_info_get_description (info)))
+    gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_DESCRIPTION, tag, NULL);
+
+  if (gst_tag_list_is_empty (tags)) {
+    GST_DEBUG_OBJECT (self, "No tags to push");
+    gst_tag_list_unref (tags);
+  } else {
+    gst_tag_list_set_scope (tags, GST_TAG_SCOPE_GLOBAL);
+
+    gst_pad_push_event (GST_BASE_SRC_PAD (self),
+        gst_event_new_tag (gst_tag_list_copy (tags)));
+    gst_element_post_message (GST_ELEMENT (self),
+        gst_message_new_tag (GST_OBJECT (self), tags));
+
+    GST_DEBUG_OBJECT (self, "Pushed tags event");
+  }
+
+  gtuber_chapters = gtuber_media_info_get_chapters (info);
+
+  if (gtuber_chapters && g_hash_table_size (gtuber_chapters) > 0) {
+    GstToc *toc;
+    GstTocEntry *toc_entry;
+
+    toc = gst_toc_new (GST_TOC_SCOPE_GLOBAL);
+    toc_entry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_EDITION, "00");
+
+    gst_toc_entry_set_start_stop_times (toc_entry, 0,
+        gtuber_media_info_get_duration (info) * GST_SECOND);
+
+    g_hash_table_foreach (gtuber_chapters,
+        (GHFunc) insert_chapter_cb, toc_entry);
+
+    gst_toc_append_entry (toc, toc_entry);
+
+    gst_pad_push_event (GST_BASE_SRC_PAD (self),
+        gst_event_new_toc (toc, FALSE));
+    gst_element_post_message (GST_ELEMENT (self),
+        gst_message_new_toc (GST_OBJECT (self), toc, FALSE));
+
+    gst_toc_unref (toc);
   }
 }
 
@@ -746,7 +820,7 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
   *outbuf = gst_gtuber_media_info_to_buffer (self, data->info, error);
 
   if (*outbuf)
-    gst_gtuber_src_push_config_event (self, data->info);
+    gst_gtuber_src_push_events (self, data->info);
 
   gst_gtuber_thread_data_free (data);
 

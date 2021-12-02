@@ -17,15 +17,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#pragma once
+#ifndef __GTUBER_UTILS_YOUTUBE_H__
+#define __GTUBER_UTILS_YOUTUBE_H__
 
-#include <gtuber/gtuber-plugin-devel.h>
+#include <glib.h>
+#include <gtuber/gtuber.h>
 
 G_BEGIN_DECLS
 
-#define GTUBER_TYPE_YOUTUBE (gtuber_youtube_get_type ())
-G_DECLARE_FINAL_TYPE (GtuberYoutube, gtuber_youtube, GTUBER, YOUTUBE, GtuberWebsite)
+void       gtuber_utils_youtube_parse_mime_type_string           (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
 
-G_MODULE_EXPORT GtuberWebsite *query_plugin (GUri *uri);
+void       gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info, const gchar *description);
 
 G_END_DECLS
+
+#endif /* __GTUBER_UTILS_YOUTUBE_H__ */

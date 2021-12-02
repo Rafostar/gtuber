@@ -172,25 +172,8 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   g_debug ("Requested URI: %s", uri);
 
   guri = g_uri_parse (uri, G_URI_FLAGS_ENCODED, &my_error);
-  if (!guri) {
-    gchar *yt_uri;
-
-    if (strlen (uri) != 11)
-      goto error;
-
-    if (my_error) {
-      g_error_free (my_error);
-      my_error = NULL;
-    }
-
-    /* Exclusively assume YT video ID for non-uri 11 characters */
-    yt_uri = g_strjoin (NULL, "https://www.youtube.com/watch?v=", uri, NULL);
-    guri = g_uri_parse (yt_uri, G_URI_FLAGS_ENCODED, &my_error);
-    g_free (yt_uri);
-
-    if (!guri)
-      goto error;
-  }
+  if (!guri)
+    goto error;
 
   if (self->module_name) {
     g_debug ("Trying to use last module again");

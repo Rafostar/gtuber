@@ -31,6 +31,9 @@ version_array = gtuber_version.split('.')
 gtuber_version_suffix = '-' + version_array[0] + '.0'
 
 gtuber_api_name = meson.project_name() + gtuber_version_suffix
+gtuber_plugin_devel_api_name = '@0@-plugin-devel@1@'.format(
+  meson.project_name(), gtuber_version_suffix
+)
 
 gtuber_utils_prefix = meson.project_name() + '-utils-'
 gtuber_plugin_prefix = meson.project_name() + '-'

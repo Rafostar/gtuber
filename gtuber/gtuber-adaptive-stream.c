@@ -96,7 +96,7 @@ gtuber_adaptive_stream_get_property (GObject *object, guint prop_id,
 }
 
 /**
- * gtuber_adaptive_stream_new: (skip)
+ * gtuber_adaptive_stream_new:
  *
  * Creates a new #GtuberAdaptiveStream instance.
  *
@@ -116,7 +116,7 @@ gtuber_adaptive_stream_new (void)
  *
  * Returns: a #GtuberAdaptiveStreamManifest representing
  *   type of the manifest adaptive stream belongs to.
- **/
+ */
 GtuberAdaptiveStreamManifest
 gtuber_adaptive_stream_get_manifest_type (GtuberAdaptiveStream *self)
 {
@@ -127,14 +127,14 @@ gtuber_adaptive_stream_get_manifest_type (GtuberAdaptiveStream *self)
 }
 
 /**
- * gtuber_adaptive_stream_set_manifest_type: (skip)
+ * gtuber_adaptive_stream_set_manifest_type:
  * @stream: a #GtuberAdaptiveStream
  * @type: a #GtuberAdaptiveStreamManifest
  *
  * Sets the adaptive stream manifest type.
  *
  * This is mainly useful for plugin development.
- **/
+ */
 void
 gtuber_adaptive_stream_set_manifest_type (GtuberAdaptiveStream *self,
     GtuberAdaptiveStreamManifest type)
@@ -153,7 +153,7 @@ gtuber_adaptive_stream_set_manifest_type (GtuberAdaptiveStream *self,
  * Gets the byte range of stream initialization segment.
  *
  * Returns: %TRUE if successful, with the out parameters set, %FALSE otherwise.
- **/
+ */
 gboolean
 gtuber_adaptive_stream_get_init_range (GtuberAdaptiveStream *self,
     guint64 *start, guint64 *end)
@@ -172,13 +172,13 @@ gtuber_adaptive_stream_get_init_range (GtuberAdaptiveStream *self,
 }
 
 /**
- * gtuber_adaptive_stream_set_init_range: (skip)
+ * gtuber_adaptive_stream_set_init_range:
  * @stream: a #GtuberAdaptiveStream
  * @start: the start of stream init range
  * @end: the end of stream init range
  *
  * Sets the byte range of stream initialization segment.
- **/
+ */
 void
 gtuber_adaptive_stream_set_init_range (GtuberAdaptiveStream *self,
     guint64 start, guint64 end)
@@ -198,7 +198,7 @@ gtuber_adaptive_stream_set_init_range (GtuberAdaptiveStream *self,
  * Gets the byte range of stream media segment.
  *
  * Returns: %TRUE if successful, with the out parameters set, %FALSE otherwise.
- **/
+ */
 gboolean
 gtuber_adaptive_stream_get_index_range (GtuberAdaptiveStream *self,
     guint64 *start, guint64 *end)
@@ -217,13 +217,13 @@ gtuber_adaptive_stream_get_index_range (GtuberAdaptiveStream *self,
 }
 
 /**
- * gtuber_adaptive_stream_set_index_range: (skip)
+ * gtuber_adaptive_stream_set_index_range:
  * @stream: a #GtuberAdaptiveStream
  * @start: the start of stream index range
  * @end: the end of stream index range
  *
  * Sets the byte range of stream media segment.
- **/
+ */
 void
 gtuber_adaptive_stream_set_index_range (GtuberAdaptiveStream *self,
     guint64 start, guint64 end)

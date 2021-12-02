@@ -58,6 +58,8 @@ const gchar *      gtuber_media_info_get_description            (GtuberMediaInfo
 
 guint              gtuber_media_info_get_duration               (GtuberMediaInfo *info);
 
+GHashTable *       gtuber_media_info_get_chapters               (GtuberMediaInfo *info);
+
 gboolean           gtuber_media_info_get_has_streams            (GtuberMediaInfo *info);
 
 GPtrArray *        gtuber_media_info_get_streams                (GtuberMediaInfo *info);
