@@ -69,6 +69,7 @@ cdata.set('PACKAGE', '"@0@"'.format(meson.project_name()))
 cdata.set('VERSION', '"@0@"'.format(meson.project_version()))
 cdata.set('PACKAGE_VERSION', '"@0@"'.format(meson.project_version()))
 
+cdata.set('GTUBER_API_NAME', '"@0@"'.format(gtuber_api_name))
 cdata.set('GTUBER_PLUGIN_PATH', '"@0@"'.format(gtuber_plugins_libdir))
 
 cdata.set('GST_PACKAGE_NAME', '"gst-gtuber"')

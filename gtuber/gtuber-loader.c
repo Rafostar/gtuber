@@ -19,39 +19,120 @@
 
 #include "config.h"
 #include "gtuber-loader-private.h"
+#include "gtuber-cache-private.h"
 
 typedef GtuberWebsite* (* PluginQuery) (GUri *uri);
+typedef const gchar *const * (* PluginHosts) (void);
+typedef const gchar *const * (* PluginSchemes) (void);
 
-static gchar *
-gtuber_loader_get_plugin_dir_path (void)
+static const gchar *const default_schemes[] = {
+  "http", "https", NULL
+};
+static const gchar *const no_hosts[] = {
+  NULL
+};
+
+const gchar *
+gtuber_loader_get_plugin_dir_path_string (void)
 {
   const gchar *env_path;
-  gchar *parsed_path;
 
   env_path = g_getenv ("GTUBER_PLUGIN_PATH");
-  parsed_path = g_filename_display_name (
-      (env_path && env_path[0]) ? env_path : GTUBER_PLUGIN_PATH);
-  g_debug ("Plugin dir path: %s", parsed_path);
 
-  return parsed_path;
+  return (env_path && env_path[0])
+      ? env_path
+      : GTUBER_PLUGIN_PATH;
+}
+
+gchar **
+gtuber_loader_obtain_plugin_dir_paths (void)
+{
+  gchar **strv;
+  const gchar *path_str;
+
+  path_str = gtuber_loader_get_plugin_dir_path_string ();
+  strv = g_strsplit (path_str, G_SEARCHPATH_SEPARATOR_S, 0);
+
+  return strv;
+}
+
+static GModule *
+gtuber_loader_open_module (const gchar *module_path)
+{
+  GModule *module;
+
+  g_debug ("Opening module: %s", module_path);
+  module = g_module_open (module_path, G_MODULE_BIND_LAZY);
+
+  if (module == NULL) {
+    g_warning ("Could not load plugin: %s, reason: %s",
+        module_path, g_module_error ());
+    return NULL;
+  }
+  g_debug ("Opened plugin module: %s", module_path);
+
+  /* Make sure module stays loaded. This will speed up using
+   * it next time as we do not have to read its file again */
+  g_module_make_resident (module);
+
+  return module;
+}
+
+void
+gtuber_loader_close_module (GModule *module)
+{
+  if (G_LIKELY (g_module_close (module)))
+    g_debug ("Closed plugin module");
+  else
+    g_warning ("Could not close module");
+}
+
+gboolean
+gtuber_loader_check_plugin_compat (const gchar *module_path,
+    const gchar *const **schemes, const gchar *const **hosts)
+{
+  PluginSchemes plugin_get_schemes;
+  PluginHosts plugin_get_hosts;
+  GModule *module;
+
+  module = gtuber_loader_open_module (module_path);
+  if (!module)
+    return FALSE;
+
+  if (g_module_symbol (module, "plugin_get_schemes", (gpointer *) &plugin_get_schemes)
+      && plugin_get_schemes != NULL) {
+    *schemes = plugin_get_schemes ();
+  }
+
+  /* Schemes are required */
+  if (*schemes == NULL || (*schemes)[0] == NULL)
+    *schemes = default_schemes;
+
+  if (g_module_symbol (module, "plugin_get_hosts", (gpointer *) &plugin_get_hosts)
+      && plugin_get_hosts != NULL) {
+    *hosts = plugin_get_hosts ();
+  }
+
+  /* Hosts may be empty in case of plugins
+   * that use some unusual scheme */
+  if (*hosts == NULL)
+    *hosts = no_hosts;
+
+  gtuber_loader_close_module (module);
+
+  return TRUE;
 }
 
 static GtuberWebsite *
-gtuber_loader_get_website_internal (gchar *module_path,
+gtuber_loader_get_website_internal (const gchar *module_path,
     GUri *guri, GModule **module)
 {
   PluginQuery plugin_query;
   GtuberWebsite *website = NULL;
 
-  g_debug ("Opening module: %s", module_path);
-  *module = g_module_open (module_path, G_MODULE_BIND_LAZY);
-
-  if (*module == NULL) {
-    g_warning ("Could not load plugin: %s, reason: %s",
-        module_path, g_module_error ());
+  *module = gtuber_loader_open_module (module_path);
+  if (*module == NULL)
     goto finish;
-  }
-  g_debug ("Opened plugin module: %s", module_path);
 
   if (!g_module_symbol (*module, "plugin_query", (gpointer *) &plugin_query)
       || plugin_query == NULL) {
@@ -59,103 +140,57 @@ gtuber_loader_get_website_internal (gchar *module_path,
     goto fail;
   }
 
-  /* Make sure module stays loaded. This will speed up using
-   * it next time as we do not have to read its file again */
-  g_module_make_resident (*module);
-
   website = plugin_query (guri);
   if (website)
     goto finish;
 
 fail:
-  if (g_module_close (*module))
-    g_debug ("Closed plugin module");
-  else
-    g_warning ("Could not close module: %s", module_path);
+  gtuber_loader_close_module (*module);
 
 finish:
-  g_free (module_path);
   return website;
+}
+
+gboolean
+gtuber_loader_name_is_plugin (const gchar *module_name)
+{
+  return g_str_has_suffix (module_name, G_MODULE_SUFFIX);
 }
 
 GtuberWebsite *
 gtuber_loader_get_website_for_uri (GUri *guri, GModule **module)
 {
-  GDir *dir;
-  GModule *my_module;
   GtuberWebsite *website = NULL;
-  gchar *dir_path, *uri;
-  const gchar *module_name;
+  GPtrArray *compatible;
+  guint i;
 
-  if (!g_module_supported ()) {
-    g_warning ("No module loading support on current platform");
-    return NULL;
+  /* FIXME: pass cancellable and error */
+  gtuber_cache_init (NULL, NULL);
+
+  /* FIXME: if debug is enabled */
+  {
+    gchar *uri;
+
+    uri = g_uri_to_string (guri);
+    g_debug ("Searching for plugin that opens URI: %s", uri);
+    g_free (uri);
   }
 
-  dir_path = gtuber_loader_get_plugin_dir_path ();
-  dir = g_dir_open (dir_path, 0, NULL);
-  if (!dir) {
-    g_debug ("Could not open plugin dir: %s", dir_path);
-    goto no_dir;
-  }
+  compatible = gtuber_cache_find_plugins_for_uri (guri);
 
-  uri = g_uri_to_string (guri);
-  g_debug ("Searching for plugin that opens URI: %s", uri);
-  g_free (uri);
+  for (i = 0; i < compatible->len; i++) {
+    const gchar *module_path;
 
-  while ((module_name = g_dir_read_name (dir))) {
-    gchar *module_path;
+    module_path = g_ptr_array_index (compatible, i);
+    website = gtuber_loader_get_website_internal (module_path, guri, module);
 
-    if (!g_str_has_suffix (module_name, G_MODULE_SUFFIX))
-      continue;
-
-    module_path = g_module_build_path (dir_path, module_name);
-    website = gtuber_loader_get_website_internal (module_path, guri, &my_module);
     if (website) {
-      g_debug ("Found compatible plugin: %s", module_name);
-      *module = my_module;
+      g_debug ("Found compatible plugin: %s", module_path);
       break;
     }
   }
 
-  if (dir) {
-    g_dir_close (dir);
-    g_debug ("Plugins dir closed");
-  }
-
-no_dir:
-  g_free (dir_path);
-
-  return website;
-}
-
-GtuberWebsite *
-gtuber_loader_get_website_from_module_name (const gchar *module_name,
-    GUri *guri, GModule **module)
-{
-  GtuberWebsite *website;
-  GModule *my_module;
-  gchar *module_path;
-
-  g_debug ("Loading plugin from module name: %s", module_name);
-
-  if (g_path_is_absolute (module_name))
-    module_path = g_strdup (module_name);
-  else {
-    gchar *dir_path;
-
-    dir_path = gtuber_loader_get_plugin_dir_path ();
-    module_path = g_module_build_path (dir_path, module_name);
-    g_free (dir_path);
-  }
-
-  website = gtuber_loader_get_website_internal (module_path, guri, &my_module);
-  if (website) {
-    g_debug ("Plugin loaded successfully");
-
-    if (module)
-      *module = my_module;
-  }
+  g_ptr_array_unref (compatible);
 
   return website;
 }
