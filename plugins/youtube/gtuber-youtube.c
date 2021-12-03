@@ -24,6 +24,12 @@
 #include "utils/json/gtuber-utils-json.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
+  "youtube.com",
+  "m.youtube.com",
+  "youtu.be",
+  NULL
+)
 GTUBER_WEBSITE_PLUGIN_DECLARE (Youtube, youtube, YOUTUBE)
 
 struct _GtuberYoutube
