@@ -71,6 +71,30 @@ G_GNUC_UNUSED static inline Gtuber##camel * G_PASTE (gtuber_##lower, _new) (void
 G_DEFINE_TYPE (Gtuber##camel, gtuber_##lower, GTUBER_TYPE_WEBSITE)                  \
 
 /**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES:
+ * @args: %NULL terminated list of supported schemes.
+ *
+ * Convenient macro that exports plugin supported schemes.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES(...)                                   \
+static const gchar *_schemes_compat[] = { __VA_ARGS__ };                            \
+G_MODULE_EXPORT const gchar *const *plugin_get_schemes (void);                      \
+const gchar *const *plugin_get_schemes (void) {                                     \
+    return _schemes_compat; }
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS:
+ * @args: %NULL terminated list of supported hosts.
+ *
+ * Convenient macro that exports plugin supported hosts.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS(...)                                     \
+static const gchar *_hosts_compat[] = { __VA_ARGS__ };                              \
+G_MODULE_EXPORT const gchar *const *plugin_get_hosts (void);                        \
+const gchar *const *plugin_get_hosts (void) {                                       \
+    return _hosts_compat; }
+
+/**
  * GtuberWebsite:
  *
  * Plugin website base class.
