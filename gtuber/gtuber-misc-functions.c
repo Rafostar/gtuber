@@ -67,7 +67,7 @@ gtuber_has_plugin_for_uri (const gchar *uri, gchar **filename)
     if (filename)
       *filename = g_strdup (g_module_name (module));
 
-    g_module_close (module);
+    gtuber_loader_close_module (module);
     res = TRUE;
   }
   g_debug ("URI supported: %s", res ? "yes" : "no");
