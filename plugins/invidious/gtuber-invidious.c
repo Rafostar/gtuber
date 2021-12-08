@@ -225,15 +225,17 @@ parse_response_data (GtuberInvidious *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
+  const gchar *desc;
 
   gtuber_media_info_set_id (info,
       gtuber_utils_json_get_string (reader, "videoId", NULL));
   gtuber_media_info_set_title (info,
       gtuber_utils_json_get_string (reader, "title", NULL));
-  gtuber_media_info_set_description (info,
-      gtuber_utils_json_get_string (reader, "description", NULL));
   gtuber_media_info_set_duration (info,
       gtuber_utils_json_get_int (reader, "lengthSeconds", NULL));
+
+  desc = gtuber_utils_json_get_string (reader, "description", NULL);
+  gtuber_media_info_set_description (info, desc);
 
   if (gtuber_utils_json_get_boolean (reader, "liveNow", NULL))
     self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hlsUrl", NULL));
@@ -249,6 +251,7 @@ parse_response_data (GtuberInvidious *self, JsonParser *parser,
           (GtuberFunc) _add_adaptive_stream_cb, self);
       gtuber_utils_json_go_back (reader, 1);
     }
+    gtuber_utils_youtube_insert_chapters_from_description (info, desc);
   }
 
   g_object_unref (reader);
