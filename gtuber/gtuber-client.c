@@ -167,8 +167,8 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   if (!guri)
     goto error;
 
-  if (!website)
-    website = gtuber_loader_get_website_for_uri (guri, &module);
+  website = gtuber_loader_get_website_for_uri (guri, &module);
+  g_uri_unref (guri);
 
   if (!website) {
     g_debug ("No plugin for URI: %s", uri);
@@ -272,8 +272,6 @@ beginning:
     goto decide_flow;
 
 error:
-  if (guri)
-    g_uri_unref (guri);
   if (msg)
     g_object_unref (msg);
   if (session)
