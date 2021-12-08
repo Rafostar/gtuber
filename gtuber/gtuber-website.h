@@ -30,6 +30,7 @@
 
 #include <gtuber/gtuber-enums.h>
 #include <gtuber/gtuber-media-info.h>
+#include <gtuber/gtuber-cache.h>
 
 G_BEGIN_DECLS
 
@@ -57,7 +58,16 @@ G_DECLARE_FINAL_TYPE (Gtuber##camel, gtuber_##lower, GTUBER, upper, GtuberWebsit
 G_MODULE_EXPORT GtuberWebsite *plugin_query (GUri *uri);                            \
                                                                                     \
 G_GNUC_UNUSED static inline Gtuber##camel * G_PASTE (gtuber_##lower, _new) (void) { \
-    return g_object_new (G_PASTE (gtuber_##lower, _get_type) (), NULL); }
+    return g_object_new (G_PASTE (gtuber_##lower, _get_type) (), NULL); }           \
+G_GNUC_UNUSED static inline gchar * G_PASTE (gtuber_##lower, _cache_read)           \
+    (const gchar *key) {                                                            \
+    return gtuber_cache_plugin_read (G_STRINGIFY (lower), key); }                   \
+G_GNUC_UNUSED static inline void G_PASTE (gtuber_##lower, _cache_write)             \
+    (const gchar *key, const gchar *val, gint64 exp) {                              \
+    gtuber_cache_plugin_write (G_STRINGIFY (lower), key, val, exp); }               \
+G_GNUC_UNUSED static inline void G_PASTE (gtuber_##lower, _cache_write_epoch)       \
+    (const gchar *key, const gchar *val, gint64 epoch) {                            \
+    gtuber_cache_plugin_write_epoch (G_STRINGIFY (lower), key, val, epoch); }
 
 /**
  * GTUBER_WEBSITE_PLUGIN_DEFINE:
