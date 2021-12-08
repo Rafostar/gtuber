@@ -865,7 +865,8 @@ gtuber_cache_plugin_write_epoch (const gchar *plugin_name,
   if (file) {
     fwrite (&epoch, sizeof (gint64), 1, file);
     write_string (file, val);
-    g_debug ("Written cache value: %s", val);
+    g_debug ("Written cache value: %s, expires: %li",
+        val, epoch);
 
     fclose (file);
   }
