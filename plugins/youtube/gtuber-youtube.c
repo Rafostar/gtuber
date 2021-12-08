@@ -28,7 +28,6 @@
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "youtube.com",
-  "m.youtube.com",
   "youtu.be",
   NULL
 )
