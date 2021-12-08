@@ -24,6 +24,8 @@
 #include "utils/json/gtuber-utils-json.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
+#define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
+
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "youtube.com",
   "m.youtube.com",
@@ -40,7 +42,6 @@ struct _GtuberYoutube
   gchar *hls_uri;
 
   gchar *visitor_data;
-  gchar *client_version;
   gchar *locale;
 
   guint try_count;
@@ -51,6 +52,7 @@ GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
 
 static void gtuber_youtube_finalize (GObject *object);
 
+static void gtuber_youtube_prepare (GtuberWebsite *website);
 static GtuberFlow gtuber_youtube_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error);
 static GtuberFlow gtuber_youtube_parse_input_stream (GtuberWebsite *website,
@@ -61,25 +63,6 @@ static GtuberFlow gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
 static void
 gtuber_youtube_init (GtuberYoutube *self)
 {
-  const gchar * const *langs;
-
-  self->try_count = 0;
-  self->hls_uri = NULL;
-
-  /* FIXME: get from cache */
-  self->visitor_data = g_strdup ("");
-  self->client_version = g_strdup ("16.37.36");
-
-  langs = g_get_language_names ();
-  while (*langs) {
-    if (strlen (*langs) == 5 && g_str_has_prefix (*langs + 2, "_")) {
-      self->locale = g_strdup (*langs);
-      break;
-    }
-    langs++;
-  }
-  if (!self->locale)
-    self->locale = g_strdup ("en_US");
 }
 
 static void
@@ -91,6 +74,7 @@ gtuber_youtube_class_init (GtuberYoutubeClass *klass)
   gobject_class->finalize = gtuber_youtube_finalize;
 
   website_class->handles_input_stream = TRUE;
+  website_class->prepare = gtuber_youtube_prepare;
   website_class->create_request = gtuber_youtube_create_request;
   website_class->parse_input_stream = gtuber_youtube_parse_input_stream;
   website_class->set_user_req_headers = gtuber_youtube_set_user_req_headers;
@@ -107,7 +91,6 @@ gtuber_youtube_finalize (GObject *object)
   g_free (self->hls_uri);
 
   g_free (self->visitor_data);
-  g_free (self->client_version);
   g_free (self->locale);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
@@ -323,7 +306,7 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
     self->visitor_data = g_strdup (visitor_data);
     g_debug ("Updated visitor_data: %s", self->visitor_data);
 
-    /* TODO: Update cache */
+    gtuber_youtube_cache_write ("visitor_data", self->visitor_data, 24 * 3600);
   }
 
 finish:
@@ -367,12 +350,36 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
   "  },\n"
   "  \"video_id\": \"%s\"\n"
   "}",
-      self->client_version, cliScreen, parts[0], parts[1],
+      GTUBER_YOUTUBE_CLI_VERSION, cliScreen, parts[0], parts[1],
       self->visitor_data, self->video_id, self->video_id);
 
   g_strfreev (parts);
 
   return req_body;
+}
+
+static void
+gtuber_youtube_prepare (GtuberWebsite *website)
+{
+  GtuberYoutube *self = GTUBER_YOUTUBE (website);
+  const gchar *const *langs;
+  guint i;
+
+  self->visitor_data = gtuber_youtube_cache_read ("visitor_data");
+  if (!self->visitor_data)
+    self->visitor_data = g_strdup ("");
+
+  langs = g_get_language_names ();
+  for (i = 0; langs[i]; i++) {
+    if (strlen (langs[i]) == 5 && ((langs[i])[2] == '_')) {
+      self->locale = g_strdup (langs[i]);
+      break;
+    }
+  }
+  if (!self->locale)
+    self->locale = g_strdup ("en_US");
+
+  g_debug ("Using locale: %s", self->locale);
 }
 
 static GtuberFlow
@@ -401,7 +408,7 @@ gtuber_youtube_create_request (GtuberWebsite *website,
 
   ua = g_strdup_printf (
       "com.google.android.youtube/%s(Linux; U; Android 11; en_US) gzip",
-      self->client_version);
+      GTUBER_YOUTUBE_CLI_VERSION);
   soup_message_headers_replace (headers, "User-Agent", ua);
   soup_message_headers_append (headers, "X-Goog-Api-Format-Version", "2");
   soup_message_headers_append (headers, "X-Goog-Visitor-Id", self->visitor_data);
