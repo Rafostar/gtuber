@@ -41,6 +41,10 @@ typedef enum
   TWITCH_MEDIA_CLIP,
 } TwitchMediaType;
 
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
+  "twitch.tv",
+  NULL
+)
 GTUBER_WEBSITE_PLUGIN_DECLARE (Twitch, twitch, TWITCH)
 
 struct _GtuberTwitch
@@ -586,11 +590,6 @@ plugin_query (GUri *uri)
 {
   guint match;
   gchar *id;
-
-  if (!gtuber_utils_common_uri_matches_hosts (uri, NULL,
-      "twitch.tv",
-      NULL))
-    return NULL;
 
   if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, &match,
       "/*/clip/",
