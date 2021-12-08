@@ -188,7 +188,6 @@ static void
 _parse_access_token_data (GtuberTwitch *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
-  //const GtuberCache *cache;
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
   const gchar *data_type = NULL;
 
@@ -231,12 +230,6 @@ _parse_access_token_data (GtuberTwitch *self, JsonParser *parser,
     _read_clip_streams (self, reader, info, error);
 
   /* TODO: Set show_ads to false in access_token */
-
-  /* TODO: Store to cache
-  cache = gtuber_cache_get ();
-  gtuber_cache_store_value (cache, "access-token", self->access_token);
-  gtuber_cache_store_value (cache, "signature", self->signature);
-  */
 
 finish:
   g_object_unref (reader);
@@ -527,16 +520,6 @@ gtuber_twitch_create_request (GtuberWebsite *website,
 {
   GtuberTwitch *self = GTUBER_TWITCH (website);
 
-  /* TODO: Implement caching
-  if (!self->access_token || !self->signature) {
-    const GtuberCache *cache = gtuber_cache_get ();
-
-    if (!self->access_token)
-      gtuber_cache_restore_value (cache, "access-token", &self->access_token);
-    if (!self->signature)
-      gtuber_cache_restore_value (cache, "signature", &self->signature);
-  }
-  */
   if (!self->access_token || !self->signature) {
     GqlReqType req_type = (self->media_type == TWITCH_MEDIA_CLIP)
       ? GQL_REQ_ACCESS_TOKEN_CLIP
