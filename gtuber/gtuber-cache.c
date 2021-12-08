@@ -358,20 +358,6 @@ finish:
   return NULL;
 }
 
-static GFileEnumerator *
-gtuber_cache_get_file_enumerator (GFile *dir,
-    GCancellable *cancellable, GError **error)
-{
-  GFileEnumerator *dir_enum;
-
-  dir_enum = g_file_enumerate_children (dir,
-      G_FILE_ATTRIBUTE_STANDARD_NAME ","
-      G_FILE_ATTRIBUTE_TIME_MODIFIED,
-      G_FILE_QUERY_INFO_NONE, cancellable, error);
-
-  return dir_enum;
-}
-
 static void
 gtuber_cache_enumerate_plugins (GFile *dir, GPtrArray *modules,
     gint64 *mod_time, guint *n_plugins, GCancellable *cancellable,
@@ -379,8 +365,10 @@ gtuber_cache_enumerate_plugins (GFile *dir, GPtrArray *modules,
 {
   GFileEnumerator *dir_enum;
 
-  dir_enum = gtuber_cache_get_file_enumerator (dir,
-      cancellable, error);
+  dir_enum = g_file_enumerate_children (dir,
+      G_FILE_ATTRIBUTE_STANDARD_NAME ","
+      G_FILE_ATTRIBUTE_TIME_MODIFIED,
+      G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, cancellable, error);
   if (!dir_enum)
     return;
 
