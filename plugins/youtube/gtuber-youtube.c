@@ -471,14 +471,10 @@ plugin_query (GUri *uri)
   guint uri_match;
   gchar *id;
 
-  if (!gtuber_utils_common_uri_matches_hosts (uri, &uri_match,
-      "youtube.com",
-      "m.youtube.com",
-      "youtu.be",
-      NULL))
-    return NULL;
+  gtuber_utils_common_uri_matches_hosts (uri, &uri_match,
+      "youtu.be", NULL);
 
-  id = (uri_match == 3)
+  id = (uri_match > 0)
       ? gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/", NULL)
       : gtuber_utils_common_obtain_uri_query_value (uri, "v");
 
