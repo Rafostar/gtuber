@@ -204,13 +204,25 @@ gtuber_cache_obtain_cache_path (const gchar *basename)
       GTUBER_API_NAME, basename, NULL);
 }
 
+static gboolean
+write_ptr_to_file (FILE *file, gconstpointer ptr, gsize size)
+{
+  return fwrite (ptr, size, 1, file) == 1;
+}
+
+static gboolean
+read_file_to_ptr (FILE *file, gpointer ptr, gsize size)
+{
+  return fread (ptr, size, 1, file) == 1;
+}
+
 static void
 write_string (FILE *file, const gchar *str)
 {
   guint len = strlen (str) + 1;
 
-  fwrite (&len, sizeof (guint), 1, file);
-  fwrite (str, len, 1, file);
+  write_ptr_to_file (file, &len, sizeof (guint));
+  write_ptr_to_file (file, str, len);
 }
 
 static gchar *
@@ -219,10 +231,10 @@ read_next_string (FILE *file)
   guint len;
   gchar *str = NULL;
 
-  fread (&len, sizeof (guint), 1, file);
+  read_file_to_ptr (file, &len, sizeof (guint));
   if (len > 0) {
     str = g_new (gchar, len);
-    fread (str, len, 1, file);
+    read_file_to_ptr (file, str, len);
   }
 
   return str;
@@ -236,7 +248,7 @@ write_n_elems (FILE *file, const gchar *const *arr)
   while (arr && arr[n_elems])
     n_elems++;
 
-  fwrite (&n_elems, sizeof (guint), 1, file);
+  write_ptr_to_file (file, &n_elems, sizeof (guint));
 
   return n_elems > 0;
 }
@@ -305,7 +317,7 @@ gtuber_cache_open_write (const gchar *basename)
   g_strlcpy (header->name, "GTUBER", 7);
   header->version_hex = GTUBER_VERSION_HEX;
 
-  fwrite (header, sizeof (GtuberCacheHeader), 1, file);
+  write_ptr_to_file (file, header, sizeof (GtuberCacheHeader));
   g_free (header);
 
 finish:
@@ -334,7 +346,7 @@ gtuber_cache_open_read (const gchar *basename)
   }
 
   header = g_new (GtuberCacheHeader, 1);
-  fread (header, sizeof (GtuberCacheHeader), 1, file);
+  read_file_to_ptr (file, header, sizeof (GtuberCacheHeader));
 
   g_debug ("Cache header, name: %s, version_hex: %u",
       header->name, header->version_hex);
@@ -426,8 +438,8 @@ gtuber_cache_read_plugins_compat (FILE *file,
     goto fail;
   }
 
-  fread (&cache_mod_time, sizeof (gint64), 1, file);
-  fread (&cache_n_plugins, sizeof (guint), 1, file);
+  read_file_to_ptr (file, &cache_mod_time, sizeof (gint64));
+  read_file_to_ptr (file, &cache_n_plugins, sizeof (guint));
 
   gtuber_cache_enumerate_plugins (dir, NULL, &latest_time, &n_plugins,
       cancellable, error);
@@ -458,7 +470,7 @@ gtuber_cache_read_plugins_compat (FILE *file,
       module_name = read_next_string (file);
       data = gtuber_cache_plugin_compat_data_new_take (module_name);
 
-      fread (&n_schemes, sizeof (guint), 1, file);
+      read_file_to_ptr (file, &n_schemes, sizeof (guint));
       for (j = 0; j < n_schemes; j++) {
         gchar *scheme;
 
@@ -466,7 +478,7 @@ gtuber_cache_read_plugins_compat (FILE *file,
         gtuber_cache_plugin_compat_data_take_scheme (data, scheme);
       }
 
-      fread (&n_hosts, sizeof (guint), 1, file);
+      read_file_to_ptr (file, &n_hosts, sizeof (guint));
       for (j = 0; j < n_hosts; j++) {
         gchar *host;
 
@@ -511,8 +523,8 @@ gtuber_cache_write_plugin_compat (FILE *file,
   gtuber_cache_enumerate_plugins (dir, module_names, &mod_time, &n_plugins,
       cancellable, error);
 
-  fwrite (&mod_time, sizeof (gint64), 1, file);
-  fwrite (&n_plugins, sizeof (guint), 1, file);
+  write_ptr_to_file (file, &mod_time, sizeof (gint64));
+  write_ptr_to_file (file, &n_plugins, sizeof (guint));
 
   dir_data = gtuber_cache_plugin_dir_data_new (dir_path);
 
@@ -768,7 +780,7 @@ gtuber_cache_plugin_read (const gchar *plugin_name, const gchar *key)
     curr_time = g_date_time_to_unix (date_time);
     g_date_time_unref (date_time);
 
-    fread (&exp_time, sizeof (gint64), 1, file);
+    read_file_to_ptr (file, &exp_time, sizeof (gint64));
 
     if ((success = exp_time > curr_time)) {
       str = read_next_string (file);
@@ -851,7 +863,7 @@ gtuber_cache_plugin_write_epoch (const gchar *plugin_name,
   g_free (encoded);
 
   if (file) {
-    fwrite (&epoch, sizeof (gint64), 1, file);
+    write_ptr_to_file (file, &epoch, sizeof (gint64));
     write_string (file, val);
     g_debug ("Written cache value: %s, expires: %li",
         val, epoch);
