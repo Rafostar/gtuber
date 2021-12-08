@@ -17,21 +17,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_PLUGIN_DEVEL_H__
-#define __GTUBER_PLUGIN_DEVEL_H__
+#ifndef __GTUBER_CACHE_PRIVATE_H__
+#define __GTUBER_CACHE_PRIVATE_H__
 
-#include <gtuber/gtuber.h>
+#include <glib.h>
+#include <gio/gio.h>
 
-#define __GTUBER_INSIDE__
+G_BEGIN_DECLS
 
-#include <gtuber/gtuber-website.h>
-#include <gtuber/gtuber-cache.h>
-#include <gtuber/gtuber-stream-devel.h>
-#include <gtuber/gtuber-adaptive-stream-devel.h>
-#include <gtuber/gtuber-media-info-devel.h>
+G_GNUC_INTERNAL
+void gtuber_cache_init (GCancellable *cancellable, GError **error);
 
-#include <gtuber/gtuber-soup-compat.h>
+G_GNUC_INTERNAL
+GPtrArray * gtuber_cache_find_plugins_for_uri (GUri *guri);
 
-#undef __GTUBER_INSIDE__
+G_END_DECLS
 
-#endif /* __GTUBER_PLUGIN_DEVEL_H__ */
+#endif /* __GTUBER_CACHE_PRIVATE_H__ */

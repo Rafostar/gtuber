@@ -31,6 +31,7 @@ G_DEFINE_QUARK (gtuberwebsite-error-quark, gtuber_website_error)
 
 static void gtuber_website_finalize (GObject *object);
 
+static void gtuber_website_prepare (GtuberWebsite *website);
 static GtuberFlow gtuber_website_create_request (GtuberWebsite *self,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error);
 static GtuberFlow gtuber_website_read_response (GtuberWebsite *self,
@@ -45,7 +46,6 @@ static GtuberFlow gtuber_website_set_user_req_headers (GtuberWebsite *self,
 static void
 gtuber_website_init (GtuberWebsite *self)
 {
-  self->uri = NULL;
 }
 
 static void
@@ -57,6 +57,7 @@ gtuber_website_class_init (GtuberWebsiteClass *klass)
   gobject_class->finalize = gtuber_website_finalize;
 
   website_class->handles_input_stream = FALSE;
+  website_class->prepare = gtuber_website_prepare;
   website_class->create_request = gtuber_website_create_request;
   website_class->read_response = gtuber_website_read_response;
   website_class->parse_data = gtuber_website_parse_data;
@@ -74,6 +75,11 @@ gtuber_website_finalize (GObject *object)
   g_free (self->uri);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
+static void
+gtuber_website_prepare (GtuberWebsite *website)
+{
 }
 
 static GtuberFlow

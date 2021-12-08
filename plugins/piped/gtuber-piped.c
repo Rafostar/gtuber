@@ -30,6 +30,10 @@ typedef enum
   PIPED_MEDIA_AUDIO_STREAM,
 } PipedMediaType;
 
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
+  "piped.kavin.rocks",
+  NULL
+)
 GTUBER_WEBSITE_PLUGIN_DECLARE (Piped, piped, PIPED)
 
 struct _GtuberPiped
@@ -269,13 +273,7 @@ finish:
 GtuberWebsite *
 plugin_query (GUri *uri)
 {
-  guint uri_match;
   gchar *id;
-
-  if (!gtuber_utils_common_uri_matches_hosts (uri, &uri_match,
-      "piped.kavin.rocks",
-      NULL))
-    return NULL;
 
   id = gtuber_utils_common_obtain_uri_query_value (uri, "v");
   if (!id)

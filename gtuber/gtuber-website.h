@@ -30,6 +30,7 @@
 
 #include <gtuber/gtuber-enums.h>
 #include <gtuber/gtuber-media-info.h>
+#include <gtuber/gtuber-cache.h>
 
 G_BEGIN_DECLS
 
@@ -57,7 +58,16 @@ G_DECLARE_FINAL_TYPE (Gtuber##camel, gtuber_##lower, GTUBER, upper, GtuberWebsit
 G_MODULE_EXPORT GtuberWebsite *plugin_query (GUri *uri);                            \
                                                                                     \
 G_GNUC_UNUSED static inline Gtuber##camel * G_PASTE (gtuber_##lower, _new) (void) { \
-    return g_object_new (G_PASTE (gtuber_##lower, _get_type) (), NULL); }
+    return g_object_new (G_PASTE (gtuber_##lower, _get_type) (), NULL); }           \
+G_GNUC_UNUSED static inline gchar * G_PASTE (gtuber_##lower, _cache_read)           \
+    (const gchar *key) {                                                            \
+    return gtuber_cache_plugin_read (G_STRINGIFY (lower), key); }                   \
+G_GNUC_UNUSED static inline void G_PASTE (gtuber_##lower, _cache_write)             \
+    (const gchar *key, const gchar *val, gint64 exp) {                              \
+    gtuber_cache_plugin_write (G_STRINGIFY (lower), key, val, exp); }               \
+G_GNUC_UNUSED static inline void G_PASTE (gtuber_##lower, _cache_write_epoch)       \
+    (const gchar *key, const gchar *val, gint64 epoch) {                            \
+    gtuber_cache_plugin_write_epoch (G_STRINGIFY (lower), key, val, epoch); }
 
 /**
  * GTUBER_WEBSITE_PLUGIN_DEFINE:
@@ -69,6 +79,30 @@ G_GNUC_UNUSED static inline Gtuber##camel * G_PASTE (gtuber_##lower, _new) (void
  */
 #define GTUBER_WEBSITE_PLUGIN_DEFINE(camel,lower)                                   \
 G_DEFINE_TYPE (Gtuber##camel, gtuber_##lower, GTUBER_TYPE_WEBSITE)                  \
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES:
+ * @args: %NULL terminated list of supported schemes.
+ *
+ * Convenient macro that exports plugin supported schemes.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES(...)                                   \
+static const gchar *_schemes_compat[] = { __VA_ARGS__ };                            \
+G_MODULE_EXPORT const gchar *const *plugin_get_schemes (void);                      \
+const gchar *const *plugin_get_schemes (void) {                                     \
+    return _schemes_compat; }
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS:
+ * @args: %NULL terminated list of supported hosts.
+ *
+ * Convenient macro that exports plugin supported hosts.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS(...)                                     \
+static const gchar *_hosts_compat[] = { __VA_ARGS__ };                              \
+G_MODULE_EXPORT const gchar *const *plugin_get_hosts (void);                        \
+const gchar *const *plugin_get_hosts (void) {                                       \
+    return _hosts_compat; }
 
 /**
  * GtuberWebsite:
@@ -94,6 +128,8 @@ struct _GtuberWebsite
  * @parent_class: The object class structure.
  * @handles_input_stream: When set to %TRUE, parse_input_stream() will be called
  *   at parsing stage otherwise parse_response() will be used.
+ * @prepare: If plugin needs to do some post init blocking IO (like reading cache)
+ *   before it can be used, this is a good place to do so.
  * @create_request: Create and pass #SoupMessage to send.
  * @read_response: Check #SoupStatus and response #SoupMessageHeaders.
  * @parse_data: Read data of response body and fill #GtuberMediaInfo.
@@ -106,6 +142,8 @@ struct _GtuberWebsiteClass
   GObjectClass parent_class;
 
   gboolean handles_input_stream;
+
+  void (* prepare) (GtuberWebsite *website);
 
   GtuberFlow (* create_request) (GtuberWebsite   *website,
                                  GtuberMediaInfo *info,

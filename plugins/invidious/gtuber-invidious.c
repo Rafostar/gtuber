@@ -24,6 +24,16 @@
 #include "utils/json/gtuber-utils-json.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
+/* Host must expose API at /api/v1/ path */
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
+  "invidious.snopyta.org",
+  "vid.puffyan.us",
+  "inv.riverside.rocks",
+  "invidio.xamh.de",
+  "vid.mint.lgbt",
+  "invidious.hub.ne.kr",
+  NULL
+)
 GTUBER_WEBSITE_PLUGIN_DECLARE (Invidious, invidious, INVIDIOUS)
 
 struct _GtuberInvidious
@@ -312,17 +322,6 @@ GtuberWebsite *
 plugin_query (GUri *uri)
 {
   gchar *id;
-
-  /* Host must expose API at /api/v1/ path */
-  if (!gtuber_utils_common_uri_matches_hosts (uri, NULL,
-      "invidious.snopyta.org",
-      "vid.puffyan.us",
-      "inv.riverside.rocks",
-      "invidio.xamh.de",
-      "vid.mint.lgbt",
-      "invidious.hub.ne.kr",
-      NULL))
-    return NULL;
 
   id = gtuber_utils_common_obtain_uri_query_value (uri, "v");
   if (!id)

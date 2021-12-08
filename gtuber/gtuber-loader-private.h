@@ -31,8 +31,20 @@ G_GNUC_INTERNAL
 GtuberWebsite * gtuber_loader_get_website_for_uri (GUri *guri, GModule **module);
 
 G_GNUC_INTERNAL
-GtuberWebsite * gtuber_loader_get_website_from_module_name (const gchar *module_name,
-    GUri *guri, GModule **module);
+gboolean gtuber_loader_check_plugin_compat (const gchar *module_path,
+    const gchar *const **schemes, const gchar *const **hosts);
+
+G_GNUC_INTERNAL
+const gchar * gtuber_loader_get_plugin_dir_path_string (void);
+
+G_GNUC_INTERNAL
+gchar ** gtuber_loader_obtain_plugin_dir_paths (void);
+
+G_GNUC_INTERNAL
+gboolean gtuber_loader_name_is_plugin (const gchar *module_name);
+
+G_GNUC_INTERNAL
+void gtuber_loader_close_module (GModule *module);
 
 G_END_DECLS
 

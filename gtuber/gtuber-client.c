@@ -37,9 +37,6 @@
 struct _GtuberClient
 {
   GObject parent;
-
-  /* Private */
-  gchar *module_name;
 };
 
 struct _GtuberClientClass
@@ -56,7 +53,6 @@ static void gtuber_client_finalize (GObject *object);
 static void
 gtuber_client_init (GtuberClient *self)
 {
-  self->module_name = NULL;
 }
 
 static void
@@ -70,11 +66,7 @@ gtuber_client_class_init (GtuberClientClass *klass)
 static void
 gtuber_client_finalize (GObject *object)
 {
-  GtuberClient *self = GTUBER_CLIENT (object);
-
   g_debug ("Client finalize");
-
-  g_free (self->module_name);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -175,13 +167,8 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   if (!guri)
     goto error;
 
-  if (self->module_name) {
-    g_debug ("Trying to use last module again");
-    website = gtuber_loader_get_website_from_module_name (self->module_name, guri, &module);
-  }
-
-  if (!website)
-    website = gtuber_loader_get_website_for_uri (guri, &module);
+  website = gtuber_loader_get_website_for_uri (guri, &module);
+  g_uri_unref (guri);
 
   if (!website) {
     g_debug ("No plugin for URI: %s", uri);
@@ -194,6 +181,8 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   gtuber_client_configure_website (self, website, uri);
 
   website_class = GTUBER_WEBSITE_GET_CLASS (website);
+  website_class->prepare (website);
+
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
   session = soup_session_new_with_options (
@@ -283,21 +272,14 @@ beginning:
     goto decide_flow;
 
 error:
-  if (guri)
-    g_uri_unref (guri);
   if (msg)
     g_object_unref (msg);
   if (session)
     g_object_unref (session);
   if (website)
     g_object_unref (website);
-  if (module) {
-    g_free (self->module_name);
-    self->module_name = g_strdup (g_module_name (module));
-
-    g_module_close (module);
-    g_debug ("Closed plugin module");
-  }
+  if (module)
+    gtuber_loader_close_module (module);
 
 invalid_info:
   if (my_error) {
