@@ -25,10 +25,10 @@ GTUBER_TEST_CASE (2)
   GtuberMediaInfo *info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
   GtuberMediaInfo *fetch = NULL;
 
-  gtuber_media_info_set_id (info, "420863715");
-  gtuber_media_info_set_title (info, "Matrix IM+ typing test");
-  gtuber_media_info_set_duration (info, 193);
-  compare_fetch (client, "https://www.bilibili.com/video/av890934190", info, &fetch);
+  gtuber_media_info_set_id (info, "1554319");
+  gtuber_media_info_set_title (info, "【金坷垃】金泡沫");
+  gtuber_media_info_set_duration (info, 308);
+  compare_fetch (client, "https://www.bilibili.com/video/av1074402", info, &fetch);
 
   check_adaptive_streams (fetch);
 
