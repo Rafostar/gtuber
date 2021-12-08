@@ -187,6 +187,18 @@ _read_audio_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *s
 }
 
 static void
+_read_chapter_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
+{
+  const gchar *title;
+  guint64 start;
+
+  title = gtuber_utils_json_get_string (reader, "title", NULL);
+  start = gtuber_utils_json_get_int (reader, "start", NULL);
+
+  gtuber_media_info_insert_chapter (info, start * 1000, title);
+}
+
+static void
 parse_response_data (GtuberPiped *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
@@ -209,6 +221,11 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
     if (gtuber_utils_json_go_to (reader, "audioStreams", NULL)) {
       gtuber_utils_json_array_foreach (reader, info,
           (GtuberFunc) _read_audio_stream_cb, self);
+      gtuber_utils_json_go_back (reader, 1);
+    }
+    if (gtuber_utils_json_go_to (reader, "chapters", NULL)) {
+      gtuber_utils_json_array_foreach (reader, info,
+          (GtuberFunc) _read_chapter_cb, self);
       gtuber_utils_json_go_back (reader, 1);
     }
   }
