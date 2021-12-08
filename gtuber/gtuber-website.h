@@ -118,6 +118,8 @@ struct _GtuberWebsite
  * @parent_class: The object class structure.
  * @handles_input_stream: When set to %TRUE, parse_input_stream() will be called
  *   at parsing stage otherwise parse_response() will be used.
+ * @prepare: If plugin needs to do some post init blocking IO (like reading cache)
+ *   before it can be used, this is a good place to do so.
  * @create_request: Create and pass #SoupMessage to send.
  * @read_response: Check #SoupStatus and response #SoupMessageHeaders.
  * @parse_data: Read data of response body and fill #GtuberMediaInfo.
@@ -130,6 +132,8 @@ struct _GtuberWebsiteClass
   GObjectClass parent_class;
 
   gboolean handles_input_stream;
+
+  void (* prepare) (GtuberWebsite *website);
 
   GtuberFlow (* create_request) (GtuberWebsite   *website,
                                  GtuberMediaInfo *info,

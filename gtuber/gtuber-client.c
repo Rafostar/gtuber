@@ -181,6 +181,8 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   gtuber_client_configure_website (self, website, uri);
 
   website_class = GTUBER_WEBSITE_GET_CLASS (website);
+  website_class->prepare (website);
+
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
   session = soup_session_new_with_options (
