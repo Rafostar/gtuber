@@ -21,6 +21,12 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
+/* FIXME: Support "live.bilibili.com" streams */
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
+  "bilibili.com",
+  "b23.tv",
+  NULL
+)
 #define parent_class gtuber_bilibili_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Bilibili, bilibili)
 
@@ -322,13 +328,6 @@ plugin_query (GUri *uri)
 {
   GtuberBilibili *bilibili = NULL;
   gchar *id;
-
-  /* FIXME: Support "live.bilibili.com" streams */
-  if (!gtuber_utils_common_uri_matches_hosts (uri, NULL,
-      "bilibili.com",
-      "b23.tv",
-      NULL))
-    return NULL;
 
   if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL,
       "/bangumi/play/",
