@@ -145,30 +145,75 @@ gst_gtuber_bin_deep_element_added (GstBin *bin, GstBin *sub_bin, GstElement *chi
   }
 }
 
+static gboolean
+has_ghostpad_for_pad (GstGtuberBin *self, const gchar *pad_name, GstPad **ghostpad)
+{
+  GstIterator *iter;
+  GValue value = { 0, };
+  gboolean has_ghostpad = FALSE;
+
+  iter = gst_element_iterate_src_pads (GST_ELEMENT (self));
+
+  while (gst_iterator_next (iter, &value) == GST_ITERATOR_OK) {
+    GstPad *my_pad;
+    gchar *name, **strv;
+
+    my_pad = g_value_get_object (&value);
+    name = gst_object_get_name (GST_OBJECT (my_pad));
+    strv = g_strsplit (name, "_", 2);
+
+    has_ghostpad = g_str_has_prefix (pad_name, strv[0]);
+
+    g_value_unset (&value);
+    g_free (name);
+    g_strfreev (strv);
+
+    if (has_ghostpad) {
+      if (ghostpad)
+        *ghostpad = my_pad;
+      break;
+    }
+  }
+  gst_iterator_free (iter);
+
+  return has_ghostpad;
+}
+
 static void
 demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberBin *self)
 {
-  GstPad *ghostpad;
-  GstPadTemplate *template;
+  GstPad *ghostpad = NULL;
   gchar *pad_name;
 
   if (gst_pad_get_direction (pad) != GST_PAD_SRC)
     return;
 
-  template = gst_pad_get_pad_template (pad);
   pad_name = gst_object_get_name (GST_OBJECT (pad));
-  ghostpad = gst_ghost_pad_new_from_template (pad_name, pad,
-      gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (self),
-          GST_PAD_TEMPLATE_NAME_TEMPLATE (template)));
-  gst_object_unref (template);
 
-  GST_DEBUG ("Adding src ghostpad: %s", pad_name);
+  if (has_ghostpad_for_pad (self, pad_name, &ghostpad)) {
+    GST_DEBUG ("Changing ghostpad target to \"%s\"", pad_name);
+
+    gst_pad_set_active (ghostpad, FALSE);
+    gst_ghost_pad_set_target (GST_GHOST_PAD (ghostpad), pad);
+    gst_pad_set_active (ghostpad, TRUE);
+  } else {
+    GstPadTemplate *template;
+
+    GST_DEBUG ("Adding src ghostpad for \"%s\"", pad_name);
+
+    template = gst_pad_get_pad_template (pad);
+    ghostpad = gst_ghost_pad_new_from_template (pad_name, pad,
+        gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (self),
+            GST_PAD_TEMPLATE_NAME_TEMPLATE (template)));
+    gst_object_unref (template);
+
+    gst_pad_set_active (ghostpad, TRUE);
+
+    if (!gst_element_add_pad (GST_ELEMENT (self), ghostpad))
+      g_critical ("Failed to add source pad to bin");
+  }
+
   g_free (pad_name);
-
-  gst_pad_set_active (ghostpad, TRUE);
-
-  if (!gst_element_add_pad (GST_ELEMENT (self), ghostpad))
-    g_critical ("Failed to add source pad to bin");
 }
 
 static gboolean
