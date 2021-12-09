@@ -48,11 +48,6 @@ enum
   PROP_LAST
 };
 
-static const gchar *hosts_blacklist[] = {
-  "googlevideo.com",
-  NULL
-};
-
 static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
@@ -286,11 +281,9 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *location,
     GError **error)
 {
   GstElement *element = GST_ELEMENT (self);
-  GstUri *gst_uri;
   const gchar *const *protocols;
-  const gchar *host;
   gchar *uri;
-  gboolean supported = FALSE, blacklisted = FALSE;
+  gboolean supported = FALSE;
   guint i;
 
   g_return_val_if_fail (GST_IS_ELEMENT (element), FALSE);
@@ -324,29 +317,6 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *location,
   if (!supported) {
     g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_UNSUPPORTED_PROTOCOL,
         "Location URI protocol is not supported");
-    return FALSE;
-  }
-
-  gst_uri = gst_uri_from_string (location);
-  if (!gst_uri) {
-    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
-        "URI could not be parsed");
-    return FALSE;
-  }
-
-  /* This is faster for URIs that we know are unsupported instead
-   * of letting gtuber query every available plugin. We need this
-   * to quickly fallback to lower ranked httpsrc plugins downstream */
-  host = gst_uri_get_host (gst_uri);
-  for (i = 0; hosts_blacklist[i]; i++) {
-    if ((blacklisted = g_str_has_suffix (host, hosts_blacklist[i])))
-      break;
-  }
-  gst_uri_unref (gst_uri);
-
-  if (blacklisted) {
-    g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
-        "This URI is not meant for Gtuber");
     return FALSE;
   }
 
