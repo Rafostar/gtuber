@@ -30,6 +30,7 @@ plugin_init (GstPlugin *plugin)
 
   res |= GST_ELEMENT_REGISTER (gtubersrc, plugin);
   res |= GST_ELEMENT_REGISTER (gtuberdashdemux, plugin);
+  res |= GST_ELEMENT_REGISTER (gtuberhlsdemux, plugin);
 
   return res;
 }
