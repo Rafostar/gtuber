@@ -17,6 +17,7 @@ gst_gtuber_sources = [
   'gstgtuber.c',
   'gstgtuberelement.c',
   'gstgtubersrc.c',
+  'gstgtuberbin.c',
   'gstgtuberdashdemux.c',
 ]
 
