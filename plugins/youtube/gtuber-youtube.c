@@ -467,13 +467,13 @@ gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
 GtuberWebsite *
 plugin_query (GUri *uri)
 {
-  guint uri_match;
   gchar *id;
+  gboolean matched;
 
-  gtuber_utils_common_uri_matches_hosts (uri, &uri_match,
+  matched = gtuber_utils_common_uri_matches_hosts (uri, NULL,
       "youtu.be", NULL);
 
-  id = (uri_match > 0)
+  id = (matched)
       ? gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/", NULL)
       : gtuber_utils_common_obtain_uri_query_value (uri, "v");
 
