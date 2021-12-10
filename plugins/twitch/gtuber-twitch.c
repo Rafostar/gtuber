@@ -571,7 +571,7 @@ gtuber_twitch_set_user_req_headers (GtuberWebsite *website,
 GtuberWebsite *
 plugin_query (GUri *uri)
 {
-  guint match;
+  gint match;
   gchar *id;
 
   if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, &match,
@@ -583,10 +583,10 @@ plugin_query (GUri *uri)
     twitch->video_id = id;
 
     switch (match) {
-      case 1:
+      case 0:
         twitch->media_type = TWITCH_MEDIA_CLIP;
         break;
-      case 2:
+      case 1:
         twitch->media_type = TWITCH_MEDIA_VIDEO;
         break;
       default:

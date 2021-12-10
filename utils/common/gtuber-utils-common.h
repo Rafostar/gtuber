@@ -27,9 +27,11 @@
 
 G_BEGIN_DECLS
 
-gboolean             gtuber_utils_common_uri_matches_hosts              (GUri *uri, guint *match, const gchar *search_host, ...) G_GNUC_NULL_TERMINATED;
+gboolean             gtuber_utils_common_uri_matches_hosts              (GUri *uri, gint *match, const gchar *search_host, ...) G_GNUC_NULL_TERMINATED;
 
-gchar *              gtuber_utils_common_obtain_uri_id_from_paths       (GUri *uri, guint *match, const gchar *search_path1, ...) G_GNUC_NULL_TERMINATED;
+gboolean             gtuber_utils_common_uri_matches_hosts_array        (GUri *uri, gint *match, const gchar *const *hosts);
+
+gchar *              gtuber_utils_common_obtain_uri_id_from_paths       (GUri *uri, gint *match, const gchar *search_path1, ...) G_GNUC_NULL_TERMINATED;
 
 gchar *              gtuber_utils_common_obtain_uri_query_value         (GUri *uri, const gchar *key);
 
