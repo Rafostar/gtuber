@@ -32,8 +32,15 @@ typedef enum
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "piped.kavin.rocks",
+  "piped.silkky.cloud",
   NULL
 )
+static const gchar *piped_apis[] = {
+  "pipedapi.kavin.rocks",
+  "api.piped.silkky.cloud",
+  NULL
+};
+
 GTUBER_WEBSITE_PLUGIN_DECLARE (Piped, piped, PIPED)
 
 struct _GtuberPiped
@@ -42,6 +49,8 @@ struct _GtuberPiped
 
   gchar *video_id;
   gchar *hls_uri;
+
+  gint api_id;
 };
 
 #define parent_class gtuber_piped_parent_class
@@ -57,7 +66,6 @@ static GtuberFlow gtuber_piped_parse_input_stream (GtuberWebsite *website,
 static void
 gtuber_piped_init (GtuberPiped *self)
 {
-  self->hls_uri = NULL;
 }
 
 static void
@@ -242,7 +250,8 @@ gtuber_piped_create_request (GtuberWebsite *website,
   if (!self->hls_uri) {
     gchar *uri;
 
-    uri = g_strdup_printf ("https://pipedapi.kavin.rocks/streams/%s", self->video_id);
+    uri = g_strdup_printf ("https://%s/streams/%s",
+        piped_apis[self->api_id], self->video_id);
     *msg = soup_message_new ("GET", uri);
 
     g_free (uri);
@@ -302,7 +311,12 @@ plugin_query (GUri *uri)
     piped = gtuber_piped_new ();
     piped->video_id = id;
 
-    g_debug ("Requested video: %s", piped->video_id);
+    if (G_UNLIKELY (!gtuber_utils_common_uri_matches_hosts_array (uri,
+        &piped->api_id, _hosts_compat)))
+      g_critical ("Plugin query with unmatched host, this should not happen");
+
+    g_debug ("Requested video: %s, API instance: %s",
+        piped->video_id, piped_apis[piped->api_id]);
 
     return GTUBER_WEBSITE (piped);
   }
