@@ -21,15 +21,16 @@
 
 #include <gst/gst.h>
 
-#define GST_GTUBER_CONFIG "gtuber-config"
+#include "gstgtuberbin.h"
 
 G_BEGIN_DECLS
 
-GST_ELEMENT_REGISTER_DECLARE (gtubersrc);
-GST_ELEMENT_REGISTER_DECLARE (gtuberdashdemux);
-GST_ELEMENT_REGISTER_DECLARE (gtuberhlsdemux);
+#define GST_TYPE_GTUBER_HLS_DEMUX (gst_gtuber_hls_demux_get_type())
+G_DECLARE_FINAL_TYPE (GstGtuberHlsDemux, gst_gtuber_hls_demux, GST, GTUBER_HLS_DEMUX, GstGtuberBin)
 
-void gst_gtuber_element_init (GstPlugin *plugin);
-void gst_gtuber_uri_handler_do_init (GType type);
+struct _GstGtuberHlsDemux
+{
+  GstGtuberBin parent;
+};
 
 G_END_DECLS

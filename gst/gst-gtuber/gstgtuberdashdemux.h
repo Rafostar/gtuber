@@ -20,19 +20,17 @@
 #pragma once
 
 #include <gst/gst.h>
-#include <gst/gstbin.h>
+
+#include "gstgtuberbin.h"
 
 G_BEGIN_DECLS
 
 #define GST_TYPE_GTUBER_DASH_DEMUX (gst_gtuber_dash_demux_get_type())
-G_DECLARE_FINAL_TYPE (GstGtuberDashDemux, gst_gtuber_dash_demux, GST, GTUBER_DASH_DEMUX, GstBin)
+G_DECLARE_FINAL_TYPE (GstGtuberDashDemux, gst_gtuber_dash_demux, GST, GTUBER_DASH_DEMUX, GstGtuberBin)
 
 struct _GstGtuberDashDemux
 {
-  GstBin parent;
-
-  GstElement *dashdemux;
-  GstStructure *gtuber_config;
+  GstGtuberBin parent;
 };
 
 G_END_DECLS
