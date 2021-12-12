@@ -43,6 +43,9 @@ struct _GstGtuberBin
 {
   GstBin parent;
 
+  GMutex prop_lock;
+  guint connection_speed;
+
   GstElement *demuxer;
   GstStructure *gtuber_config;
 };

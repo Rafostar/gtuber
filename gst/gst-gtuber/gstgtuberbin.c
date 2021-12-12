@@ -24,6 +24,17 @@
 #include "gstgtuberbin.h"
 #include "gstgtuberelement.h"
 
+#define DEFAULT_CONNECTION_SPEED 0
+
+enum
+{
+  PROP_0,
+  PROP_CONNECTION_SPEED,
+  PROP_LAST
+};
+
+static GParamSpec *param_specs[PROP_LAST] = { NULL, };
+
 GST_DEBUG_CATEGORY_STATIC (gst_gtuber_bin_debug);
 #define GST_CAT_DEFAULT gst_gtuber_bin_debug
 
@@ -33,6 +44,10 @@ G_DEFINE_TYPE_WITH_CODE (GstGtuberBin, gst_gtuber_bin, GST_TYPE_BIN, NULL);
 /* GObject */
 static void gst_gtuber_bin_constructed (GObject* object);
 static void gst_gtuber_bin_finalize (GObject *object);
+static void gst_gtuber_bin_set_property (GObject *object, guint prop_id,
+    const GValue *value, GParamSpec *pspec);
+static void gst_gtuber_bin_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec);
 
 /* GstPad */
 static gboolean gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent,
@@ -59,6 +74,16 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
 
   gobject_class->constructed = gst_gtuber_bin_constructed;
   gobject_class->finalize = gst_gtuber_bin_finalize;
+  gobject_class->set_property = gst_gtuber_bin_set_property;
+  gobject_class->get_property = gst_gtuber_bin_get_property;
+
+  param_specs[PROP_CONNECTION_SPEED] = g_param_spec_uint ("connection-speed",
+      "Connection Speed", "Network connection speed in kbps (0 = auto)",
+       0, G_MAXUINT, DEFAULT_CONNECTION_SPEED,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+
   gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
   gstelement_class->change_state = gst_gtuber_bin_change_state;
 }
@@ -66,6 +91,9 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
 static void
 gst_gtuber_bin_init (GstGtuberBin *self)
 {
+  g_mutex_init (&self->prop_lock);
+
+  self->connection_speed = DEFAULT_CONNECTION_SPEED;
 }
 
 static void
@@ -102,8 +130,51 @@ gst_gtuber_bin_finalize (GObject *object)
   GST_DEBUG ("Finalize");
 
   gst_clear_structure (&self->gtuber_config);
+  g_mutex_clear (&self->prop_lock);
 
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
+}
+
+static void
+gst_gtuber_bin_set_property (GObject *object, guint prop_id,
+    const GValue *value, GParamSpec *pspec)
+{
+  GstGtuberBin *self = GST_GTUBER_BIN (object);
+
+  g_mutex_lock (&self->prop_lock);
+
+  switch (prop_id) {
+    case PROP_CONNECTION_SPEED:
+      self->connection_speed = g_value_get_uint (value);
+      g_object_set (self->demuxer,
+          "connection-speed", self->connection_speed, NULL);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  g_mutex_unlock (&self->prop_lock);
+}
+
+static void
+gst_gtuber_bin_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec)
+{
+  GstGtuberBin *self = GST_GTUBER_BIN (object);
+
+  g_mutex_lock (&self->prop_lock);
+
+  switch (prop_id) {
+    case PROP_CONNECTION_SPEED:
+      g_value_set_uint (value, self->connection_speed);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  g_mutex_unlock (&self->prop_lock);
 }
 
 static gboolean
