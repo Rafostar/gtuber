@@ -45,6 +45,9 @@ struct _GstGtuberBin
 
   GMutex prop_lock;
   guint connection_speed;
+  guint initial_bitrate;
+
+  gboolean needs_playback_config;
 
   GstElement *demuxer;
   GstStructure *gtuber_config;

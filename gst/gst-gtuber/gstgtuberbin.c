@@ -25,11 +25,13 @@
 #include "gstgtuberelement.h"
 
 #define DEFAULT_CONNECTION_SPEED 0
+#define DEFAULT_INITIAL_BITRATE  1600
 
 enum
 {
   PROP_0,
   PROP_CONNECTION_SPEED,
+  PROP_INITIAL_BITRATE,
   PROP_LAST
 };
 
@@ -82,6 +84,11 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
        0, G_MAXUINT, DEFAULT_CONNECTION_SPEED,
        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_INITIAL_BITRATE] = g_param_spec_uint ("initial-bitrate",
+      "Initial Bitrate", "Initial startup bitrate in kbps (0 = same as connection-speed)",
+       0, G_MAXUINT, DEFAULT_INITIAL_BITRATE,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 
   gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
@@ -94,6 +101,7 @@ gst_gtuber_bin_init (GstGtuberBin *self)
   g_mutex_init (&self->prop_lock);
 
   self->connection_speed = DEFAULT_CONNECTION_SPEED;
+  self->initial_bitrate = DEFAULT_INITIAL_BITRATE;
 }
 
 static void
@@ -149,6 +157,9 @@ gst_gtuber_bin_set_property (GObject *object, guint prop_id,
       g_object_set (self->demuxer,
           "connection-speed", self->connection_speed, NULL);
       break;
+    case PROP_INITIAL_BITRATE:
+      self->initial_bitrate = g_value_get_uint (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -168,6 +179,9 @@ gst_gtuber_bin_get_property (GObject *object, guint prop_id,
   switch (prop_id) {
     case PROP_CONNECTION_SPEED:
       g_value_set_uint (value, self->connection_speed);
+      break;
+    case PROP_INITIAL_BITRATE:
+      g_value_set_uint (value, self->initial_bitrate);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -288,15 +302,15 @@ demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberBin *self)
 }
 
 static gboolean
-gst_gtuber_bin_configure (GstGtuberBin *self)
+gst_gtuber_bin_prepare (GstGtuberBin *self)
 {
-  GST_DEBUG ("Configuring");
+  GST_DEBUG ("Preparing");
 
   gst_element_set_locked_state (self->demuxer, FALSE);
   if (!gst_element_sync_state_with_parent (self->demuxer))
     goto error_sync_state;
 
-  GST_DEBUG ("Configured");
+  GST_DEBUG ("Prepared");
 
   return TRUE;
 
@@ -304,6 +318,51 @@ error_sync_state:
   GST_ELEMENT_ERROR (self, CORE, STATE_CHANGE,
       ("Failed to sync state"), (NULL));
   return FALSE;
+}
+
+static void
+gst_gtuber_bin_configure (GstGtuberBin *self)
+{
+  guint initial_speed;
+
+  GST_DEBUG ("Configuring");
+
+  g_mutex_lock (&self->prop_lock);
+
+  initial_speed = (self->initial_bitrate > 0)
+      ? self->initial_bitrate
+      : self->connection_speed;
+  self->needs_playback_config = TRUE;
+
+  g_mutex_unlock (&self->prop_lock);
+
+  g_object_set (self->demuxer, "connection-speed", initial_speed, NULL);
+
+  GST_DEBUG ("Configured");
+}
+
+static void
+gst_gtuber_bin_playback_configure (GstGtuberBin *self)
+{
+  guint connection_speed;
+
+  g_mutex_lock (&self->prop_lock);
+
+  if (!self->needs_playback_config) {
+    g_mutex_unlock (&self->prop_lock);
+    return;
+  }
+
+  GST_DEBUG ("Configuring playback");
+
+  connection_speed = self->connection_speed;
+  self->needs_playback_config = FALSE;
+
+  g_mutex_unlock (&self->prop_lock);
+
+  g_object_set (self->demuxer, "connection-speed", connection_speed, NULL);
+
+  GST_DEBUG ("Configured playback");
 }
 
 static GstStateChangeReturn
@@ -320,8 +379,14 @@ gst_gtuber_bin_change_state (GstElement *element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
-      if (!gst_gtuber_bin_configure (self))
+      if (!gst_gtuber_bin_prepare (self))
         return GST_STATE_CHANGE_FAILURE;
+      break;
+    case GST_STATE_CHANGE_READY_TO_PAUSED:
+      gst_gtuber_bin_configure (self);
+      break;
+    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+      gst_gtuber_bin_playback_configure (self);
       break;
     default:
       break;
