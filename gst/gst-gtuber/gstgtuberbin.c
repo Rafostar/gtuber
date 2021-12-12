@@ -216,10 +216,6 @@ configure_deep_element (GQuark field_id, const GValue *value, GstElement *child)
 static void
 gst_gtuber_bin_deep_element_added (GstBin *bin, GstBin *sub_bin, GstElement *child)
 {
-  /* First call parent to let user do configuration, as we have to
-   * overwrite some of the props it may set to what website needs */
-  GST_BIN_CLASS (parent_class)->deep_element_added (bin, sub_bin, child);
-
   if (GST_OBJECT_FLAG_IS_SET (child, GST_ELEMENT_FLAG_SOURCE)) {
     GstGtuberBin *self = GST_GTUBER_BIN (bin);
 
