@@ -120,8 +120,8 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
 
   param_specs[PROP_MAX_FPS] = g_param_spec_uint ("max-fps",
       "Maximal FPS", "Maximal allowed video framerate (0 = unlimited)",
-       0, G_MAXUINT, DEFAULT_MAX_FPS,
-       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      0, G_MAXUINT, DEFAULT_MAX_FPS,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   param_specs[PROP_ITAGS] = g_param_spec_string ("itags",
       "Itags", "A comma separated list of allowed itags", NULL,
