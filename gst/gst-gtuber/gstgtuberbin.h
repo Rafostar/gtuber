@@ -43,6 +43,12 @@ struct _GstGtuberBin
 {
   GstBin parent;
 
+  GMutex prop_lock;
+  guint initial_bitrate;
+  guint target_bitrate;
+
+  gboolean needs_playback_config;
+
   GstElement *demuxer;
   GstStructure *gtuber_config;
 };

@@ -24,6 +24,19 @@
 #include "gstgtuberbin.h"
 #include "gstgtuberelement.h"
 
+#define DEFAULT_INITIAL_BITRATE  1600
+#define DEFAULT_TARGET_BITRATE   0
+
+enum
+{
+  PROP_0,
+  PROP_INITIAL_BITRATE,
+  PROP_TARGET_BITRATE,
+  PROP_LAST
+};
+
+static GParamSpec *param_specs[PROP_LAST] = { NULL, };
+
 GST_DEBUG_CATEGORY_STATIC (gst_gtuber_bin_debug);
 #define GST_CAT_DEFAULT gst_gtuber_bin_debug
 
@@ -33,6 +46,10 @@ G_DEFINE_TYPE_WITH_CODE (GstGtuberBin, gst_gtuber_bin, GST_TYPE_BIN, NULL);
 /* GObject */
 static void gst_gtuber_bin_constructed (GObject* object);
 static void gst_gtuber_bin_finalize (GObject *object);
+static void gst_gtuber_bin_set_property (GObject *object, guint prop_id,
+    const GValue *value, GParamSpec *pspec);
+static void gst_gtuber_bin_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec);
 
 /* GstPad */
 static gboolean gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent,
@@ -59,6 +76,21 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
 
   gobject_class->constructed = gst_gtuber_bin_constructed;
   gobject_class->finalize = gst_gtuber_bin_finalize;
+  gobject_class->set_property = gst_gtuber_bin_set_property;
+  gobject_class->get_property = gst_gtuber_bin_get_property;
+
+  param_specs[PROP_INITIAL_BITRATE] = g_param_spec_uint ("initial-bitrate",
+      "Initial Bitrate", "Initial startup bitrate in kbps (0 = same as target-bitrate)",
+       0, G_MAXUINT, DEFAULT_INITIAL_BITRATE,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_TARGET_BITRATE] = g_param_spec_uint ("target-bitrate",
+      "Target Bitrate", "Target playback bitrate in kbps (0 = auto, based on download speed)",
+       0, G_MAXUINT, DEFAULT_TARGET_BITRATE,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+
   gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
   gstelement_class->change_state = gst_gtuber_bin_change_state;
 }
@@ -66,6 +98,10 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
 static void
 gst_gtuber_bin_init (GstGtuberBin *self)
 {
+  g_mutex_init (&self->prop_lock);
+
+  self->initial_bitrate = DEFAULT_INITIAL_BITRATE;
+  self->target_bitrate = DEFAULT_TARGET_BITRATE;
 }
 
 static void
@@ -74,8 +110,14 @@ gst_gtuber_bin_constructed (GObject* object)
   GstGtuberBin *self = GST_GTUBER_BIN (object);
   GstPad *pad, *ghostpad;
 
-  gst_bin_add (GST_BIN (self), self->demuxer);
+  GST_STATE_LOCK (self);
+
   gst_element_set_locked_state (self->demuxer, TRUE);
+  gst_bin_add (GST_BIN (self), self->demuxer);
+
+  GST_STATE_UNLOCK (self);
+
+  g_object_set (self->demuxer, "bitrate-limit", 1.0f, NULL);
 
   /* Create sink ghost pad */
   pad = gst_element_get_static_pad (self->demuxer, "sink");
@@ -102,8 +144,57 @@ gst_gtuber_bin_finalize (GObject *object)
   GST_DEBUG ("Finalize");
 
   gst_clear_structure (&self->gtuber_config);
+  g_mutex_clear (&self->prop_lock);
 
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
+}
+
+static void
+gst_gtuber_bin_set_property (GObject *object, guint prop_id,
+    const GValue *value, GParamSpec *pspec)
+{
+  GstGtuberBin *self = GST_GTUBER_BIN (object);
+
+  g_mutex_lock (&self->prop_lock);
+
+  switch (prop_id) {
+    case PROP_INITIAL_BITRATE:
+      self->initial_bitrate = g_value_get_uint (value);
+      break;
+    case PROP_TARGET_BITRATE:
+      self->target_bitrate = g_value_get_uint (value);
+      g_object_set (self->demuxer,
+          "connection-speed", self->target_bitrate, NULL);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  g_mutex_unlock (&self->prop_lock);
+}
+
+static void
+gst_gtuber_bin_get_property (GObject *object, guint prop_id,
+    GValue *value, GParamSpec *pspec)
+{
+  GstGtuberBin *self = GST_GTUBER_BIN (object);
+
+  g_mutex_lock (&self->prop_lock);
+
+  switch (prop_id) {
+    case PROP_INITIAL_BITRATE:
+      g_value_set_uint (value, self->initial_bitrate);
+      break;
+    case PROP_TARGET_BITRATE:
+      g_value_set_uint (value, self->target_bitrate);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  g_mutex_unlock (&self->prop_lock);
 }
 
 static gboolean
@@ -131,10 +222,6 @@ configure_deep_element (GQuark field_id, const GValue *value, GstElement *child)
 static void
 gst_gtuber_bin_deep_element_added (GstBin *bin, GstBin *sub_bin, GstElement *child)
 {
-  /* First call parent to let user do configuration, as we have to
-   * overwrite some of the props it may set to what website needs */
-  GST_BIN_CLASS (parent_class)->deep_element_added (bin, sub_bin, child);
-
   if (GST_OBJECT_FLAG_IS_SET (child, GST_ELEMENT_FLAG_SOURCE)) {
     GstGtuberBin *self = GST_GTUBER_BIN (bin);
 
@@ -217,22 +304,73 @@ demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberBin *self)
 }
 
 static gboolean
-gst_gtuber_bin_configure (GstGtuberBin *self)
+gst_gtuber_bin_prepare (GstGtuberBin *self)
 {
-  GST_DEBUG ("Configuring");
+  GST_DEBUG ("Preparing");
+  GST_STATE_LOCK (self);
 
   gst_element_set_locked_state (self->demuxer, FALSE);
+
   if (!gst_element_sync_state_with_parent (self->demuxer))
     goto error_sync_state;
 
-  GST_DEBUG ("Configured");
+  GST_DEBUG ("Prepared");
+  GST_STATE_UNLOCK (self);
 
   return TRUE;
 
 error_sync_state:
+  GST_STATE_UNLOCK (self);
   GST_ELEMENT_ERROR (self, CORE, STATE_CHANGE,
       ("Failed to sync state"), (NULL));
   return FALSE;
+}
+
+static void
+gst_gtuber_bin_configure (GstGtuberBin *self)
+{
+  guint initial_bitrate;
+
+  GST_DEBUG ("Configuring");
+
+  g_mutex_lock (&self->prop_lock);
+
+  initial_bitrate = (self->initial_bitrate > 0)
+      ? self->initial_bitrate
+      : self->target_bitrate;
+  self->needs_playback_config = TRUE;
+
+  g_mutex_unlock (&self->prop_lock);
+
+  g_object_set (self->demuxer,
+      "connection-speed", initial_bitrate, NULL);
+
+  GST_DEBUG ("Configured");
+}
+
+static void
+gst_gtuber_bin_playback_configure (GstGtuberBin *self)
+{
+  guint target_bitrate;
+
+  g_mutex_lock (&self->prop_lock);
+
+  if (!self->needs_playback_config) {
+    g_mutex_unlock (&self->prop_lock);
+    return;
+  }
+
+  GST_DEBUG ("Configuring playback");
+
+  target_bitrate = self->target_bitrate;
+  self->needs_playback_config = FALSE;
+
+  g_mutex_unlock (&self->prop_lock);
+
+  g_object_set (self->demuxer,
+      "connection-speed", target_bitrate, NULL);
+
+  GST_DEBUG ("Configured playback");
 }
 
 static GstStateChangeReturn
@@ -249,8 +387,14 @@ gst_gtuber_bin_change_state (GstElement *element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
-      if (!gst_gtuber_bin_configure (self))
+      if (!gst_gtuber_bin_prepare (self))
         return GST_STATE_CHANGE_FAILURE;
+      break;
+    case GST_STATE_CHANGE_READY_TO_PAUSED:
+      gst_gtuber_bin_configure (self);
+      break;
+    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+      gst_gtuber_bin_playback_configure (self);
       break;
     default:
       break;
