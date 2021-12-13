@@ -110,8 +110,12 @@ gst_gtuber_bin_constructed (GObject* object)
   GstGtuberBin *self = GST_GTUBER_BIN (object);
   GstPad *pad, *ghostpad;
 
-  gst_bin_add (GST_BIN (self), self->demuxer);
+  GST_STATE_LOCK (self);
+
   gst_element_set_locked_state (self->demuxer, TRUE);
+  gst_bin_add (GST_BIN (self), self->demuxer);
+
+  GST_STATE_UNLOCK (self);
 
   /* Create sink ghost pad */
   pad = gst_element_get_static_pad (self->demuxer, "sink");
@@ -301,16 +305,20 @@ static gboolean
 gst_gtuber_bin_prepare (GstGtuberBin *self)
 {
   GST_DEBUG ("Preparing");
+  GST_STATE_LOCK (self);
 
   gst_element_set_locked_state (self->demuxer, FALSE);
+
   if (!gst_element_sync_state_with_parent (self->demuxer))
     goto error_sync_state;
 
   GST_DEBUG ("Prepared");
+  GST_STATE_UNLOCK (self);
 
   return TRUE;
 
 error_sync_state:
+  GST_STATE_UNLOCK (self);
   GST_ELEMENT_ERROR (self, CORE, STATE_CHANGE,
       ("Failed to sync state"), (NULL));
   return FALSE;
