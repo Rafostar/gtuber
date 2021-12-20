@@ -82,7 +82,7 @@ G_DEFINE_TYPE (Gtuber##camel, gtuber_##lower, GTUBER_TYPE_WEBSITE)              
 
 /**
  * GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES:
- * @args: %NULL terminated list of supported schemes.
+ * @...: %NULL terminated list of supported schemes.
  *
  * Convenient macro that exports plugin supported schemes.
  */
@@ -94,7 +94,7 @@ const gchar *const *plugin_get_schemes (void) {                                 
 
 /**
  * GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS:
- * @args: %NULL terminated list of supported hosts.
+ * @...: %NULL terminated list of supported hosts.
  *
  * Convenient macro that exports plugin supported hosts.
  */
