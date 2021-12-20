@@ -6,7 +6,7 @@
 <meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Gtuber Reference Manual">
 <link rel="up" href="index.html" title="Gtuber Reference Manual">
-<link rel="prev" href="gtuber-GtuberAdaptiveStream-Development.html" title="GtuberAdaptiveStream Development">
+<link rel="prev" href="gtuber-Gtuber-Cache.html" title="Gtuber Cache">
 <link rel="next" href="api-index-deprecated.html" title="Index of deprecated symbols">
 <meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -32,7 +32,7 @@
                   <a class="shortcut" href="#idxW">W</a></span></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><img src="up-insensitive.png" width="16" height="16" border="0"></td>
-<td><a accesskey="p" href="gtuber-GtuberAdaptiveStream-Development.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gtuber-Gtuber-Cache.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="api-index-deprecated.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="index">
@@ -84,6 +84,18 @@
 </dt>
 <dd></dd>
 <a name="idxC"></a><h3 class="title">C</h3>
+<dt>
+<a class="link" href="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-read" title="gtuber_cache_plugin_read ()">gtuber_cache_plugin_read</a>, function in <a class="link" href="gtuber-Gtuber-Cache.html" title="Gtuber Cache">Gtuber Cache</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write" title="gtuber_cache_plugin_write ()">gtuber_cache_plugin_write</a>, function in <a class="link" href="gtuber-Gtuber-Cache.html" title="Gtuber Cache">Gtuber Cache</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write-epoch" title="gtuber_cache_plugin_write_epoch ()">gtuber_cache_plugin_write_epoch</a>, function in <a class="link" href="gtuber-Gtuber-Cache.html" title="Gtuber Cache">Gtuber Cache</a>
+</dt>
+<dd></dd>
 <dt>
 <a class="link" href="gtuber-Gtuber-Version.html#GTUBER-CHECK-VERSION:CAPS" title="GTUBER_CHECK_VERSION()">GTUBER_CHECK_VERSION</a>, macro in <a class="link" href="gtuber-Gtuber-Version.html" title="Gtuber Version">Gtuber Version</a>
 </dt>
@@ -261,6 +273,10 @@ GtuberFunc, user_function in gtuber-types
 </dt>
 <dd></dd>
 <dt>
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-chapters" title="gtuber_media_info_get_chapters ()">gtuber_media_info_get_chapters</a>, function in <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo">GtuberMediaInfo</a>
+</dt>
+<dd></dd>
+<dt>
 <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-description" title="gtuber_media_info_get_description ()">gtuber_media_info_get_description</a>, function in <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo">GtuberMediaInfo</a>
 </dt>
 <dd></dd>
@@ -290,6 +306,10 @@ GtuberFunc, user_function in gtuber-types
 <dd></dd>
 <dt>
 <a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-title" title="gtuber_media_info_get_title ()">gtuber_media_info_get_title</a>, function in <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo">GtuberMediaInfo</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-insert-chapter" title="gtuber_media_info_insert_chapter ()">gtuber_media_info_insert_chapter</a>, function in <a class="link" href="gtuber-GtuberMediaInfo-Development.html" title="GtuberMediaInfo Development">GtuberMediaInfo Development</a>
 </dt>
 <dd></dd>
 <dt>
@@ -489,6 +509,22 @@ GtuberFunc, user_function in gtuber-types
 <dd></dd>
 <dt>
 <a class="link" href="GtuberWebsite.html#gtuber-website-get-uri" title="gtuber_website_get_uri ()">gtuber_website_get_uri</a>, function in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-DECLARE:CAPS" title="GTUBER_WEBSITE_PLUGIN_DECLARE()">GTUBER_WEBSITE_PLUGIN_DECLARE</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-DEFINE:CAPS" title="GTUBER_WEBSITE_PLUGIN_DEFINE()">GTUBER_WEBSITE_PLUGIN_DEFINE</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-SCHEMES:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES()">GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
 </dt>
 <dd></dd>
 <dt>

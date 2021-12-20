@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Gtuber Cache: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-devel.html" title="Plugin Development Reference">
+<link rel="prev" href="gtuber-GtuberAdaptiveStream-Development.html" title="GtuberAdaptiveStream Development">
+<link rel="next" href="api-index-full.html" title="Index">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gtuber-Gtuber-Cache.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-devel.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="gtuber-GtuberAdaptiveStream-Development.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="api-index-full.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="gtuber-Gtuber-Cache"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="gtuber-Gtuber-Cache.top_of_page"></a>Gtuber Cache</span></h2>
+<p>Gtuber Cache — a cache for storing some values locally</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="gtuber-Gtuber-Cache.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-read" title="gtuber_cache_plugin_read ()">gtuber_cache_plugin_read</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write" title="gtuber_cache_plugin_write ()">gtuber_cache_plugin_write</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write-epoch" title="gtuber_cache_plugin_write_epoch ()">gtuber_cache_plugin_write_epoch</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="gtuber-Gtuber-Cache.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="gtuber-Gtuber-Cache.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-cache-plugin-read"></a><h3>gtuber_cache_plugin_read ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *
+gtuber_cache_plugin_read (<em class="parameter"><code>const <span class="type">gchar</span> *plugin_name</code></em>,
+                          <em class="parameter"><code>const <span class="type">gchar</span> *key</code></em>);</pre>
+<p>Reads the value of a given plugin name with key.</p>
+<p>This is mainly useful for plugin development.</p>
+<div class="refsect3">
+<a name="gtuber-cache-plugin-read.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>plugin_name</p></td>
+<td class="parameter_description"><p>short and unique name of plugin.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>key</p></td>
+<td class="parameter_description"><p>name of the key this value is associated with.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-cache-plugin-read.returns"></a><h4>Returns</h4>
+<p>cached value or <code class="literal">NULL</code> if unavailable or expired. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-cache-plugin-write"></a><h3>gtuber_cache_plugin_write ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_cache_plugin_write (<em class="parameter"><code>const <span class="type">gchar</span> *plugin_name</code></em>,
+                           <em class="parameter"><code>const <span class="type">gchar</span> *key</code></em>,
+                           <em class="parameter"><code>const <span class="type">gchar</span> *val</code></em>,
+                           <em class="parameter"><code><span class="type">gint64</span> exp</code></em>);</pre>
+<p>Writes the value of a given plugin name with key. This function
+uses time in seconds to set how long cached value will stay valid.</p>
+<p>This is mainly useful for plugin development.</p>
+<div class="refsect3">
+<a name="gtuber-cache-plugin-write.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>plugin_name</p></td>
+<td class="parameter_description"><p>short and unique name of plugin.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>key</p></td>
+<td class="parameter_description"><p>name of the key this value is associated with.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>val</p></td>
+<td class="parameter_description"><p>value to store in cache file.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>exp</p></td>
+<td class="parameter_description"><p>expire time in seconds from now.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-cache-plugin-write-epoch"></a><h3>gtuber_cache_plugin_write_epoch ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gtuber_cache_plugin_write_epoch (<em class="parameter"><code>const <span class="type">gchar</span> *plugin_name</code></em>,
+                                 <em class="parameter"><code>const <span class="type">gchar</span> *key</code></em>,
+                                 <em class="parameter"><code>const <span class="type">gchar</span> *val</code></em>,
+                                 <em class="parameter"><code><span class="type">gint64</span> epoch</code></em>);</pre>
+<p>Writes the value of a given plugin name with key. This function
+uses epoch time to set date when cached value will expire.</p>
+<p>This is mainly useful for plugin development.</p>
+<div class="refsect3">
+<a name="gtuber-cache-plugin-write-epoch.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>plugin_name</p></td>
+<td class="parameter_description"><p>short and unique name of plugin.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>key</p></td>
+<td class="parameter_description"><p>name of the key this value is associated with.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>val</p></td>
+<td class="parameter_description"><p>value to store in cache file.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>epoch</p></td>
+<td class="parameter_description"><p>expire date in epoch time.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>

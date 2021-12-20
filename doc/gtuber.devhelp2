@@ -19,6 +19,7 @@
       <sub name="GtuberMediaInfo Development" link="gtuber-GtuberMediaInfo-Development.html"/>
       <sub name="GtuberStream Development" link="gtuber-GtuberStream-Development.html"/>
       <sub name="GtuberAdaptiveStream Development" link="gtuber-GtuberAdaptiveStream-Development.html"/>
+      <sub name="Gtuber Cache" link="gtuber-Gtuber-Cache.html"/>
     </sub>
     <sub name="Index" link="api-index-full.html"/>
     <sub name="Index of deprecated symbols" link="api-index-deprecated.html"/>
@@ -52,6 +53,7 @@
     <keyword type="function" name="gtuber_media_info_get_title ()" link="GtuberMediaInfo.html#gtuber-media-info-get-title"/>
     <keyword type="function" name="gtuber_media_info_get_description ()" link="GtuberMediaInfo.html#gtuber-media-info-get-description"/>
     <keyword type="function" name="gtuber_media_info_get_duration ()" link="GtuberMediaInfo.html#gtuber-media-info-get-duration"/>
+    <keyword type="function" name="gtuber_media_info_get_chapters ()" link="GtuberMediaInfo.html#gtuber-media-info-get-chapters"/>
     <keyword type="function" name="gtuber_media_info_get_has_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-has-streams"/>
     <keyword type="function" name="gtuber_media_info_get_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-streams"/>
     <keyword type="function" name="gtuber_media_info_get_has_adaptive_streams ()" link="GtuberMediaInfo.html#gtuber-media-info-get-has-adaptive-streams"/>
@@ -109,6 +111,10 @@
     <keyword type="property" name="The “indent” property" link="GtuberManifestGenerator.html#GtuberManifestGenerator--indent"/>
     <keyword type="property" name="The “manifest-type” property" link="GtuberManifestGenerator.html#GtuberManifestGenerator--manifest-type"/>
     <keyword type="property" name="The “pretty” property" link="GtuberManifestGenerator.html#GtuberManifestGenerator--pretty"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_DECLARE()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-DECLARE:CAPS"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_DEFINE()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-DEFINE:CAPS"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-SCHEMES:CAPS"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS:CAPS"/>
     <keyword type="function" name="gtuber_website_get_uri ()" link="GtuberWebsite.html#gtuber-website-get-uri"/>
     <keyword type="function" name="gtuber_website_set_uri ()" link="GtuberWebsite.html#gtuber-website-set-uri"/>
     <keyword type="function" name="gtuber_website_error_quark ()" link="GtuberWebsite.html#gtuber-website-error-quark"/>
@@ -119,6 +125,7 @@
     <keyword type="function" name="gtuber_media_info_set_title ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-title"/>
     <keyword type="function" name="gtuber_media_info_set_description ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-description"/>
     <keyword type="function" name="gtuber_media_info_set_duration ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-set-duration"/>
+    <keyword type="function" name="gtuber_media_info_insert_chapter ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-insert-chapter"/>
     <keyword type="function" name="gtuber_media_info_add_stream ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-add-stream"/>
     <keyword type="function" name="gtuber_media_info_add_adaptive_stream ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-add-adaptive-stream"/>
     <keyword type="function" name="gtuber_stream_new ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-new"/>
@@ -136,6 +143,9 @@
     <keyword type="function" name="gtuber_adaptive_stream_set_manifest_type ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-manifest-type"/>
     <keyword type="function" name="gtuber_adaptive_stream_set_init_range ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-init-range"/>
     <keyword type="function" name="gtuber_adaptive_stream_set_index_range ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-index-range"/>
+    <keyword type="function" name="gtuber_cache_plugin_read ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-read"/>
+    <keyword type="function" name="gtuber_cache_plugin_write ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write"/>
+    <keyword type="function" name="gtuber_cache_plugin_write_epoch ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write-epoch"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_UNKNOWN" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-UNKNOWN:CAPS"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_VIDEO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-VIDEO-MP4:CAPS"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_AUDIO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-AUDIO-MP4:CAPS"/>
@@ -162,6 +172,7 @@
     <keyword type="constant" name="GTUBER_FLOW_ERROR" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-ERROR:CAPS"/>
     <keyword type="constant" name="GTUBER_FLOW_RESTART" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-RESTART:CAPS"/>
     <keyword type="member" name="GtuberWebsiteClass.handles-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.handles-input-stream"/>
+    <keyword type="member" name="GtuberWebsiteClass.prepare" link="GtuberWebsite.html#GtuberWebsiteClass.prepare"/>
     <keyword type="member" name="GtuberWebsiteClass.create-request" link="GtuberWebsite.html#GtuberWebsiteClass.create-request"/>
     <keyword type="member" name="GtuberWebsiteClass.read-response" link="GtuberWebsite.html#GtuberWebsiteClass.read-response"/>
     <keyword type="member" name="GtuberWebsiteClass.parse-data" link="GtuberWebsite.html#GtuberWebsiteClass.parse-data"/>

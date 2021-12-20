@@ -72,6 +72,14 @@
 </tr>
 <tr>
 <td class="function_type">
+<span class="returnvalue">GHashTable</span> *
+</td>
+<td class="function_name">
+<a class="link" href="GtuberMediaInfo.html#gtuber-media-info-get-chapters" title="gtuber_media_info_get_chapters ()">gtuber_media_info_get_chapters</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
 <span class="returnvalue">gboolean</span>
 </td>
 <td class="function_name">
@@ -282,6 +290,33 @@ gtuber_media_info_get_duration (<em class="parameter"><code><a class="link" href
 <div class="refsect3">
 <a name="gtuber-media-info-get-duration.returns"></a><h4>Returns</h4>
 <p> media duration in seconds or 0 when undetermined.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-media-info-get-chapters"></a><h3>gtuber_media_info_get_chapters ()</h3>
+<pre class="programlisting"><span class="returnvalue">GHashTable</span> *
+gtuber_media_info_get_chapters (<em class="parameter"><code><a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a> *info</code></em>);</pre>
+<p>Get a <span class="type">GHashTable</span> with chapter start time and name pairs.</p>
+<div class="refsect3">
+<a name="gtuber-media-info-get-chapters.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>info</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberMediaInfo.html" title="GtuberMediaInfo"><span class="type">GtuberMediaInfo</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-media-info-get-chapters.returns"></a><h4>Returns</h4>
+<p>a <span class="type">GHashTable</span> with chapters, or <code class="literal">NULL</code> when none. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
 </div>
 </div>
 <hr>
