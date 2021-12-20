@@ -10,6 +10,7 @@ gtkdocincl = include_directories('.')
 ignore_headers = [
   'gtuber.h',
   'gtuber-plugin-devel.h',
+  'gtuber-cache-private.h',
   'gtuber-loader-private.h',
   'gtuber-stream-private.h',
   'gtuber-adaptive-stream-private.h',
