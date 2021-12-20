@@ -1,5 +1,5 @@
 project('gtuber', 'c',
-  version: '0.1.0',
+  version: '0.2.0',
   meson_version: '>=0.53.0',
   license: 'LGPL-2.1-or-later',
   default_options: [
