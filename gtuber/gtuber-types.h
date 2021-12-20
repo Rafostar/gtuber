@@ -28,7 +28,7 @@
 
 G_BEGIN_DECLS
 
-typedef void (*GtuberFunc) (gpointer srca, gpointer data, gpointer user_data);
+typedef void (*GtuberFunc) (gpointer src, gpointer data, gpointer user_data);
 
 G_END_DECLS
 
