@@ -477,8 +477,10 @@ plugin_query (GUri *uri)
       ? gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/", NULL)
       : gtuber_utils_common_obtain_uri_query_value (uri, "v");
 
-  if (!id)
-    id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/v/", NULL);
+  if (!id) {
+    id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL,
+        "/v/", "/embed/", NULL);
+  }
 
   if (id) {
     GtuberYoutube *youtube;
