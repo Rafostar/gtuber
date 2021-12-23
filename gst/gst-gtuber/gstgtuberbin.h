@@ -32,6 +32,10 @@ G_BEGIN_DECLS
 #define GST_GTUBER_BIN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GST_TYPE_GTUBER_BIN, GstGtuberBinClass))
 #define GST_GTUBER_BIN_CAST(obj)       ((GstGtuberBin*)(obj))
 
+#define GST_GTUBER_BIN_GET_LOCK(obj)   (&GST_GTUBER_BIN_CAST(obj)->bin_lock)
+#define GST_GTUBER_BIN_LOCK(obj)       g_mutex_lock (GST_GTUBER_BIN_GET_LOCK(obj))
+#define GST_GTUBER_BIN_UNLOCK(obj)     g_mutex_unlock (GST_GTUBER_BIN_GET_LOCK(obj))
+
 typedef struct _GstGtuberBin GstGtuberBin;
 typedef struct _GstGtuberBinClass GstGtuberBinClass;
 
@@ -43,7 +47,9 @@ struct _GstGtuberBin
 {
   GstBin parent;
 
+  GMutex bin_lock;
   GMutex prop_lock;
+
   guint initial_bitrate;
   guint target_bitrate;
 
@@ -51,6 +57,9 @@ struct _GstGtuberBin
 
   GstElement *demuxer;
   GstStructure *gtuber_config;
+
+  GstEvent *tag_event;
+  GstEvent *toc_event;
 };
 
 struct _GstGtuberBinClass

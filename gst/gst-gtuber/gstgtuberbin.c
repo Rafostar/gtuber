@@ -98,6 +98,7 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
 static void
 gst_gtuber_bin_init (GstGtuberBin *self)
 {
+  g_mutex_init (&self->bin_lock);
   g_mutex_init (&self->prop_lock);
 
   self->initial_bitrate = DEFAULT_INITIAL_BITRATE;
@@ -144,6 +145,13 @@ gst_gtuber_bin_finalize (GObject *object)
   GST_DEBUG ("Finalize");
 
   gst_clear_structure (&self->gtuber_config);
+
+  if (self->tag_event)
+    gst_event_unref (self->tag_event);
+  if (self->toc_event)
+    gst_event_unref (self->toc_event);
+
+  g_mutex_clear (&self->bin_lock);
   g_mutex_clear (&self->prop_lock);
 
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
@@ -225,11 +233,35 @@ gst_gtuber_bin_deep_element_added (GstBin *bin, GstBin *sub_bin, GstElement *chi
   if (GST_OBJECT_FLAG_IS_SET (child, GST_ELEMENT_FLAG_SOURCE)) {
     GstGtuberBin *self = GST_GTUBER_BIN (bin);
 
+    GST_GTUBER_BIN_LOCK (self);
+
     if (self->gtuber_config) {
       gst_structure_foreach (self->gtuber_config,
           (GstStructureForeachFunc) configure_deep_element, child);
     }
+
+    GST_GTUBER_BIN_UNLOCK (self);
   }
+}
+
+static void
+gst_gtuber_bin_push_event (GstGtuberBin *self, GstEvent *event)
+{
+  GstIterator *iter;
+  GValue value = { 0, };
+
+  iter = gst_element_iterate_src_pads (GST_ELEMENT (self));
+
+  while (gst_iterator_next (iter, &value) == GST_ITERATOR_OK) {
+    GstPad *my_pad;
+
+    my_pad = g_value_get_object (&value);
+    gst_pad_push_event (my_pad, gst_event_ref (event));
+
+    g_value_unset (&value);
+  }
+  gst_iterator_free (iter);
+  gst_event_unref (event);
 }
 
 static gboolean
@@ -370,7 +402,37 @@ gst_gtuber_bin_playback_configure (GstGtuberBin *self)
   g_object_set (self->demuxer,
       "connection-speed", target_bitrate, NULL);
 
+  GST_GTUBER_BIN_LOCK (self);
+
+  if (self->tag_event) {
+    gst_gtuber_bin_push_event (self, self->tag_event);
+    self->tag_event = NULL;
+  }
+  if (self->toc_event) {
+    gst_gtuber_bin_push_event (self, self->toc_event);
+    self->toc_event = NULL;
+  }
+
+  GST_GTUBER_BIN_UNLOCK (self);
+
   GST_DEBUG ("Configured playback");
+}
+
+static void
+gst_gtuber_bin_cleanup (GstGtuberBin *self)
+{
+  GST_GTUBER_BIN_LOCK (self);
+
+  if (self->tag_event) {
+    gst_event_unref (self->tag_event);
+    self->tag_event = NULL;
+  }
+  if (self->toc_event) {
+    gst_event_unref (self->toc_event);
+    self->toc_event = NULL;
+  }
+
+  GST_GTUBER_BIN_UNLOCK (self);
 }
 
 static GstStateChangeReturn
@@ -396,6 +458,9 @@ gst_gtuber_bin_change_state (GstElement *element, GstStateChange transition)
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
       gst_gtuber_bin_playback_configure (self);
       break;
+    case GST_STATE_CHANGE_PAUSED_TO_READY:
+      gst_gtuber_bin_cleanup (self);
+      break;
     default:
       break;
   }
@@ -406,29 +471,44 @@ gst_gtuber_bin_change_state (GstElement *element, GstStateChange transition)
 static gboolean
 gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
 {
-  gboolean res = FALSE;
+  GstGtuberBin *self = GST_GTUBER_BIN_CAST (parent);
 
   switch (event->type) {
+    case GST_EVENT_TAG:
+      GST_GTUBER_BIN_LOCK (self);
+
+      if (self->tag_event)
+        gst_event_unref (self->tag_event);
+      self->tag_event = gst_event_ref (event);
+
+      GST_GTUBER_BIN_UNLOCK (self);
+      break;
+    case GST_EVENT_TOC:
+      GST_GTUBER_BIN_LOCK (self);
+
+      if (self->toc_event)
+        gst_event_unref (self->toc_event);
+      self->toc_event = gst_event_ref (event);
+
+      GST_GTUBER_BIN_UNLOCK (self);
+      break;
     case GST_EVENT_CUSTOM_DOWNSTREAM_STICKY:{
       const GstStructure *structure = gst_event_get_structure (event);
 
       if (gst_structure_has_name (structure, GST_GTUBER_CONFIG)) {
-        GstGtuberBin *self = GST_GTUBER_BIN (parent);
-
         GST_DEBUG_OBJECT (self, "Received " GST_GTUBER_CONFIG " event");
-        GST_OBJECT_LOCK (self);
+        GST_GTUBER_BIN_LOCK (self);
 
         gst_clear_structure (&self->gtuber_config);
         self->gtuber_config = gst_structure_copy (structure);
 
-        GST_OBJECT_UNLOCK (self);
+        GST_GTUBER_BIN_UNLOCK (self);
       }
+      break;
     }
-    /* Fall through */
     default:
-      res = gst_pad_event_default (pad, parent, event);
       break;
   }
 
-  return res;
+  return gst_pad_event_default (pad, parent, event);
 }
