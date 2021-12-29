@@ -131,7 +131,8 @@ struct _GtuberWebsite
  * @prepare: If plugin needs to do some post init blocking IO (like reading cache)
  *   before it can be used, this is a good place to do so.
  * @create_request: Create and pass #SoupMessage to send.
- * @read_response: Check #SoupStatus and response #SoupMessageHeaders.
+ * @read_response: Use to check #SoupStatus and response #SoupMessageHeaders
+ *   from send #SoupMessage.
  * @parse_data: Read data of response body and fill #GtuberMediaInfo.
  * @parse_input_stream: Read #GInputStream and fill #GtuberMediaInfo.
  * @set_user_req_headers: Set request headers for user. Default implementation
@@ -150,10 +151,9 @@ struct _GtuberWebsiteClass
                                  SoupMessage    **msg,
                                  GError         **error);
 
-  GtuberFlow (* read_response) (GtuberWebsite       *website,
-                                SoupStatus           status,
-                                SoupMessageHeaders  *resp_headers,
-                                GError             **error);
+  GtuberFlow (* read_response) (GtuberWebsite *website,
+                                SoupMessage   *msg,
+                                GError       **error);
 
   GtuberFlow (* parse_data) (GtuberWebsite   *website,
                              gchar           *data,
