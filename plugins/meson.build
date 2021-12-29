@@ -2,6 +2,7 @@
 all_plugins = [
   'bilibili',
   'invidious',
+  'lbry',
   'piped',
   'twitch',
   'youtube',
