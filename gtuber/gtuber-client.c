@@ -187,7 +187,6 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
 
   session = soup_session_new_with_options (
       "timeout", 7,
-      "max_conns_per_host", 1,
       NULL);
 
 beginning:
