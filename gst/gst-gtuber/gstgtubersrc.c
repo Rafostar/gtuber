@@ -872,7 +872,7 @@ _obtain_available_protocols (G_GNUC_UNUSED gpointer data)
 
   /* Supported schemes are NULL terminated, but we need to add
    * one more special "gtuber" scheme, so reserve space */
-  my_schemes = g_new0 (gchar *, n_schemes + 1);
+  my_schemes = g_new0 (gchar *, n_schemes + 2);
 
   for (i = 0; i <= n_schemes; i++) {
     my_schemes[i] = (i < n_schemes)
