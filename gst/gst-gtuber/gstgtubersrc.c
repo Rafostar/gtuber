@@ -870,11 +870,6 @@ _obtain_available_protocols (G_GNUC_UNUSED gpointer data)
       ? g_strv_length ((gchar **) gtuber_schemes)
       : 0;
 
-  if (n_schemes == 0) {
-    GST_WARNING ("No supported gtuber URI schemes found");
-    return NULL;
-  }
-
   /* Supported schemes are NULL terminated, but we need to add
    * one more special "gtuber" scheme, so reserve space */
   my_schemes = g_new0 (gchar *, n_schemes + 1);
