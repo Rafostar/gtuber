@@ -648,8 +648,79 @@ gtuber_cache_init (GCancellable *cancellable, GError **error)
     g_debug ("Plugin cache %srewritten", success ? "" : "could not be ");
   }
 
-  g_debug ("Initialized cache");
+  if (success) {
+    g_debug ("Initialized cache");
+  } else {
+    g_ptr_array_unref (plugins_cache);
+    plugins_cache = NULL;
+
+    g_debug ("Could not initialize cache");
+  }
+
   g_mutex_unlock (&cache_lock);
+}
+
+static gpointer
+_obtain_supported_schemes (G_GNUC_UNUSED gpointer data)
+{
+  GPtrArray *arr;
+  gchar **schemes;
+  guint i;
+
+  gtuber_cache_init (NULL, NULL);
+
+  if (!plugins_cache)
+    return NULL;
+
+  arr = g_ptr_array_new ();
+
+  for (i = 0; i < plugins_cache->len; i++) {
+    GtuberCachePluginDirData *dir_data;
+    guint j;
+
+    dir_data = g_ptr_array_index (plugins_cache, i);
+
+    for (j = 0; j < dir_data->plugins->len; j++) {
+      GtuberCachePluginCompatData *data;
+      guint k;
+
+      data = g_ptr_array_index (dir_data->plugins, j);
+
+      for (k = 0; k < data->schemes->len; k++) {
+        const gchar *plugin_scheme;
+        gboolean present = FALSE;
+        guint l;
+
+        plugin_scheme = g_ptr_array_index (data->schemes, k);
+
+        for (l = 0; l < arr->len; l++) {
+          if ((present = strcmp (g_ptr_array_index (arr, l), plugin_scheme) == 0))
+            break;
+        }
+
+        if (!present)
+          g_ptr_array_add (arr, (gchar *) plugin_scheme);
+      }
+    }
+  }
+
+  schemes = g_new0 (gchar *, arr->len + 1);
+
+  for (i = 0; i < arr->len; i++)
+    schemes[i] = g_ptr_array_index (arr, i);
+
+  g_ptr_array_unref (arr);
+
+  return schemes;
+}
+
+const gchar *const *
+gtuber_cache_get_supported_schemes (void)
+{
+  static GOnce schemes_once = G_ONCE_INIT;
+
+  g_once (&schemes_once, _obtain_supported_schemes, NULL);
+  return (const gchar *const *) schemes_once.retval;
 }
 
 GPtrArray *

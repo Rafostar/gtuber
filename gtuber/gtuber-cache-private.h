@@ -31,6 +31,9 @@ void gtuber_cache_init (GCancellable *cancellable, GError **error);
 G_GNUC_INTERNAL
 GPtrArray * gtuber_cache_find_plugins_for_uri (GUri *guri);
 
+G_GNUC_INTERNAL
+const gchar *const * gtuber_cache_get_supported_schemes (void);
+
 G_END_DECLS
 
 #endif /* __GTUBER_CACHE_PRIVATE_H__ */

@@ -27,6 +27,7 @@
 
 #include "gtuber-misc-functions.h"
 #include "gtuber-loader-private.h"
+#include "gtuber-cache-private.h"
 #include "gtuber-website.h"
 
 /**
@@ -73,4 +74,17 @@ gtuber_has_plugin_for_uri (const gchar *uri, gchar **filename)
   g_debug ("URI supported: %s", res ? "yes" : "no");
 
   return res;
+}
+
+/**
+ * gtuber_get_supported_schemes:
+ *
+ * Get the list of all supported URI schemes by currently available plugins.
+ *
+ * Returns: (transfer none): Supported URI schemes.
+ */
+const gchar *const *
+gtuber_get_supported_schemes (void)
+{
+  return gtuber_cache_get_supported_schemes ();
 }
