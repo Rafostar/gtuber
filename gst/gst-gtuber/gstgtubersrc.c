@@ -97,7 +97,7 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
   GstBaseSrcClass *gstbasesrc_class = (GstBaseSrcClass *) klass;
   GstPushSrcClass *gstpushsrc_class = (GstPushSrcClass *) klass;
 
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_src_debug, "gtuber_src", 0,
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_src_debug, "gtubersrc", 0,
       "Gtuber source");
 
   gobject_class->finalize = gst_gtuber_src_finalize;

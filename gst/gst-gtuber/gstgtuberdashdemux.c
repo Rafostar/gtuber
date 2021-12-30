@@ -60,7 +60,7 @@ gst_gtuber_dash_demux_class_init (GstGtuberDashDemuxClass *klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_dash_demux_debug, "gtuber_dash_demux", 0,
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_dash_demux_debug, "gtuberdashdemux", 0,
       "Gtuber DASH demux");
 
   gobject_class->constructed = gst_gtuber_dash_demux_constructed;

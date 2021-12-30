@@ -72,7 +72,7 @@ gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
   GstBinClass *gstbin_class = (GstBinClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_bin_debug, "gtuber_bin", 0, "Gtuber Bin");
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_bin_debug, "gtuberbin", 0, "Gtuber Bin");
 
   gobject_class->constructed = gst_gtuber_bin_constructed;
   gobject_class->finalize = gst_gtuber_bin_finalize;

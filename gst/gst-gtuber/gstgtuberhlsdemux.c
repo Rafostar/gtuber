@@ -52,7 +52,7 @@ gst_gtuber_hls_demux_class_init (GstGtuberHlsDemuxClass *klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_hls_demux_debug, "gtuber_hls_demux", 0,
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_hls_demux_debug, "gtuberhlsdemux", 0,
       "Gtuber HLS demux");
 
   gobject_class->constructed = gst_gtuber_hls_demux_constructed;
