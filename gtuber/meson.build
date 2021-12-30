@@ -85,9 +85,6 @@ gtuber_plugin_devel_headers = [
   'gtuber-adaptive-stream-devel.h',
   'gtuber-media-info-devel.h',
 ]
-gtuber_headers_other = [
-  'gtuber-soup-compat.h',
-]
 gtuber_sources = [
   'gtuber-client.c',
   'gtuber-stream.c',
@@ -134,7 +131,7 @@ gtuber_lib = library(
   install: true,
 )
 
-install_headers(gtuber_headers + gtuber_plugin_devel_headers + gtuber_headers_other,
+install_headers(gtuber_headers + gtuber_plugin_devel_headers,
   install_dir: gtuber_headers_dir
 )
 

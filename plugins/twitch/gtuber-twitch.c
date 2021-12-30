@@ -23,6 +23,8 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
+#include "gtuber/gtuber-soup-compat.h"
+
 typedef enum
 {
   GQL_REQ_NONE,

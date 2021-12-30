@@ -18,9 +18,10 @@
  */
 
 #include <math.h>
+#include <gtuber/gtuber-plugin-devel.h>
 
 #include "gtuber-utils-common.h"
-#include "gtuber/gtuber-plugin-devel.h"
+#include "gtuber/gtuber-soup-compat.h"
 
 static const gchar *
 get_parsed_host (const gchar *host)

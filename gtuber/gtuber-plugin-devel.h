@@ -30,8 +30,6 @@
 #include <gtuber/gtuber-adaptive-stream-devel.h>
 #include <gtuber/gtuber-media-info-devel.h>
 
-#include <gtuber/gtuber-soup-compat.h>
-
 #undef __GTUBER_INSIDE__
 
 #endif /* __GTUBER_PLUGIN_DEVEL_H__ */

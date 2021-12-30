@@ -1,4 +1,5 @@
 #include "tests.h"
+#include "gtuber/gtuber-soup-compat.h"
 
 typedef struct
 {
