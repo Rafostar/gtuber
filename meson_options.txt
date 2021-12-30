@@ -15,6 +15,7 @@ option('utils-youtube', type: 'feature', value: 'auto')
 # Plugins
 option('bilibili', type: 'feature', value: 'auto')
 option('invidious', type: 'feature', value: 'auto')
+option('lbry', type: 'feature', value: 'auto')
 option('piped', type: 'feature', value: 'auto')
 option('twitch', type: 'feature', value: 'auto')
 option('youtube', type: 'feature', value: 'auto')

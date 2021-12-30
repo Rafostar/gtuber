@@ -187,7 +187,6 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
 
   session = soup_session_new_with_options (
       "timeout", 7,
-      "max_conns_per_host", 1,
       NULL);
 
 beginning:
@@ -207,13 +206,8 @@ beginning:
   stream = soup_session_send (session, msg, cancellable, &my_error);
 
   if (!my_error) {
-    SoupStatus status;
-    SoupMessageHeaders *resp_headers;
-
     g_debug ("Reading response...");
-    status = soup_message_get_status (msg);
-    resp_headers = soup_message_get_response_headers (msg);
-    flow = website_class->read_response (website, status, resp_headers, &my_error);
+    flow = website_class->read_response (website, msg, &my_error);
 
     if (flow != GTUBER_FLOW_OK)
       goto decide_flow;
