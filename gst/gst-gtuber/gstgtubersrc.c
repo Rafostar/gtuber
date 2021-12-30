@@ -855,14 +855,48 @@ gst_gtuber_uri_handler_get_type_src (GType type)
   return GST_URI_SRC;
 }
 
+static gpointer
+_obtain_available_protocols (G_GNUC_UNUSED gpointer data)
+{
+  const gchar *const *gtuber_schemes;
+  gchar **my_schemes;
+  guint n_schemes, i;
+
+  GST_DEBUG ("Checking supported by gtuber URI schemes");
+
+  gtuber_schemes = gtuber_get_supported_schemes ();
+
+  n_schemes = (gtuber_schemes != NULL)
+      ? g_strv_length ((gchar **) gtuber_schemes)
+      : 0;
+
+  if (n_schemes == 0) {
+    GST_WARNING ("No supported gtuber URI schemes found");
+    return NULL;
+  }
+
+  /* Supported schemes are NULL terminated, but we need to add
+   * one more special "gtuber" scheme, so reserve space */
+  my_schemes = g_new0 (gchar *, n_schemes + 1);
+
+  for (i = 0; i <= n_schemes; i++) {
+    my_schemes[i] = (i < n_schemes)
+        ? g_strdup (gtuber_schemes[i])
+        : g_strdup ("gtuber");
+
+    GST_INFO ("Added supported URI scheme: %s", my_schemes[i]);
+  }
+
+  return my_schemes;
+}
+
 static const gchar *const *
 gst_gtuber_uri_handler_get_protocols (GType type)
 {
-  static const gchar *protocols[] = {
-    "http", "https", "gtuber", NULL
-  };
+  static GOnce once = G_ONCE_INIT;
 
-  return protocols;
+  g_once (&once, _obtain_available_protocols, NULL);
+  return (const gchar *const *) once.retval;
 }
 
 static gchar *
