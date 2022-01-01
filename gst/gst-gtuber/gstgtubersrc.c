@@ -558,10 +558,8 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
 
 /* Called with a lock on props */
 static gboolean
-stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
+get_is_stream_allowed (GtuberStream *stream, GstGtuberSrc *self)
 {
-  GtuberStream *stream = (GtuberStream *) astream;
-
   if (self->codecs > 0) {
     GtuberCodecFlags flags = gtuber_stream_get_codec_flags (stream);
 
@@ -600,6 +598,12 @@ stream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
   return TRUE;
 }
 
+static gboolean
+astream_filter_func (GtuberAdaptiveStream *astream, GstGtuberSrc *self)
+{
+  return get_is_stream_allowed ((GtuberStream *) astream, self);
+}
+
 static gchar *
 gst_gtuber_generate_manifest (GstGtuberSrc *self, GtuberMediaInfo *info,
     GtuberAdaptiveStreamManifest *manifest_type)
@@ -612,7 +616,7 @@ gst_gtuber_generate_manifest (GstGtuberSrc *self, GtuberMediaInfo *info,
   gtuber_manifest_generator_set_media_info (gen, info);
 
   gtuber_manifest_generator_set_filter_func (gen,
-      (GtuberAdaptiveStreamFilter) stream_filter_func, self, NULL);
+      (GtuberAdaptiveStreamFilter) astream_filter_func, self, NULL);
 
   for (type = GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH;
       type <= GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS; type++) {
@@ -639,6 +643,67 @@ gst_gtuber_generate_manifest (GstGtuberSrc *self, GtuberMediaInfo *info,
   return data;
 }
 
+static void
+_rate_streams_vals (guint a_num, guint b_num, guint weight,
+    guint *a_pts, guint *b_pts)
+{
+  if (a_num > b_num)
+    *a_pts += weight;
+  else if (a_num < b_num)
+    *b_pts += weight;
+}
+
+static gchar *
+gst_gtuber_generate_best_uri_data (GstGtuberSrc *self, GtuberMediaInfo *info)
+{
+  GPtrArray *streams;
+  GtuberStream *best_stream = NULL;
+  gchar *data = NULL;
+  guint i;
+
+  streams = gtuber_media_info_get_streams (info);
+
+  for (i = 0; i < streams->len; i++) {
+    GtuberStream *stream;
+
+    stream = g_ptr_array_index (streams, i);
+
+    if (get_is_stream_allowed (stream, self)) {
+      guint best_pts = 0, curr_pts = 0;
+
+      if (best_stream) {
+        _rate_streams_vals (
+            gtuber_stream_get_height (best_stream),
+            gtuber_stream_get_height (stream),
+            8, &best_pts, &curr_pts);
+        _rate_streams_vals (
+            gtuber_stream_get_width (best_stream),
+            gtuber_stream_get_width (stream),
+            4, &best_pts, &curr_pts);
+        _rate_streams_vals (
+            gtuber_stream_get_bitrate (best_stream),
+            gtuber_stream_get_bitrate (stream),
+            2, &best_pts, &curr_pts);
+        _rate_streams_vals (
+            gtuber_stream_get_fps (best_stream),
+            gtuber_stream_get_fps (stream),
+            1, &best_pts, &curr_pts);
+      }
+
+      if (!best_stream || curr_pts > best_pts) {
+        best_stream = stream;
+        GST_DEBUG ("Current best stream itag: %u",
+            gtuber_stream_get_itag (best_stream));
+      }
+    }
+  }
+
+  if (best_stream)
+    data = g_strdup (gtuber_stream_get_uri (best_stream));
+
+  return data;
+}
+
 static GstBuffer *
 gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
     GError **error)
@@ -648,29 +713,28 @@ gst_gtuber_media_info_to_buffer (GstGtuberSrc *self, GtuberMediaInfo *info,
   GstCaps *caps = NULL;
   gchar *data;
 
-  data = gst_gtuber_generate_manifest (self, info, &manifest_type);
+  if ((data = gst_gtuber_generate_manifest (self, info, &manifest_type))) {
+    GST_INFO ("Using adaptive streaming");
 
-  /* TODO: Fallback to best combined URI */
-  if (!data)
-    GST_FIXME_OBJECT (self, "Implement fallback to best combined URI");
-
-  if (!data) {
+    switch (manifest_type) {
+      case GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH:
+        caps = gst_caps_new_empty_simple ("application/dash+xml");
+        break;
+      case GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS:
+        caps = gst_caps_new_empty_simple ("application/x-hls");
+        break;
+      default:
+        GST_WARNING_OBJECT (self, "Unsupported gtuber manifest type");
+        break;
+    }
+  } else if ((data = gst_gtuber_generate_best_uri_data (self, info))) {
+    GST_INFO ("Using direct stream");
+    caps = gst_caps_new_empty_simple ("text/uri-list");
+  } else {
     g_set_error (error, GTUBER_MANIFEST_GENERATOR_ERROR,
         GTUBER_MANIFEST_GENERATOR_ERROR_NO_DATA,
         "No manifest data was generated");
     return FALSE;
-  }
-
-  switch (manifest_type) {
-    case GTUBER_ADAPTIVE_STREAM_MANIFEST_DASH:
-      caps = gst_caps_new_empty_simple ("application/dash+xml");
-      break;
-    case GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS:
-      caps = gst_caps_new_empty_simple ("application/x-hls");
-      break;
-    default:
-      GST_WARNING_OBJECT (self, "Unsupported gtuber manifest type");
-      break;
   }
 
   if (caps) {
