@@ -39,7 +39,7 @@ static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src_%u",
 
 #define gst_gtuber_hls_demux_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberHlsDemux, gst_gtuber_hls_demux,
-    GST_TYPE_GTUBER_BIN, NULL);
+    GST_TYPE_GTUBER_ADAPTIVE_BIN, NULL);
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtuberhlsdemux, "gtuberhlsdemux",
     GST_RANK_PRIMARY + 1, GST_TYPE_GTUBER_HLS_DEMUX, gst_gtuber_element_init (plugin));
 
@@ -74,9 +74,9 @@ gst_gtuber_hls_demux_init (GstGtuberHlsDemux *self)
 static void
 gst_gtuber_hls_demux_constructed (GObject* object)
 {
-  GstGtuberBin *gtuber_bin = GST_GTUBER_BIN_CAST (object);
+  GstGtuberAdaptiveBin *adaptive_bin = GST_GTUBER_ADAPTIVE_BIN_CAST (object);
 
-  gtuber_bin->demuxer = gst_element_factory_make ("hlsdemux", NULL);
+  adaptive_bin->demuxer = gst_element_factory_make ("hlsdemux", NULL);
 
   GST_CALL_PARENT (G_OBJECT_CLASS, constructed, (object));
 }
