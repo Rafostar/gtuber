@@ -160,6 +160,15 @@ static void
 _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer user_data)
 {
   GtuberAdaptiveStream *astream;
+  const gchar *stream_type;
+
+  stream_type = gtuber_utils_json_get_string (reader, "type", NULL);
+
+  if (!g_strcmp0 (stream_type, "FORMAT_STREAM_TYPE_OTF")) {
+    /* FIXME: OTF requires fetching init at "/sq/0" first
+     * then remaining fragments by number instead of range */
+    return;
+  }
 
   astream = gtuber_adaptive_stream_new ();
   _read_stream_info (reader, GTUBER_STREAM (astream));
