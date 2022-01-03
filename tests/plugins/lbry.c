@@ -2,7 +2,6 @@
 
 GTUBER_TEST_MAIN_START ()
 
-/* Direct */
 GTUBER_TEST_CASE (1)
 {
   GtuberMediaInfo *info, *out_info;
@@ -14,13 +13,18 @@ GTUBER_TEST_CASE (1)
   gtuber_media_info_set_duration (info, 21);
 
   compare_fetch (client, "https://odysee.com/@Odysee:8/getyouryoutubechannelonodysee:5", info, &out_info);
-  check_streams (out_info);
+
+  /* LBRY often changes streams from MP4 to HLS, so we do not
+   * know what stream type is available at current time */
+  if (gtuber_media_info_get_has_streams (out_info))
+    check_streams (out_info);
+  else
+    check_adaptive_streams (out_info);
 
   g_object_unref (info);
   g_object_unref (out_info);
 }
 
-/* HLS */
 GTUBER_TEST_CASE (2)
 {
   GtuberMediaInfo *info, *out_info;
@@ -32,7 +36,11 @@ GTUBER_TEST_CASE (2)
   gtuber_media_info_set_duration (info, 8);
 
   compare_fetch (client, "lbry://@Odysee#8/call-an-ambulance#6", info, &out_info);
-  check_adaptive_streams (out_info);
+
+  if (gtuber_media_info_get_has_streams (out_info))
+    check_streams (out_info);
+  else
+    check_adaptive_streams (out_info);
 
   g_object_unref (info);
   g_object_unref (out_info);
