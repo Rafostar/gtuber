@@ -21,16 +21,16 @@
 
 #include <gst/gst.h>
 
-#include "gstgtuberbin.h"
+#include "gstgtuberadaptivebin.h"
 
 G_BEGIN_DECLS
 
 #define GST_TYPE_GTUBER_HLS_DEMUX (gst_gtuber_hls_demux_get_type())
-G_DECLARE_FINAL_TYPE (GstGtuberHlsDemux, gst_gtuber_hls_demux, GST, GTUBER_HLS_DEMUX, GstGtuberBin)
+G_DECLARE_FINAL_TYPE (GstGtuberHlsDemux, gst_gtuber_hls_demux, GST, GTUBER_HLS_DEMUX, GstGtuberAdaptiveBin)
 
 struct _GstGtuberHlsDemux
 {
-  GstGtuberBin parent;
+  GstGtuberAdaptiveBin parent;
 };
 
 G_END_DECLS

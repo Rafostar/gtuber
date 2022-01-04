@@ -21,16 +21,16 @@
 
 #include <gst/gst.h>
 
-#include "gstgtuberbin.h"
+#include "gstgtuberadaptivebin.h"
 
 G_BEGIN_DECLS
 
 #define GST_TYPE_GTUBER_DASH_DEMUX (gst_gtuber_dash_demux_get_type())
-G_DECLARE_FINAL_TYPE (GstGtuberDashDemux, gst_gtuber_dash_demux, GST, GTUBER_DASH_DEMUX, GstGtuberBin)
+G_DECLARE_FINAL_TYPE (GstGtuberDashDemux, gst_gtuber_dash_demux, GST, GTUBER_DASH_DEMUX, GstGtuberAdaptiveBin)
 
 struct _GstGtuberDashDemux
 {
-  GstGtuberBin parent;
+  GstGtuberAdaptiveBin parent;
 };
 
 G_END_DECLS
