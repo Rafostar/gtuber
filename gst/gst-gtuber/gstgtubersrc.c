@@ -59,7 +59,7 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
 G_DEFINE_TYPE_WITH_CODE (GstGtuberSrc, gst_gtuber_src,
     GST_TYPE_PUSH_SRC, gst_gtuber_uri_handler_do_init (g_define_type_id));
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtubersrc, "gtubersrc",
-    GST_RANK_NONE, GST_TYPE_GTUBER_SRC, gst_gtuber_element_init (plugin));
+    GST_RANK_PRIMARY + 10, GST_TYPE_GTUBER_SRC, gst_gtuber_element_init (plugin));
 
 /* GObject */
 static void gst_gtuber_src_finalize (GObject *object);
