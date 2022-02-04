@@ -18,19 +18,9 @@ gmodule_dep = dependency('gmodule-2.0',
   required: true,
   fallback: ['glib', 'libgmodule_dep'],
 )
-
-soup_dep_name = 'libsoup-3.0'
-soup_gir_name = 'Soup-3.0'
-soup_dep = dependency(soup_dep_name,
-  required: false,
+soup_dep = dependency('libsoup-3.0',
+  required: true,
 )
-if not soup_dep.found()
-  soup_dep_name = 'libsoup-2.4'
-  soup_gir_name = 'Soup-2.4'
-  soup_dep = dependency(soup_dep_name,
-    required: true,
-  )
-endif
 
 version_conf = configuration_data()
 
@@ -99,7 +89,6 @@ gtuber_plugin_devel_sources = [
 ]
 gtuber_sources_other = [
   'gtuber-loader.c',
-  'gtuber-soup-compat.c',
 ]
 gtuber_c_args = [
   '-DG_LOG_DOMAIN="Gtuber"',
@@ -173,7 +162,7 @@ if build_gir
     symbol_prefix: 'gtuber',
     export_packages: gtuber_api_name,
     install: false,
-    includes: ['GObject-2.0', 'Gio-2.0', 'GModule-2.0', soup_gir_name],
+    includes: ['GObject-2.0', 'Gio-2.0', 'GModule-2.0', 'Soup-3.0'],
     header: join_paths(meson.project_name(), 'gtuber-plugin-devel.h'),
   )
 endif
@@ -194,7 +183,7 @@ if build_vapi
     )
     gnome.generate_vapi(gtuber_plugin_devel_api_name,
       sources: gtuber_plugin_devel_gir[0],
-      packages: ['gobject-2.0', 'gio-2.0', 'gmodule-2.0', soup_dep_name],
+      packages: ['gobject-2.0', 'gio-2.0', 'gmodule-2.0', 'libsoup-3.0'],
       install: true,
     )
   endif
@@ -212,7 +201,7 @@ pkgconfig.generate(
     'gobject-2.0',
     'gio-2.0',
     'gmodule-2.0',
-    soup_dep_name,
+    'libsoup-3.0',
   ],
 )
 
