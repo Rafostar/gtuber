@@ -98,12 +98,7 @@ gst_gtuber_adaptive_bin_constructed (GObject* object)
   GstGtuberAdaptiveBin *self = GST_GTUBER_ADAPTIVE_BIN (object);
   GstPad *pad, *ghostpad;
 
-  GST_STATE_LOCK (self);
-
-  gst_element_set_locked_state (self->demuxer, TRUE);
   gst_bin_add (GST_BIN (self), self->demuxer);
-
-  GST_STATE_UNLOCK (self);
 
   g_object_set (self->demuxer, "bitrate-limit", 1.0f, NULL);
 
@@ -243,29 +238,6 @@ demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberAdaptiveBin *se
   g_free (pad_name);
 }
 
-static gboolean
-gst_gtuber_adaptive_bin_prepare (GstGtuberAdaptiveBin *self)
-{
-  GST_DEBUG ("Preparing");
-  GST_STATE_LOCK (self);
-
-  gst_element_set_locked_state (self->demuxer, FALSE);
-
-  if (!gst_element_sync_state_with_parent (self->demuxer))
-    goto error_sync_state;
-
-  GST_DEBUG ("Prepared");
-  GST_STATE_UNLOCK (self);
-
-  return TRUE;
-
-error_sync_state:
-  GST_STATE_UNLOCK (self);
-  GST_ELEMENT_ERROR (self, CORE, STATE_CHANGE,
-      ("Failed to sync state"), (NULL));
-  return FALSE;
-}
-
 static void
 gst_gtuber_adaptive_bin_configure (GstGtuberAdaptiveBin *self)
 {
@@ -331,10 +303,6 @@ gst_gtuber_adaptive_bin_change_state (GstElement *element, GstStateChange transi
   self = GST_GTUBER_ADAPTIVE_BIN_CAST (element);
 
   switch (transition) {
-    case GST_STATE_CHANGE_NULL_TO_READY:
-      if (!gst_gtuber_adaptive_bin_prepare (self))
-        return GST_STATE_CHANGE_FAILURE;
-      break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       gst_gtuber_adaptive_bin_configure (self);
       break;
