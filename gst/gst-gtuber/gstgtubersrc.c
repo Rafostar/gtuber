@@ -171,7 +171,7 @@ gst_gtuber_src_finalize (GObject *object)
 {
   GstGtuberSrc *self = GST_GTUBER_SRC (object);
 
-  GST_DEBUG ("Finalize");
+  GST_TRACE ("Finalize");
 
   g_mutex_lock (&self->client_lock);
 
@@ -503,12 +503,12 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
     gst_structure_free (req_headers);
 
     event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_STICKY, config);
-    gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
 
-    GST_DEBUG_OBJECT (self, "Pushed " GST_GTUBER_CONFIG " event");
+    GST_DEBUG_OBJECT (self, "Pushing " GST_GTUBER_CONFIG " event");
+    gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
   }
 
-  GST_DEBUG_OBJECT (self, "Creating tags event");
+  GST_DEBUG_OBJECT (self, "Creating TAG event");
   tags = gst_tag_list_new_empty ();
 
   if ((tag = gtuber_media_info_get_title (info)))
@@ -520,14 +520,16 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
     GST_DEBUG_OBJECT (self, "No tags to push");
     gst_tag_list_unref (tags);
   } else {
-    gst_tag_list_set_scope (tags, GST_TAG_SCOPE_GLOBAL);
+    GstEvent *event;
 
-    gst_pad_push_event (GST_BASE_SRC_PAD (self),
-        gst_event_new_tag (gst_tag_list_copy (tags)));
+    gst_tag_list_set_scope (tags, GST_TAG_SCOPE_GLOBAL);
+    event = gst_event_new_tag (gst_tag_list_copy (tags));
+
+    GST_DEBUG_OBJECT (self, "Pushing TAG event: %p", event);
+
+    gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
     gst_element_post_message (GST_ELEMENT (self),
         gst_message_new_tag (GST_OBJECT (self), tags));
-
-    GST_DEBUG_OBJECT (self, "Pushed tags event");
   }
 
   gtuber_chapters = gtuber_media_info_get_chapters (info);
@@ -535,6 +537,7 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
   if (gtuber_chapters && g_hash_table_size (gtuber_chapters) > 0) {
     GstToc *toc;
     GstTocEntry *toc_entry;
+    GstEvent *event;
 
     toc = gst_toc_new (GST_TOC_SCOPE_GLOBAL);
     toc_entry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_EDITION, "00");
@@ -546,14 +549,18 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
         (GHFunc) insert_chapter_cb, toc_entry);
 
     gst_toc_append_entry (toc, toc_entry);
+    event = gst_event_new_toc (toc, FALSE);
 
-    gst_pad_push_event (GST_BASE_SRC_PAD (self),
-        gst_event_new_toc (toc, FALSE));
+    GST_DEBUG_OBJECT (self, "Pushing TOC event: %p", event);
+
+    gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
     gst_element_post_message (GST_ELEMENT (self),
         gst_message_new_toc (GST_OBJECT (self), toc, FALSE));
 
     gst_toc_unref (toc);
   }
+
+  GST_DEBUG_OBJECT (self, "Pushed all events");
 }
 
 /* Called with a lock on props */

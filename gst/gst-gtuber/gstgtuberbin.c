@@ -67,7 +67,7 @@ gst_gtuber_bin_finalize (GObject *object)
 {
   GstGtuberBin *self = GST_GTUBER_BIN (object);
 
-  GST_DEBUG ("Finalize");
+  GST_TRACE ("Finalize");
 
   gst_clear_structure (&self->gtuber_config);
 
@@ -215,6 +215,7 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
 
   switch (event->type) {
     case GST_EVENT_TAG:
+      GST_DEBUG_OBJECT (self, "Received TAG event: %p", event);
       GST_GTUBER_BIN_LOCK (self);
 
       if (self->tag_event)
@@ -224,6 +225,7 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
       GST_GTUBER_BIN_UNLOCK (self);
       break;
     case GST_EVENT_TOC:
+      GST_DEBUG_OBJECT (self, "Received TOC event: %p", event);
       GST_GTUBER_BIN_LOCK (self);
 
       if (self->toc_event)

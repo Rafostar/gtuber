@@ -97,8 +97,6 @@ gst_gtuber_uri_demux_finalize (GObject *object)
 {
   GstGtuberUriDemux *self = GST_GTUBER_URI_DEMUX (object);
 
-  GST_DEBUG ("Finalize");
-
   g_object_unref (self->input_adapter);
 
   if (self->typefind_src)
