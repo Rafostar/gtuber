@@ -213,7 +213,7 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
 {
   GstGtuberBin *self = GST_GTUBER_BIN_CAST (parent);
 
-  switch (event->type) {
+  switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_TAG:
       GST_DEBUG_OBJECT (self, "Received TAG event: %p", event);
       GST_GTUBER_BIN_LOCK (self);

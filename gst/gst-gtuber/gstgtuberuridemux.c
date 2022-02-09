@@ -201,7 +201,7 @@ gst_gtuber_uri_demux_sink_event (GstPad *pad, GstObject *parent, GstEvent *event
 {
   GstGtuberUriDemux *self = GST_GTUBER_URI_DEMUX_CAST (parent);
 
-  switch (event->type) {
+  switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:{
       GstBuffer *buffer;
       gsize available;
