@@ -67,7 +67,7 @@ gst_gtuber_bin_finalize (GObject *object)
 {
   GstGtuberBin *self = GST_GTUBER_BIN (object);
 
-  GST_DEBUG ("Finalize");
+  GST_TRACE ("Finalize");
 
   gst_clear_structure (&self->gtuber_config);
 
@@ -133,7 +133,13 @@ gst_gtuber_bin_push_event (GstGtuberBin *self, GstEvent *event)
     GstPad *my_pad;
 
     my_pad = g_value_get_object (&value);
-    gst_pad_push_event (my_pad, gst_event_ref (event));
+
+    /* We started PLAYING at this point, store the event on the pad instead
+     * force pushing right now to avoid blocking thread until next forward */
+    if (gst_pad_store_sticky_event (my_pad, event) == GST_FLOW_OK)
+      GST_DEBUG_OBJECT (self, "Stored sticky event %p on pad %p", event, my_pad);
+    else
+      GST_WARNING_OBJECT (self, "Could not store event %p on pad %p", event, my_pad);
 
     g_value_unset (&value);
   }
@@ -147,13 +153,13 @@ gst_gtuber_bin_push_all_events (GstGtuberBin *self)
   GST_GTUBER_BIN_LOCK (self);
 
   if (self->tag_event) {
-    GST_DEBUG_OBJECT (self, "Pushing TAG event dowstream");
+    GST_DEBUG_OBJECT (self, "Pushing TAG event: %p", self->tag_event);
 
     gst_gtuber_bin_push_event (self, self->tag_event);
     self->tag_event = NULL;
   }
   if (self->toc_event) {
-    GST_DEBUG_OBJECT (self, "Pushing TOC event dowstream");
+    GST_DEBUG_OBJECT (self, "Pushing TOC event: %p", self->toc_event);
 
     gst_gtuber_bin_push_event (self, self->toc_event);
     self->toc_event = NULL;
@@ -207,8 +213,9 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
 {
   GstGtuberBin *self = GST_GTUBER_BIN_CAST (parent);
 
-  switch (event->type) {
+  switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_TAG:
+      GST_DEBUG_OBJECT (self, "Received TAG event: %p", event);
       GST_GTUBER_BIN_LOCK (self);
 
       if (self->tag_event)
@@ -218,6 +225,7 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
       GST_GTUBER_BIN_UNLOCK (self);
       break;
     case GST_EVENT_TOC:
+      GST_DEBUG_OBJECT (self, "Received TOC event: %p", event);
       GST_GTUBER_BIN_LOCK (self);
 
       if (self->toc_event)

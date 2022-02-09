@@ -97,8 +97,6 @@ gst_gtuber_uri_demux_finalize (GObject *object)
 {
   GstGtuberUriDemux *self = GST_GTUBER_URI_DEMUX (object);
 
-  GST_DEBUG ("Finalize");
-
   g_object_unref (self->input_adapter);
 
   if (self->typefind_src)
@@ -203,7 +201,7 @@ gst_gtuber_uri_demux_sink_event (GstPad *pad, GstObject *parent, GstEvent *event
 {
   GstGtuberUriDemux *self = GST_GTUBER_URI_DEMUX_CAST (parent);
 
-  switch (event->type) {
+  switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:{
       GstBuffer *buffer;
       gsize available;
