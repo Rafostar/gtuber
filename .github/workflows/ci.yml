@@ -17,9 +17,23 @@ jobs:
     steps:
       - name: Prepare
         run: |
-          dnf install -y git gcc meson glib2-devel libsoup-devel \
+          dnf install -y git gcc meson glib2-devel \
             json-glib-devel gobject-introspection-devel vala \
             gstreamer1-devel gstreamer1-plugins-base-devel
+
+      # TODO: Use RPM package once available in Fedora
+      - name: Build libsoup3
+        run: |
+          dnf install -y libnghttp2-devel sqlite-devel \
+            libpsl-devel glib-networking
+          git clone "https://gitlab.gnome.org/GNOME/libsoup.git"
+          cd libsoup
+          git checkout 3.0.4
+          meson builddir --prefix=/usr -Dintrospection=enabled \
+            -Dvapi=enabled -Dtests=false -Dsysprof=disabled \
+            -Dhttp2_tests=disabled -Dpkcs11_tests=disabled
+          cd builddir
+          meson install
 
       - name: Checkout
         uses: actions/checkout@v2
