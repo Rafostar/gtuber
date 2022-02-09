@@ -42,6 +42,9 @@ compare_fetch (GtuberClient *client, const gchar *uri,
 
   fetch = gtuber_client_fetch_media_info (client, uri, NULL, &error);
 
+  if (error)
+    g_printerr ("Fetch media info error: %s\n", error->message);
+
   g_assert_null (error);
   g_assert_nonnull (fetch);
   g_assert_true (
