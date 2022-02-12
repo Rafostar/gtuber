@@ -38,14 +38,23 @@
 <col width="150px" class="functions_proto_type">
 <col class="functions_proto_name">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
 <td class="function_type">
 <span class="returnvalue">gboolean</span>
 </td>
 <td class="function_name">
 <a class="link" href="gtuber-Gtuber.html#gtuber-has-plugin-for-uri" title="gtuber_has_plugin_for_uri ()">gtuber_has_plugin_for_uri</a> <span class="c_punctuation">()</span>
 </td>
-</tr></tbody>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">gchar</span> *const *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber.html#gtuber-get-supported-schemes" title="gtuber_get_supported_schemes ()">gtuber_get_supported_schemes</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
 </table></div>
 </div>
 <div class="refsect1">
@@ -87,6 +96,18 @@ for plugin filename that handles given URI, or <code class="literal">NULL</code>
 <div class="refsect3">
 <a name="gtuber-has-plugin-for-uri.returns"></a><h4>Returns</h4>
 <p> <code class="literal">TRUE</code> when URI is supported with out parameters set, <code class="literal">FALSE</code> otherwise.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-get-supported-schemes"></a><h3>gtuber_get_supported_schemes ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *const *
+gtuber_get_supported_schemes (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Get the list of all supported URI schemes by currently available plugins.</p>
+<div class="refsect3">
+<a name="gtuber-get-supported-schemes.returns"></a><h4>Returns</h4>
+<p>Supported URI schemes. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
 </div>
 </div>
 </div>

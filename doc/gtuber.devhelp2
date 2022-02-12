@@ -42,6 +42,7 @@
     <keyword type="macro" name="GTUBER_VERSION_S" link="gtuber-Gtuber-Version.html#GTUBER-VERSION-S:CAPS"/>
     <keyword type="macro" name="GTUBER_VERSION_HEX" link="gtuber-Gtuber-Version.html#GTUBER-VERSION-HEX:CAPS"/>
     <keyword type="function" name="gtuber_has_plugin_for_uri ()" link="gtuber-Gtuber.html#gtuber-has-plugin-for-uri"/>
+    <keyword type="function" name="gtuber_get_supported_schemes ()" link="gtuber-Gtuber.html#gtuber-get-supported-schemes"/>
     <keyword type="function" name="gtuber_client_new ()" link="GtuberClient.html#gtuber-client-new"/>
     <keyword type="function" name="gtuber_client_fetch_media_info ()" link="GtuberClient.html#gtuber-client-fetch-media-info"/>
     <keyword type="function" name="gtuber_client_fetch_media_info_async ()" link="GtuberClient.html#gtuber-client-fetch-media-info-async"/>

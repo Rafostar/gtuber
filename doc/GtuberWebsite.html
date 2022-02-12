@@ -322,10 +322,9 @@ gtuber_website_error_quark (<em class="parameter"><code><span class="type">void<
                                  SoupMessage    **msg,
                                  GError         **error);
 
-  GtuberFlow (* read_response) (GtuberWebsite       *website,
-                                SoupStatus           status,
-                                SoupMessageHeaders  *resp_headers,
-                                GError             **error);
+  GtuberFlow (* read_response) (GtuberWebsite *website,
+                                SoupMessage   *msg,
+                                GError       **error);
 
   GtuberFlow (* parse_data) (GtuberWebsite   *website,
                              gchar           *data,
@@ -371,7 +370,8 @@ before it can be used, this is a good place to do so.</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GtuberWebsiteClass.read-response"></a>read_response</code></em> ()</p></td>
-<td class="struct_member_description"><p>Check <span class="type">SoupStatus</span> and response <span class="type">SoupMessageHeaders</span>.</p></td>
+<td class="struct_member_description"><p>Use to check <span class="type">SoupStatus</span> and response <span class="type">SoupMessageHeaders</span>
+from send <span class="type">SoupMessage</span>.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
