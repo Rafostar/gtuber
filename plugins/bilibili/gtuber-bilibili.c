@@ -21,8 +21,6 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
-#include "gtuber/gtuber-soup-compat.h"
-
 /* FIXME: Support "live.bilibili.com" streams */
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "bilibili.com",

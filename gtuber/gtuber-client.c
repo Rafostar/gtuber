@@ -32,8 +32,6 @@
 #include "gtuber-loader-private.h"
 #include "gtuber-website.h"
 
-#include "gtuber-soup-compat.h"
-
 struct _GtuberClient
 {
   GObject parent;

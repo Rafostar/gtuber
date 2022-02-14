@@ -14,7 +14,6 @@ ignore_headers = [
   'gtuber-loader-private.h',
   'gtuber-stream-private.h',
   'gtuber-adaptive-stream-private.h',
-  'gtuber-soup-compat.h',
 ]
 
 gnome.gtkdoc('gtuber',

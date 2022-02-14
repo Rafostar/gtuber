@@ -24,8 +24,6 @@
 #include "utils/json/gtuber-utils-json.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
-#include "gtuber/gtuber-soup-compat.h"
-
 #define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (

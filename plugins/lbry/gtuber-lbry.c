@@ -23,8 +23,6 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
-#include "gtuber/gtuber-soup-compat.h"
-
 typedef enum
 {
   LBRY_STREAM_UNKNOWN,
@@ -256,9 +254,8 @@ lbry_update_streaming_url (GtuberLbry *self, SoupMessage *msg)
   GUri *guri;
   gchar *uri_str;
 
-  guri = gtuber_soup_message_obtain_uri (msg);
+  guri = soup_message_get_uri (msg);
   uri_str = g_uri_to_string (guri);
-  g_uri_unref (guri);
 
   if (uri_str) {
     g_free (self->streaming_url);
