@@ -384,6 +384,13 @@ gboolean
 gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
     GtuberMediaInfo *info, GError **error)
 {
+  return gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream, info, NULL, error);
+}
+
+gboolean
+gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
+    GtuberMediaInfo *info, const gchar *base_uri, GError **error)
+{
   GDataInputStream *dstream = g_data_input_stream_new (stream);
   GtuberAdaptiveStream *astream = NULL;
   gchar *line;
@@ -461,6 +468,17 @@ gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
       }
       g_strfreev (params);
     } else if (astream && !g_str_has_prefix (line, "#")) {
+      if (base_uri) {
+        gchar *full_uri;
+
+        full_uri = g_uri_resolve_relative (base_uri, line,
+            G_URI_FLAGS_ENCODED, NULL);
+        g_debug ("Resolved URI: %s", full_uri);
+
+        g_free (line);
+        line = full_uri;
+      }
+
       gtuber_stream_set_uri (GTUBER_STREAM (astream), line);
       g_debug ("HLS stream URI: %s", line);
 
