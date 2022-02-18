@@ -49,6 +49,7 @@ struct _GtuberPiped
 
   gchar *video_id;
   gchar *hls_uri;
+  gchar *proxy;
 
   gint api_id;
 };
@@ -90,6 +91,7 @@ gtuber_piped_finalize (GObject *object)
 
   g_free (self->video_id);
   g_free (self->hls_uri);
+  g_free (self->proxy);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -217,8 +219,10 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
   gtuber_media_info_set_description (info, gtuber_utils_json_get_string (reader, "description", NULL));
   gtuber_media_info_set_duration (info, gtuber_utils_json_get_int (reader, "duration", NULL));
 
-  if (gtuber_utils_json_get_boolean (reader, "livestream", NULL))
+  if (gtuber_utils_json_get_boolean (reader, "livestream", NULL)) {
     self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hls", NULL));
+    self->proxy = g_strdup (gtuber_utils_json_get_string (reader, "proxyUrl", NULL));
+  }
 
   if (!self->hls_uri) {
     if (gtuber_utils_json_go_to (reader, "videoStreams", NULL)) {
@@ -270,7 +274,8 @@ gtuber_piped_parse_input_stream (GtuberWebsite *website,
   JsonParser *parser;
 
   if (self->hls_uri) {
-    if (gtuber_utils_common_parse_hls_input_stream (stream, info, error)) {
+    if (gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream,
+        info, self->proxy, error)) {
       /* FIXME: Share update HLS code with youtube plugin */
       return GTUBER_FLOW_OK;
     }
