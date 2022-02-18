@@ -295,10 +295,10 @@ gtuber_invidious_parse_input_stream (GtuberWebsite *website,
   JsonParser *parser;
 
   if (self->hls_uri) {
-    if (gtuber_utils_common_parse_hls_input_stream (stream, info, error)) {
-      /* FIXME: Share update HLS code with youtube plugin */
+    if (gtuber_utils_youtube_parse_hls_input_stream_with_base_uri (stream,
+        info, self->source, error))
       return GTUBER_FLOW_OK;
-    }
+
     return GTUBER_FLOW_ERROR;
   }
 
