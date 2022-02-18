@@ -222,11 +222,10 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
       const gchar *reason;
 
       reason = gtuber_utils_json_get_string (reader, "playabilityStatus", "reason", NULL);
-      if (!reason)
-        reason = "Video is not playable";
 
       g_set_error (error, GTUBER_WEBSITE_ERROR,
-          GTUBER_WEBSITE_ERROR_OTHER, reason);
+          GTUBER_WEBSITE_ERROR_OTHER, "%s",
+          (reason != NULL) ? reason : "Video is not playable");
     }
     goto finish;
   }
