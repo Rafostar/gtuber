@@ -219,9 +219,14 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
       flow = GTUBER_FLOW_RESTART;
       g_debug ("Video is not playable, trying again...");
     } else {
+      const gchar *reason;
+
+      reason = gtuber_utils_json_get_string (reader, "playabilityStatus", "reason", NULL);
+      if (!reason)
+        reason = "Video is not playable";
+
       g_set_error (error, GTUBER_WEBSITE_ERROR,
-          GTUBER_WEBSITE_ERROR_OTHER,
-          "Video is not playable");
+          GTUBER_WEBSITE_ERROR_OTHER, reason);
     }
     goto finish;
   }
