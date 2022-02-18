@@ -22,6 +22,7 @@
 
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+#include "utils/youtube/gtuber-utils-youtube.h"
 
 typedef enum
 {
@@ -274,11 +275,10 @@ gtuber_piped_parse_input_stream (GtuberWebsite *website,
   JsonParser *parser;
 
   if (self->hls_uri) {
-    if (gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream,
-        info, self->proxy, error)) {
-      /* FIXME: Share update HLS code with youtube plugin */
+    if (gtuber_utils_youtube_parse_hls_input_stream_with_base_uri (stream,
+        info, self->proxy, error))
       return GTUBER_FLOW_OK;
-    }
+
     return GTUBER_FLOW_ERROR;
   }
 
