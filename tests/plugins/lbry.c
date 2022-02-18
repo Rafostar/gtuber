@@ -67,4 +67,21 @@ GTUBER_TEST_CASE (3)
   g_object_unref (out_info);
 }
 
+/* URIs with apostrophes */
+GTUBER_TEST_CASE (4)
+{
+  GtuberMediaInfo *info;
+
+  info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
+
+  gtuber_media_info_set_id (info, "@trevon:7/XRP-Pumping-HARD!-Here's-Why!-Doge-Dumping!-Here's-why!:0");
+  gtuber_media_info_set_title (info, "XRP Pumping HARD! Here's Why! Doge Dumping! Here's why");
+  gtuber_media_info_set_duration (info, 9662);
+
+  compare_fetch (client, "https://odysee.com/@trevon:7/XRP-Pumping-HARD!-Here's-Why!-Doge-Dumping!-Here's-why!:0", info, NULL);
+  compare_fetch (client, "lbry://@trevon:7/XRP-Pumping-HARD!-Here's-Why!-Doge-Dumping!-Here's-why!:0", info, NULL);
+
+  g_object_unref (info);
+}
+
 GTUBER_TEST_MAIN_END ()
