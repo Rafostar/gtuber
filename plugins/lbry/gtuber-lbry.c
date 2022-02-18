@@ -194,7 +194,7 @@ fill_media_info (GtuberLbry *self, JsonReader *reader,
     return GTUBER_FLOW_ERROR;
   }
 
-  gtuber_media_info_set_id (info, self->video_id);
+  gtuber_media_info_set_id (info, self->video_id + 7);
   gtuber_media_info_set_title (info,
       gtuber_utils_json_get_string (reader, "title", NULL));
   gtuber_media_info_set_description (info,
@@ -380,31 +380,26 @@ GtuberWebsite *
 plugin_query (GUri *uri)
 {
   GtuberLbry *lbry = NULL;
-  gchar *path;
+  gchar *uri_str;
 
+  /* LBRY supports many different namings,
+   * reference: https://lbry.com/faq/naming */
+
+  /* Always use "lbry" scheme */
   if (!strcmp (g_uri_get_scheme (uri), "lbry")) {
-    path = g_strdup_printf ("/@%s%s",
-        g_uri_get_host (uri),
-        g_uri_get_path (uri));
+    uri_str = g_uri_to_string (uri);
   } else {
-    path = g_strdup (g_uri_get_path (uri));
+    uri_str = g_uri_join (G_URI_FLAGS_ENCODED, "lbry",
+        NULL, g_uri_get_path (uri) + 1, -1, "",
+        NULL, g_uri_get_fragment (uri));
   }
 
-  /* Path must start from "/@" */
-  if (path && g_str_has_prefix (path, "/@")) {
-    gchar *video_path;
-
-    video_path = g_uri_join (G_URI_FLAGS_ENCODED, NULL,
-        NULL, NULL, -1, path, NULL, g_uri_get_fragment (uri));
-
+  if (uri_str) {
     lbry = gtuber_lbry_new ();
-    lbry->video_id = g_strdup (video_path + 1);
+    lbry->video_id = uri_str;
 
     g_debug ("Requested video: %s", lbry->video_id);
-    g_free (video_path);
   }
-
-  g_free (path);
 
   return GTUBER_WEBSITE (lbry);
 }
