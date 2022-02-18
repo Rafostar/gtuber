@@ -79,8 +79,6 @@ struct _GtuberPeertube
   gchar *source;
   gchar *video_id;
   gchar *hls_uri;
-
-  gint api_id;
 };
 
 #define parent_class gtuber_peertube_parent_class
