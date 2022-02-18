@@ -46,4 +46,25 @@ GTUBER_TEST_CASE (2)
   g_object_unref (out_info);
 }
 
+GTUBER_TEST_CASE (3)
+{
+  GtuberMediaInfo *info, *out_info;
+
+  info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
+
+  gtuber_media_info_set_id (info, "nsxiv-the-only-image-viewer-you-need:7aebea4f56b53e6a1e89e4ba2db13396cc83bdae");
+  gtuber_media_info_set_title (info, "NSXIV: The Only Image Viewer You Need");
+  gtuber_media_info_set_duration (info, 641);
+
+  compare_fetch (client, "https://odysee.com/nsxiv-the-only-image-viewer-you-need:7aebea4f56b53e6a1e89e4ba2db13396cc83bdae", info, &out_info);
+
+  if (gtuber_media_info_get_has_streams (out_info))
+    check_streams (out_info);
+  else
+    check_adaptive_streams (out_info);
+
+  g_object_unref (info);
+  g_object_unref (out_info);
+}
+
 GTUBER_TEST_MAIN_END ()
