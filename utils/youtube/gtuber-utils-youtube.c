@@ -189,3 +189,55 @@ gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
   else
     g_debug ("No YT chapters found");
 }
+
+/*
+ * YT version of `parse_hls_input_stream` function,
+ * the difference is that it also later updates stream itags
+ */
+gboolean
+gtuber_utils_youtube_parse_hls_input_stream (GInputStream *stream,
+    GtuberMediaInfo *info, GError **error)
+{
+  GPtrArray *astreams;
+  guint i;
+
+  if (!gtuber_utils_common_parse_hls_input_stream (stream, info, error))
+    return FALSE;
+
+  astreams = gtuber_media_info_get_adaptive_streams (info);
+
+  for (i = 0; i < astreams->len; i++) {
+    GtuberStream *stream;
+    GUri *guri;
+    const gchar *uri_str;
+
+    stream = GTUBER_STREAM (g_ptr_array_index (astreams, i));
+    uri_str = gtuber_stream_get_uri (stream);
+
+    if (!uri_str)
+      continue;
+
+    guri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
+    if (guri) {
+      gchar **path_parts;
+      guint i = 0;
+
+      path_parts = g_strsplit (g_uri_get_path (guri), "/", 0);
+
+      while (path_parts[i]) {
+        if (!strcmp (path_parts[i], "itag") && path_parts[i + 1]) {
+          guint itag;
+
+          itag = g_ascii_strtoull (path_parts[i + 1], NULL, 10);
+          gtuber_stream_set_itag (stream, itag);
+        }
+        i++;
+      }
+
+      g_strfreev (path_parts);
+      g_uri_unref (guri);
+    }
+  }
+
+  return TRUE;
+}

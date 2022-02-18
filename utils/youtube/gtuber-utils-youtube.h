@@ -29,6 +29,8 @@ void       gtuber_utils_youtube_parse_mime_type_string           (const gchar *y
 
 void       gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info, const gchar *description);
 
+gboolean   gtuber_utils_youtube_parse_hls_input_stream           (GInputStream *stream, GtuberMediaInfo *info, GError **error);
+
 G_END_DECLS
 
 #endif /* __GTUBER_UTILS_YOUTUBE_H__ */
