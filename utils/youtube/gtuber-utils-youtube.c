@@ -198,10 +198,18 @@ gboolean
 gtuber_utils_youtube_parse_hls_input_stream (GInputStream *stream,
     GtuberMediaInfo *info, GError **error)
 {
+  return gtuber_utils_youtube_parse_hls_input_stream_with_base_uri (stream, info, NULL, error);
+}
+
+gboolean
+gtuber_utils_youtube_parse_hls_input_stream_with_base_uri (GInputStream *stream,
+    GtuberMediaInfo *info, const gchar *base_uri, GError **error)
+{
   GPtrArray *astreams;
   guint i;
 
-  if (!gtuber_utils_common_parse_hls_input_stream (stream, info, error))
+  if (!gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream,
+      info, base_uri, error))
     return FALSE;
 
   astreams = gtuber_media_info_get_adaptive_streams (info);
