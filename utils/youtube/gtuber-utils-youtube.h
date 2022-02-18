@@ -25,9 +25,13 @@
 
 G_BEGIN_DECLS
 
-void       gtuber_utils_youtube_parse_mime_type_string           (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
+void       gtuber_utils_youtube_parse_mime_type_string               (const gchar *yt_mime, GtuberStreamMimeType *mime_type, gchar **vcodec, gchar **acodec);
 
-void       gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info, const gchar *description);
+void       gtuber_utils_youtube_insert_chapters_from_description     (GtuberMediaInfo *info, const gchar *description);
+
+gboolean   gtuber_utils_youtube_parse_hls_input_stream               (GInputStream *stream, GtuberMediaInfo *info, GError **error);
+
+gboolean   gtuber_utils_youtube_parse_hls_input_stream_with_base_uri (GInputStream *stream, GtuberMediaInfo *info, const gchar *base_uri, GError **error);
 
 G_END_DECLS
 

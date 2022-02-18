@@ -471,12 +471,18 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
       if (base_uri) {
         gchar *full_uri;
 
-        full_uri = g_uri_resolve_relative (base_uri, line,
-            G_URI_FLAGS_ENCODED, NULL);
+        if (!g_uri_is_valid (line, G_URI_FLAGS_ENCODED, NULL)) {
+          full_uri = g_uri_resolve_relative (base_uri, line,
+              G_URI_FLAGS_ENCODED, NULL);
+        } else {
+          full_uri = gtuber_utils_common_replace_uri_source (line, base_uri);
+        }
         g_debug ("Resolved URI: %s", full_uri);
 
-        g_free (line);
-        line = full_uri;
+        if (full_uri) {
+          g_free (line);
+          line = full_uri;
+        }
       }
 
       gtuber_stream_set_uri (GTUBER_STREAM (astream), line);

@@ -204,50 +204,6 @@ _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer us
   gtuber_media_info_add_adaptive_stream (info, astream);
 }
 
-static void
-_update_hls_stream_cb (GtuberAdaptiveStream *astream, gpointer user_data)
-{
-  GtuberStream *stream;
-  GUri *guri;
-  const gchar *uri_str;
-
-  stream = GTUBER_STREAM (astream);
-  uri_str = gtuber_stream_get_uri (stream);
-
-  if (!uri_str)
-    return;
-
-  guri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL);
-  if (guri) {
-    gchar **path_parts;
-    guint i = 0;
-
-    path_parts = g_strsplit (g_uri_get_path (guri), "/", 0);
-
-    while (path_parts[i]) {
-      if (!strcmp (path_parts[i], "itag") && path_parts[i + 1]) {
-        guint itag;
-
-        itag = g_ascii_strtoull (path_parts[i + 1], NULL, 10);
-        gtuber_stream_set_itag (stream, itag);
-      }
-      i++;
-    }
-
-    g_strfreev (path_parts);
-    g_uri_unref (guri);
-  }
-}
-
-static void
-update_info_hls (GtuberMediaInfo *info)
-{
-  GPtrArray *astreams;
-
-  astreams = gtuber_media_info_get_adaptive_streams (info);
-  g_ptr_array_foreach (astreams, (GFunc) _update_hls_stream_cb, NULL);
-}
-
 static GtuberFlow
 parse_response_data (GtuberYoutube *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
@@ -434,10 +390,9 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
   JsonParser *parser;
 
   if (self->hls_uri) {
-    if (gtuber_utils_common_parse_hls_input_stream (stream, info, error)) {
-      update_info_hls (info);
+    if (gtuber_utils_youtube_parse_hls_input_stream (stream, info, error))
       return GTUBER_FLOW_OK;
-    }
+
     return GTUBER_FLOW_ERROR;
   }
 
