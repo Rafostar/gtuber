@@ -12,7 +12,7 @@ GTUBER_TEST_CASE (1)
   gtuber_media_info_set_title (info, "Ditching YouTube: The Smart Move");
   gtuber_media_info_set_duration (info, 485);
 
-  compare_fetch (client, "https://open.tube/videos/watch/d261a2a5-8974-4b2c-9cfd-fe25ac337956", info, &out_info);
+  compare_fetch (client, "peertube://open.tube/videos/watch/d261a2a5-8974-4b2c-9cfd-fe25ac337956", info, &out_info);
 
   check_streams (out_info);
 
@@ -31,7 +31,7 @@ GTUBER_TEST_CASE (2)
   gtuber_media_info_set_description (info, "Modifica alla Costituzione: benefici apparenti e gravi pericoli.");
   gtuber_media_info_set_duration (info, 630);
 
-  compare_fetch (client, "https://peertube.it/w/tbRjxBQj75URZMhWrT41Ri", info, &out_info);
+  compare_fetch (client, "peertube://peertube.it/w/tbRjxBQj75URZMhWrT41Ri", info, &out_info);
 
   check_streams (out_info);
   check_adaptive_streams (out_info);
