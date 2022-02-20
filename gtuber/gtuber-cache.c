@@ -30,6 +30,7 @@
 #include "gtuber-cache.h"
 #include "gtuber-cache-private.h"
 #include "gtuber-loader-private.h"
+#include "gtuber-config.h"
 #include "gtuber-version.h"
 
 #define GTUBER_CACHE_BASENAME "gtuber_cache.bin"
@@ -205,13 +206,6 @@ gtuber_cache_obtain_cache_path (const gchar *basename)
 {
   return g_build_filename (g_get_user_cache_dir (),
       GTUBER_API_NAME, basename, NULL);
-}
-
-static gchar *
-gtuber_cache_obtain_config_dir_path (void)
-{
-  return g_build_filename (g_get_user_config_dir (),
-      GTUBER_API_NAME, NULL);
 }
 
 static gboolean
@@ -424,7 +418,7 @@ gtuber_cache_read_config (FILE *file, GCancellable *cancellable,
   read_file_to_ptr (file, &config_mod_time, sizeof (gint64));
   read_file_to_ptr (file, &config_n_files, sizeof (guint));
 
-  config_dir_path = gtuber_cache_obtain_config_dir_path ();
+  config_dir_path = gtuber_config_obtain_config_dir_path ();
   g_debug ("Config dir path: %s", config_dir_path);
 
   dir = g_file_new_for_path (config_dir_path);
@@ -463,13 +457,10 @@ gtuber_cache_write_config (FILE *file, GCancellable *cancellable,
     GError **error)
 {
   GFile *dir;
-  gchar *config_dir_path;
   gint64 config_mod_time = 0;
   guint config_n_files = 0;
 
-  config_dir_path = gtuber_cache_obtain_config_dir_path ();
-  dir = g_file_new_for_path (config_dir_path);
-  g_free (config_dir_path);
+  dir = gtuber_config_obtain_config_dir ();
 
   if (g_file_query_exists (dir, cancellable)) {
     gtuber_cache_enumerate_configs (dir, &config_mod_time, &config_n_files,
