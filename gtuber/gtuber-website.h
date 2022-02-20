@@ -31,6 +31,7 @@
 #include <gtuber/gtuber-enums.h>
 #include <gtuber/gtuber-media-info.h>
 #include <gtuber/gtuber-cache.h>
+#include <gtuber/gtuber-config.h>
 
 G_BEGIN_DECLS
 
@@ -103,6 +104,63 @@ static const gchar *_hosts_compat[] = { __VA_ARGS__ };                          
 G_MODULE_EXPORT const gchar *const *plugin_get_hosts (void);                        \
 const gchar *const *plugin_get_hosts (void) {                                       \
     return _hosts_compat; }
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE:
+ * @lower: lowercase name of the website, with multiple words
+ *   separated by `_`.
+ *
+ * Convenient macro that exports plugin supported hosts from
+ *   user provided config file.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE(lower)                         \
+G_MODULE_EXPORT const gchar *const *plugin_get_hosts (void);                        \
+const gchar *const *plugin_get_hosts (void) {                                       \
+    static GOnce _hosts_once = G_ONCE_INIT;                                         \
+    g_once (&_hosts_once, (GThreadFunc) gtuber_config_read_plugin_hosts_file,       \
+        (gchar *) G_STRINGIFY (G_PASTE (lower, _hosts)));                           \
+    return (const gchar *const *) _hosts_once.retval; }
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK:
+ * @lower: lowercase name of the website, with multiple words
+ *   separated by `_`.
+ * @...: %NULL terminated list of supported hosts.
+ *
+ * Convenient macro that exports plugin supported hosts from
+ *   user provided config file and if it does not exists uses
+ *   hardcoded list of hosts as fallback.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK(lower, ...)      \
+static const gchar *_hosts_compat[] = { __VA_ARGS__ };                              \
+G_MODULE_EXPORT const gchar *const *plugin_get_hosts (void);                        \
+const gchar *const *plugin_get_hosts (void) {                                       \
+    static GOnce _hosts_once = G_ONCE_INIT;                                         \
+    g_once (&_hosts_once, (GThreadFunc) gtuber_config_read_plugin_hosts_file,       \
+        (gchar *) G_STRINGIFY (G_PASTE (lower, _hosts)));                           \
+    return (_hosts_once.retval) ? (const gchar *const *) _hosts_once.retval :       \
+         _hosts_compat; }
+
+/**
+ * GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND:
+ * @lower: lowercase name of the website, with multiple words
+ *   separated by `_`.
+ * @...: %NULL terminated list of supported hosts.
+ *
+ * Convenient macro that exports plugin supported hosts from
+ *   user provided config file with prepended additional hosts
+ *   without touching said file.
+ */
+#define GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND(lower, ...)       \
+G_MODULE_EXPORT const gchar *const *plugin_get_hosts (void);                        \
+static gpointer _prepend_hosts_once_cb (gpointer *data) {                           \
+    return gtuber_config_read_plugin_hosts_file_with_prepend (                      \
+        (const gchar *) data, __VA_ARGS__); }                                       \
+const gchar *const *plugin_get_hosts (void) {                                       \
+    static GOnce _hosts_once = G_ONCE_INIT;                                         \
+    g_once (&_hosts_once, (GThreadFunc) _prepend_hosts_once_cb,                     \
+        (gchar *) G_STRINGIFY (G_PASTE (lower, _hosts)));                           \
+    return (const gchar *const *) _hosts_once.retval; }
 
 /**
  * GtuberWebsite:
