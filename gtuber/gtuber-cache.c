@@ -874,6 +874,10 @@ gtuber_cache_find_plugins_for_uri (GUri *guri)
   compatible = g_ptr_array_new_with_free_func (
       (GDestroyNotify) g_free);
 
+  /* Cache init failed, return empty array */
+  if (!plugins_cache)
+    return compatible;
+
   scheme = g_uri_get_scheme (guri);
   host = g_uri_get_host (guri);
 
