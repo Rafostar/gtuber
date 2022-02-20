@@ -23,52 +23,7 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
-GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
-  "hitchtube.fr",
-  "the.jokertv.eu",
-  "tube.shanti.cafe",
-  "peervideo.club",
-  "peertube.bubuit.net",
-  "review.peertube.biz",
-  "kraut.zone",
-  "video.ploud.jp",
-  "share.peertube.support",
-  "video.antopie.org",
-  "tube.tardis.world",
-  "peertube.biz",
-  "peertube.monlycee.net",
-  "skeptikon.fr",
-  "video.ploud.fr",
-  "video.qoto.org",
-  "peertube.lyceeconnecte.fr",
-  "dnk.video",
-  "video.antopie.org",
-  "peertube.iriseden.eu",
-  "wiwi.video",
-  "devtube.dev-wiki.de",
-  "peertube.su",
-  "peertube.uno",
-  "video.mundodesconocido.com",
-  "peertube.it",
-  "yoba.tv",
-  "diode.zone",
-  "veezee.tube",
-  "tube.p2p.legal",
-  "www.wiki-tube.de",
-  "serv3.wiki-tube.de",
-  "swebbtube.se",
-  "peertube.co.uk",
-  "peertube.ch",
-  "gegenstimme.tv",
-  "peertube.fr",
-  "open.tube",
-  "tube.nocturlab.fr",
-  "trashvod.com",
-  "video.blast-info.fr",
-  "peertube.european-pirates.eu",
-  "zohup.net",
-  NULL
-)
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE (peertube)
 
 GTUBER_WEBSITE_PLUGIN_DECLARE (Peertube, peertube, PEERTUBE)
 
