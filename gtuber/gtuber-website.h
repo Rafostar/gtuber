@@ -234,6 +234,8 @@ GUri *        gtuber_website_get_uri               (GtuberWebsite *website);
 
 const gchar * gtuber_website_get_uri_string        (GtuberWebsite *website);
 
+gboolean      gtuber_website_get_use_http          (GtuberWebsite *website);
+
 GQuark        gtuber_website_error_quark           (void);
 
 G_END_DECLS
