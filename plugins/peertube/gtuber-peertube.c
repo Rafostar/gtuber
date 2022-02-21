@@ -222,7 +222,7 @@ plugin_query (GUri *uri)
   gchar *id;
 
   id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL,
-      "/videos/watch/", "/w/", NULL);
+      "/videos/watch/", "/videos/embed/", "/w/", NULL);
 
   if (id) {
     GtuberPeertube *peertube;
