@@ -215,6 +215,19 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
 
+  if (gtuber_utils_json_get_string (reader, "error", NULL)) {
+    const gchar *reason;
+
+    reason = gtuber_utils_json_get_string (reader, "message", NULL);
+
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_OTHER, "%s",
+        (reason != NULL) ? reason : "Piped API call error");
+    g_object_unref (reader);
+
+    return;
+  }
+
   gtuber_media_info_set_id (info, self->video_id);
   gtuber_media_info_set_title (info, gtuber_utils_json_get_string (reader, "title", NULL));
   gtuber_media_info_set_description (info, gtuber_utils_json_get_string (reader, "description", NULL));
