@@ -30,7 +30,6 @@ GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "vid.puffyan.us",
   "inv.riverside.rocks",
   "invidio.xamh.de",
-  "vid.mint.lgbt",
   "invidious.hub.ne.kr",
   NULL
 )
