@@ -26,6 +26,7 @@
 
 #include <gtuber/gtuber-website.h>
 #include <gtuber/gtuber-cache.h>
+#include <gtuber/gtuber-config.h>
 #include <gtuber/gtuber-stream-devel.h>
 #include <gtuber/gtuber-adaptive-stream-devel.h>
 #include <gtuber/gtuber-media-info-devel.h>
