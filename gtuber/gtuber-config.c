@@ -74,6 +74,7 @@ gtuber_config_obtain_config_dir (void)
 
 /**
  * gtuber_config_obtain_config_dir_file:
+ * @file_name: name of the config file
  *
  * Obtains a #GFile from file within gtuber config directory.
  *
