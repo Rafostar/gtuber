@@ -23,50 +23,11 @@
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
 
-GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
-  "hitchtube.fr",
-  "the.jokertv.eu",
-  "tube.shanti.cafe",
-  "peervideo.club",
-  "peertube.bubuit.net",
-  "review.peertube.biz",
-  "kraut.zone",
-  "video.ploud.jp",
-  "share.peertube.support",
-  "video.antopie.org",
-  "tube.tardis.world",
-  "peertube.biz",
-  "peertube.monlycee.net",
-  "skeptikon.fr",
-  "video.ploud.fr",
-  "video.qoto.org",
-  "peertube.lyceeconnecte.fr",
-  "dnk.video",
-  "video.antopie.org",
-  "peertube.iriseden.eu",
-  "wiwi.video",
-  "devtube.dev-wiki.de",
-  "peertube.su",
-  "peertube.uno",
-  "video.mundodesconocido.com",
-  "peertube.it",
-  "yoba.tv",
-  "diode.zone",
-  "veezee.tube",
-  "tube.p2p.legal",
-  "www.wiki-tube.de",
-  "serv3.wiki-tube.de",
-  "swebbtube.se",
-  "peertube.co.uk",
-  "peertube.ch",
-  "gegenstimme.tv",
-  "peertube.fr",
-  "open.tube",
-  "tube.nocturlab.fr",
-  "trashvod.com",
-  "video.blast-info.fr",
-  "peertube.european-pirates.eu",
-  "zohup.net",
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE (peertube)
+GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES (
+  "http",
+  "https",
+  "peertube",
   NULL
 )
 
@@ -76,9 +37,11 @@ struct _GtuberPeertube
 {
   GtuberWebsite parent;
 
-  gchar *source;
+  gchar *host;
   gchar *video_id;
   gchar *hls_uri;
+
+  gboolean use_http;
 };
 
 #define parent_class gtuber_peertube_parent_class
@@ -116,7 +79,7 @@ gtuber_peertube_finalize (GObject *object)
 
   g_debug ("Peertube finalize");
 
-  g_free (self->source);
+  g_free (self->host);
   g_free (self->video_id);
   g_free (self->hls_uri);
 
@@ -202,13 +165,17 @@ gtuber_peertube_create_request (GtuberWebsite *website,
   GtuberPeertube *self = GTUBER_PEERTUBE (website);
 
   if (!self->hls_uri) {
-    gchar *uri;
+    GUri *guri;
+    gchar *path;
 
-    uri = g_strdup_printf ("%sapi/v1/videos/%s",
-        self->source, self->video_id);
-    *msg = soup_message_new ("GET", uri);
+    path = g_strdup_printf ("/api/v1/videos/%s", self->video_id);
+    guri = g_uri_build (G_URI_FLAGS_ENCODED,
+        self->use_http ? "http" : "https",
+        NULL, self->host, -1, path, NULL, NULL);
+    g_free (path);
 
-    g_free (uri);
+    *msg = soup_message_new_from_uri ("GET", guri);
+    g_uri_unref (guri);
   } else {
     *msg = soup_message_new ("GET", self->hls_uri);
   }
@@ -262,10 +229,11 @@ plugin_query (GUri *uri)
 
     peertube = gtuber_peertube_new ();
     peertube->video_id = id;
-    peertube->source = gtuber_utils_common_obtain_uri_source (uri);
+    peertube->host = g_strdup (g_uri_get_host (uri));
+    peertube->use_http = strcmp (g_uri_get_scheme (uri), "http") == 0;
 
-    g_debug ("Requested source: %s, video: %s",
-        peertube->source, peertube->video_id);
+    g_debug ("Requested host: %s, video: %s",
+        peertube->host, peertube->video_id);
 
     return GTUBER_WEBSITE (peertube);
   }

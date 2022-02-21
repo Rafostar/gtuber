@@ -30,12 +30,16 @@
 #include "gtuber-cache.h"
 #include "gtuber-cache-private.h"
 #include "gtuber-loader-private.h"
+#include "gtuber-config.h"
 #include "gtuber-version.h"
 
 #define GTUBER_CACHE_BASENAME "gtuber_cache.bin"
 
 /* CACHE CONTENTS:
  * GtuberCacheHeader;
+ *
+ * gint64 config_mod_time;
+ * guint config_n_files;
  *
  * multiple dir data
  */
@@ -254,7 +258,7 @@ write_n_elems (FILE *file, const gchar *const *arr)
 }
 
 static gint64
-gtuber_cache_get_plugin_mod_time (GFileInfo *info)
+gtuber_cache_get_file_mod_time (GFileInfo *info)
 {
   GDateTime *date_time;
   gint64 unix_time = 0;
@@ -371,6 +375,121 @@ finish:
 }
 
 static void
+gtuber_cache_enumerate_configs (GFile *dir, gint64 *config_mod_time,
+    guint *config_n_files, GCancellable *cancellable, GError **error)
+{
+  GFileEnumerator *dir_enum;
+
+  dir_enum = g_file_enumerate_children (dir,
+      G_FILE_ATTRIBUTE_TIME_MODIFIED,
+      G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, cancellable, error);
+  if (!dir_enum)
+    return;
+
+  while (TRUE) {
+    GFileInfo *info = NULL;
+    gint64 file_mod_time;
+
+    if (!g_file_enumerator_iterate (dir_enum, &info,
+        NULL, cancellable, error) || !info)
+      break;
+
+    if (config_n_files)
+      *config_n_files += 1;
+
+    file_mod_time = gtuber_cache_get_file_mod_time (info);
+
+    if (config_mod_time && *config_mod_time < file_mod_time)
+      *config_mod_time = file_mod_time;
+  }
+
+  g_object_unref (dir_enum);
+}
+
+static gboolean
+gtuber_cache_read_config (FILE *file, GCancellable *cancellable,
+    GError **error)
+{
+  GFile *dir;
+  gchar *config_dir_path;
+  gint64 config_mod_time, latest_time = 0;
+  guint config_n_files, n_files = 0;
+
+  read_file_to_ptr (file, &config_mod_time, sizeof (gint64));
+  read_file_to_ptr (file, &config_n_files, sizeof (guint));
+
+  config_dir_path = gtuber_config_obtain_config_dir_path ();
+  g_debug ("Config dir path: %s", config_dir_path);
+
+  dir = g_file_new_for_path (config_dir_path);
+  g_free (config_dir_path);
+
+  /* Leaves latest_time as zero when config dir does not exists.
+   * This allows to detect if dir was removed/created since last gtuber usage */
+  if (g_file_query_exists (dir, cancellable)) {
+    gtuber_cache_enumerate_configs (dir, &latest_time, &n_files,
+        cancellable, error);
+  }
+  g_object_unref (dir);
+
+  if (error && *error != NULL)
+    return FALSE;
+
+  if (g_cancellable_is_cancelled (cancellable)) {
+    if (error && *error == NULL) {
+      g_set_error (error, G_IO_ERROR,
+          G_IO_ERROR_CANCELLED,
+          "Operation was cancelled");
+    }
+    return FALSE;
+  }
+
+  g_debug ("Config compared, mod_time: %li %s %li, "
+      "n_files: %u %s %u",
+      config_mod_time, (config_mod_time != latest_time) ? "!=" : "==", latest_time,
+      config_n_files, (config_n_files != n_files) ? "!=" : "==", n_files);
+
+  return (config_mod_time == latest_time && config_n_files == n_files);
+}
+
+static gboolean
+gtuber_cache_write_config (FILE *file, GCancellable *cancellable,
+    GError **error)
+{
+  GFile *dir;
+  gint64 config_mod_time = 0;
+  guint config_n_files = 0;
+
+  dir = gtuber_config_obtain_config_dir ();
+
+  if (g_file_query_exists (dir, cancellable)) {
+    gtuber_cache_enumerate_configs (dir, &config_mod_time, &config_n_files,
+      cancellable, error);
+  }
+  g_object_unref (dir);
+
+  if (error && *error != NULL)
+    return FALSE;
+
+  if (g_cancellable_is_cancelled (cancellable)) {
+    if (error && *error == NULL) {
+      g_set_error (error, G_IO_ERROR,
+          G_IO_ERROR_CANCELLED,
+          "Operation was cancelled");
+    }
+    return FALSE;
+  }
+
+  g_debug ("Writing config dir data, config_mod_time: %li, config_n_files: %u",
+      config_mod_time, config_n_files);
+
+  write_ptr_to_file (file, &config_mod_time, sizeof (gint64));
+  write_ptr_to_file (file, &config_n_files, sizeof (guint));
+
+  return TRUE;
+}
+
+static void
 gtuber_cache_enumerate_plugins (GFile *dir, GPtrArray *modules,
     gint64 *mod_time, guint *n_plugins, GCancellable *cancellable,
     GError **error)
@@ -403,11 +522,12 @@ gtuber_cache_enumerate_plugins (GFile *dir, GPtrArray *modules,
     if (n_plugins)
       *n_plugins += 1;
 
-    plugin_mod_time = gtuber_cache_get_plugin_mod_time (info);
+    plugin_mod_time = gtuber_cache_get_file_mod_time (info);
 
     if (mod_time && *mod_time < plugin_mod_time)
       *mod_time = plugin_mod_time;
   }
+
   g_object_unref (dir_enum);
 }
 
@@ -416,9 +536,9 @@ gtuber_cache_read_plugins_compat (FILE *file,
     const gchar *dir_path, GCancellable *cancellable, GError **error)
 {
   GFile *dir;
+  gchar *cache_dir_path;
   gint64 cache_mod_time, latest_time = 0;
   guint cache_n_plugins, n_plugins = 0;
-  gchar *cache_dir_path = NULL;
   gboolean changed;
 
   cache_dir_path = read_next_string (file);
@@ -453,9 +573,7 @@ gtuber_cache_read_plugins_compat (FILE *file,
       cache_mod_time, (cache_mod_time != latest_time) ? "!=" : "==", latest_time,
       cache_n_plugins, (cache_n_plugins != n_plugins) ? "!=" : "==", n_plugins);
 
-  if (changed) {
-    g_debug ("Plugins have changed");
-  } else {
+  if (!changed) {
     GtuberCachePluginDirData *dir_data;
     guint i;
 
@@ -502,7 +620,7 @@ fail:
 }
 
 static gboolean
-gtuber_cache_write_plugin_compat (FILE *file,
+gtuber_cache_write_plugins_compat (FILE *file,
     const gchar *dir_path, GCancellable *cancellable, GError **error)
 {
   GFile *dir;
@@ -510,11 +628,12 @@ gtuber_cache_write_plugin_compat (FILE *file,
   GtuberCachePluginDirData *dir_data;
   gint64 mod_time = 0;
   guint i, n_plugins = 0;
+  gboolean success = TRUE;
 
   dir = g_file_new_for_path (dir_path);
   if (!dir) {
     g_warning ("Malformed path in \"GTUBER_PLUGIN_PATH\" env: %s", dir_path);
-    goto fail;
+    return FALSE;
   }
 
   write_string (file, dir_path);
@@ -522,6 +641,9 @@ gtuber_cache_write_plugin_compat (FILE *file,
   module_names = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
   gtuber_cache_enumerate_plugins (dir, module_names, &mod_time, &n_plugins,
       cancellable, error);
+
+  g_debug ("Writing plugin dir data, mod_time: %li, n_plugins: %u",
+      mod_time, n_plugins);
 
   write_ptr_to_file (file, &mod_time, sizeof (gint64));
   write_ptr_to_file (file, &n_plugins, sizeof (guint));
@@ -531,7 +653,6 @@ gtuber_cache_write_plugin_compat (FILE *file,
   for (i = 0; i < module_names->len; i++) {
     GtuberCachePluginCompatData *data;
     gchar *module_path;
-    gboolean success = FALSE;
     guint j;
 
     const gchar *module_name;
@@ -547,9 +668,11 @@ gtuber_cache_write_plugin_compat (FILE *file,
         &plugin_schemes, &plugin_hosts);
     g_free (module_path);
 
+    /* Instant failure, if we skip a write here number of plugins
+     * in cache will not match number of plugin data objects */
     if (!success) {
-      g_warning ("No exported hosts support in plugin: %s", module_name);
-      continue;
+      g_warning ("Could not read plugin compat: %s", module_name);
+      break;
     }
 
     write_string (file, module_name);
@@ -578,10 +701,7 @@ gtuber_cache_write_plugin_compat (FILE *file,
   g_ptr_array_unref (module_names);
   gtuber_cache_take_dir_data (dir_data);
 
-  return TRUE;
-
-fail:
-  return FALSE;
+  return success;
 }
 
 void
@@ -603,29 +723,34 @@ gtuber_cache_init (GCancellable *cancellable, GError **error)
       (GDestroyNotify) gtuber_cache_plugin_dir_data_free);
 
   if (!gtuber_cache_prepare (cancellable, error))
-    return;
+    goto finish;
 
   file = gtuber_cache_open_read (GTUBER_CACHE_BASENAME);
   if (file) {
-    gchar **dir_paths;
+    if (gtuber_cache_read_config (file, cancellable, error)) {
+      gchar **dir_paths;
 
-    dir_paths = gtuber_loader_obtain_plugin_dir_paths ();
+      dir_paths = gtuber_loader_obtain_plugin_dir_paths ();
 
-    for (i = 0; dir_paths[i]; i++) {
-      if (!(success = gtuber_cache_read_plugins_compat (file, dir_paths[i],
-          cancellable, error))) {
-        gtuber_cache_clear ();
-        break;
+      for (i = 0; dir_paths[i]; i++) {
+        if (!(success = gtuber_cache_read_plugins_compat (file, dir_paths[i],
+            cancellable, error))) {
+          gtuber_cache_clear ();
+          break;
+        }
       }
+
+      g_strfreev (dir_paths);
     }
 
-    g_strfreev (dir_paths);
     fclose (file);
   }
 
-  if (!success) {
-    gchar **dir_paths;
+  if (g_cancellable_is_cancelled (cancellable)
+      || (error && *error != NULL))
+    goto finish;
 
+  if (!success) {
     g_debug ("Plugin cache needs rewriting");
 
     file = gtuber_cache_open_write (GTUBER_CACHE_BASENAME);
@@ -634,20 +759,27 @@ gtuber_cache_init (GCancellable *cancellable, GError **error)
       g_assert_not_reached ();
     }
 
-    dir_paths = gtuber_loader_obtain_plugin_dir_paths ();
+    if ((success = gtuber_cache_write_config (file, cancellable, error))) {
+      gchar **dir_paths;
 
-    for (i = 0; dir_paths[i]; i++) {
-      if (!(success = gtuber_cache_write_plugin_compat (file, dir_paths[i],
-          cancellable, error))) {
-        gtuber_cache_clear ();
-        break;
+      dir_paths = gtuber_loader_obtain_plugin_dir_paths ();
+
+      for (i = 0; dir_paths[i]; i++) {
+        if (!(success = gtuber_cache_write_plugins_compat (file, dir_paths[i],
+            cancellable, error))) {
+          gtuber_cache_clear ();
+          break;
+        }
       }
+
+      g_strfreev (dir_paths);
     }
 
     fclose (file);
     g_debug ("Plugin cache %srewritten", success ? "" : "could not be ");
   }
 
+finish:
   if (success) {
     g_debug ("Initialized cache");
   } else {
@@ -732,6 +864,10 @@ gtuber_cache_find_plugins_for_uri (GUri *guri)
 
   compatible = g_ptr_array_new_with_free_func (
       (GDestroyNotify) g_free);
+
+  /* Cache init failed, return empty array */
+  if (!plugins_cache)
+    return compatible;
 
   scheme = g_uri_get_scheme (guri);
   host = g_uri_get_host (guri);
