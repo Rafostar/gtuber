@@ -24,9 +24,17 @@
  */
 
 #include "gtuber-website.h"
+#include "gtuber-website-private.h"
+
+struct _GtuberWebsitePrivate
+{
+  GUri *uri;
+  gchar *uri_str;
+};
 
 #define parent_class gtuber_website_parent_class
-G_DEFINE_TYPE (GtuberWebsite, gtuber_website, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_CODE (GtuberWebsite, gtuber_website, G_TYPE_OBJECT,
+    G_ADD_PRIVATE (GtuberWebsite))
 G_DEFINE_QUARK (gtuberwebsite-error-quark, gtuber_website_error)
 
 static void gtuber_website_finalize (GObject *object);
@@ -69,10 +77,14 @@ static void
 gtuber_website_finalize (GObject *object)
 {
   GtuberWebsite *self = GTUBER_WEBSITE (object);
+  GtuberWebsitePrivate *priv = gtuber_website_get_instance_private (self);
 
   g_debug ("Website finalize");
 
-  g_free (self->uri);
+  if (priv->uri)
+    g_uri_unref (priv->uri);
+
+  g_free (priv->uri_str);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -140,36 +152,52 @@ gtuber_website_set_user_req_headers (GtuberWebsite *self,
   return GTUBER_FLOW_OK;
 }
 
+void
+gtuber_website_set_uri (GtuberWebsite *self, GUri *uri)
+{
+  GtuberWebsitePrivate *priv = gtuber_website_get_instance_private (self);
+
+  if (priv->uri)
+    g_uri_unref (priv->uri);
+
+  priv->uri = g_uri_ref (uri);
+
+  g_free (priv->uri_str);
+  priv->uri_str = g_uri_to_string (priv->uri);
+}
+
 /**
  * gtuber_website_get_uri:
  * @website: a #GtuberWebsite
  *
  * Returns: (transfer none): current requested URI.
  */
-const gchar *
+GUri *
 gtuber_website_get_uri (GtuberWebsite *self)
 {
+  GtuberWebsitePrivate *priv;
+
   g_return_val_if_fail (GTUBER_IS_WEBSITE (self), NULL);
 
-  return self->uri;
+  priv = gtuber_website_get_instance_private (self);
+
+  return priv->uri;
 }
 
 /**
- * gtuber_website_set_uri:
+ * gtuber_website_get_uri_string:
  * @website: a #GtuberWebsite
- * @uri: requested URI
  *
- * Set current requested URI.
- *
- * This is only useful for plugin implementations where
- * user requested URI needs to be altered, otherwise
- * #GtuberClient will set it automatically.
+ * Returns: (transfer none): current requested URI as string.
  */
-void
-gtuber_website_set_uri (GtuberWebsite *self, const gchar *uri)
+const gchar *
+gtuber_website_get_uri_string (GtuberWebsite *self)
 {
-  g_return_if_fail (GTUBER_IS_WEBSITE (self));
+  GtuberWebsitePrivate *priv;
 
-  g_free (self->uri);
-  self->uri = g_strdup (uri);
+  g_return_val_if_fail (GTUBER_IS_WEBSITE (self), NULL);
+
+  priv = gtuber_website_get_instance_private (self);
+
+  return priv->uri_str;
 }

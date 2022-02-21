@@ -70,16 +70,6 @@ gtuber_client_finalize (GObject *object)
 }
 
 static void
-gtuber_client_configure_website (GtuberClient *self,
-    GtuberWebsite *website, const gchar *uri)
-{
-  /* Plugin may set custom website config during init,
-   * otherwise set it with current values */
-  if (!gtuber_website_get_uri (website))
-    gtuber_website_set_uri (website, uri);
-}
-
-static void
 gtuber_client_configure_msg (GtuberClient *self, SoupMessage *msg)
 {
   SoupMessageHeaders *headers;
@@ -175,8 +165,6 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
 
     return NULL;
   }
-
-  gtuber_client_configure_website (self, website, uri);
 
   website_class = GTUBER_WEBSITE_GET_CLASS (website);
   website_class->prepare (website);

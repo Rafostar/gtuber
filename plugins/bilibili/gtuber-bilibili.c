@@ -273,7 +273,7 @@ gtuber_bilibili_create_request (GtuberWebsite *website,
   headers = soup_message_get_request_headers (*msg);
 
   soup_message_headers_replace (headers,
-      "Referer", gtuber_website_get_uri (website));
+      "Referer", gtuber_website_get_uri_string (website));
 
   return GTUBER_FLOW_OK;
 }

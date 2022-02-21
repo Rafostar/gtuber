@@ -20,6 +20,7 @@
 #include "config.h"
 #include "gtuber-loader-private.h"
 #include "gtuber-cache-private.h"
+#include "gtuber-website-private.h"
 
 typedef GtuberWebsite* (* PluginQuery) (GUri *uri);
 typedef const gchar *const * (* PluginHosts) (void);
@@ -141,8 +142,10 @@ gtuber_loader_get_website_internal (const gchar *module_path,
   }
 
   website = plugin_query (guri);
-  if (website)
+  if (website) {
+    gtuber_website_set_uri (website, guri);
     goto finish;
+  }
 
 fail:
   gtuber_loader_close_module (*module);

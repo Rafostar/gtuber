@@ -231,8 +231,9 @@ struct _GtuberWebsiteClass
 
 GType         gtuber_website_get_type              (void);
 
-const gchar * gtuber_website_get_uri               (GtuberWebsite *website);
-void          gtuber_website_set_uri               (GtuberWebsite *website, const gchar *uri);
+GUri *        gtuber_website_get_uri               (GtuberWebsite *website);
+
+const gchar * gtuber_website_get_uri_string        (GtuberWebsite *website);
 
 GQuark        gtuber_website_error_quark           (void);
 

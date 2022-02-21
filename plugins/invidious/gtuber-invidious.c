@@ -267,7 +267,7 @@ gtuber_invidious_create_request (GtuberWebsite *website,
     gchar *api_uri, *msg_uri;
 
     api_uri = g_uri_resolve_relative (
-        gtuber_website_get_uri (website),
+        gtuber_website_get_uri_string (website),
         "/api/v1/videos",
         G_URI_FLAGS_ENCODED,
         error);
