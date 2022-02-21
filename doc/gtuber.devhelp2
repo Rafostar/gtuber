@@ -20,6 +20,7 @@
       <sub name="GtuberStream Development" link="gtuber-GtuberStream-Development.html"/>
       <sub name="GtuberAdaptiveStream Development" link="gtuber-GtuberAdaptiveStream-Development.html"/>
       <sub name="Gtuber Cache" link="gtuber-Gtuber-Cache.html"/>
+      <sub name="Gtuber Config" link="gtuber-Gtuber-Config.html"/>
     </sub>
     <sub name="Index" link="api-index-full.html"/>
     <sub name="Index of deprecated symbols" link="api-index-deprecated.html"/>
@@ -116,8 +117,12 @@
     <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_DEFINE()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-DEFINE:CAPS"/>
     <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-SCHEMES:CAPS"/>
     <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS:CAPS"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE:CAPS"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-FALLBACK:CAPS"/>
+    <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-PREPEND:CAPS"/>
     <keyword type="function" name="gtuber_website_get_uri ()" link="GtuberWebsite.html#gtuber-website-get-uri"/>
-    <keyword type="function" name="gtuber_website_set_uri ()" link="GtuberWebsite.html#gtuber-website-set-uri"/>
+    <keyword type="function" name="gtuber_website_get_uri_string ()" link="GtuberWebsite.html#gtuber-website-get-uri-string"/>
+    <keyword type="function" name="gtuber_website_get_use_http ()" link="GtuberWebsite.html#gtuber-website-get-use-http"/>
     <keyword type="function" name="gtuber_website_error_quark ()" link="GtuberWebsite.html#gtuber-website-error-quark"/>
     <keyword type="macro" name="GTUBER_WEBSITE_ERROR" link="GtuberWebsite.html#GTUBER-WEBSITE-ERROR:CAPS"/>
     <keyword type="struct" name="struct GtuberWebsite" link="GtuberWebsite.html#GtuberWebsite-struct"/>
@@ -147,6 +152,12 @@
     <keyword type="function" name="gtuber_cache_plugin_read ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-read"/>
     <keyword type="function" name="gtuber_cache_plugin_write ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write"/>
     <keyword type="function" name="gtuber_cache_plugin_write_epoch ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write-epoch"/>
+    <keyword type="function" name="gtuber_config_obtain_config_dir_path ()" link="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir-path"/>
+    <keyword type="function" name="gtuber_config_obtain_config_file_path ()" link="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-file-path"/>
+    <keyword type="function" name="gtuber_config_obtain_config_dir ()" link="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir"/>
+    <keyword type="function" name="gtuber_config_obtain_config_dir_file ()" link="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir-file"/>
+    <keyword type="function" name="gtuber_config_read_plugin_hosts_file ()" link="gtuber-Gtuber-Config.html#gtuber-config-read-plugin-hosts-file"/>
+    <keyword type="function" name="gtuber_config_read_plugin_hosts_file_with_prepend ()" link="gtuber-Gtuber-Config.html#gtuber-config-read-plugin-hosts-file-with-prepend"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_UNKNOWN" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-UNKNOWN:CAPS"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_VIDEO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-VIDEO-MP4:CAPS"/>
     <keyword type="constant" name="GTUBER_STREAM_MIME_TYPE_AUDIO_MP4" link="gtuber-Enumeration-Types.html#GTUBER-STREAM-MIME-TYPE-AUDIO-MP4:CAPS"/>

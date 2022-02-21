@@ -6,7 +6,7 @@
 <meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Gtuber Reference Manual">
 <link rel="up" href="index.html" title="Gtuber Reference Manual">
-<link rel="prev" href="gtuber-Gtuber-Cache.html" title="Gtuber Cache">
+<link rel="prev" href="gtuber-Gtuber-Config.html" title="Gtuber Config">
 <link rel="next" href="api-index-deprecated.html" title="Index of deprecated symbols">
 <meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -34,7 +34,7 @@
                   <a class="shortcut" href="#idxW">W</a></span></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><img src="up-insensitive.png" width="16" height="16" border="0"></td>
-<td><a accesskey="p" href="gtuber-Gtuber-Cache.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gtuber-Gtuber-Config.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="api-index-deprecated.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="index">
@@ -136,6 +136,30 @@
 <dd></dd>
 <dt>
 <a class="link" href="gtuber-Enumeration-Types.html#GtuberCodecFlags" title="enum GtuberCodecFlags">GtuberCodecFlags</a>, enum in <a class="link" href="gtuber-Enumeration-Types.html" title="Enumeration Types">Enumeration Types</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir" title="gtuber_config_obtain_config_dir ()">gtuber_config_obtain_config_dir</a>, function in <a class="link" href="gtuber-Gtuber-Config.html" title="Gtuber Config">Gtuber Config</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir-file" title="gtuber_config_obtain_config_dir_file ()">gtuber_config_obtain_config_dir_file</a>, function in <a class="link" href="gtuber-Gtuber-Config.html" title="Gtuber Config">Gtuber Config</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir-path" title="gtuber_config_obtain_config_dir_path ()">gtuber_config_obtain_config_dir_path</a>, function in <a class="link" href="gtuber-Gtuber-Config.html" title="Gtuber Config">Gtuber Config</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-file-path" title="gtuber_config_obtain_config_file_path ()">gtuber_config_obtain_config_file_path</a>, function in <a class="link" href="gtuber-Gtuber-Config.html" title="Gtuber Config">Gtuber Config</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-read-plugin-hosts-file" title="gtuber_config_read_plugin_hosts_file ()">gtuber_config_read_plugin_hosts_file</a>, function in <a class="link" href="gtuber-Gtuber-Config.html" title="Gtuber Config">Gtuber Config</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-read-plugin-hosts-file-with-prepend" title="gtuber_config_read_plugin_hosts_file_with_prepend ()">gtuber_config_read_plugin_hosts_file_with_prepend</a>, function in <a class="link" href="gtuber-Gtuber-Config.html" title="Gtuber Config">Gtuber Config</a>
 </dt>
 <dd></dd>
 <a name="idxE"></a><h3 class="title">E</h3>
@@ -519,6 +543,14 @@ GtuberFunc, user_function in gtuber-types
 </dt>
 <dd></dd>
 <dt>
+<a class="link" href="GtuberWebsite.html#gtuber-website-get-uri-string" title="gtuber_website_get_uri_string ()">gtuber_website_get_uri_string</a>, function in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#gtuber-website-get-use-http" title="gtuber_website_get_use_http ()">gtuber_website_get_use_http</a>, function in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
 <a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-DECLARE:CAPS" title="GTUBER_WEBSITE_PLUGIN_DECLARE()">GTUBER_WEBSITE_PLUGIN_DECLARE</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
 </dt>
 <dd></dd>
@@ -531,11 +563,19 @@ GtuberFunc, user_function in gtuber-types
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-SCHEMES:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES()">GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GtuberWebsite.html#gtuber-website-set-uri" title="gtuber_website_set_uri ()">gtuber_website_set_uri</a>, function in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-FALLBACK:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-PREPEND:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-SCHEMES:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES()">GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES</a>, macro in <a class="link" href="GtuberWebsite.html" title="GtuberWebsite">GtuberWebsite</a>
 </dt>
 <dd></dd>
 </div>

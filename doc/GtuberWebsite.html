@@ -65,18 +65,44 @@
 </td>
 </tr>
 <tr>
-<td class="function_type">const <span class="returnvalue">gchar</span> *
+<td class="define_keyword">#define</td>
+<td class="function_name">
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE</a><span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name">
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-FALLBACK:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK</a><span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name">
+<a class="link" href="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-PREPEND:CAPS" title="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND()">GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND</a><span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GUri</span> *
 </td>
 <td class="function_name">
 <a class="link" href="GtuberWebsite.html#gtuber-website-get-uri" title="gtuber_website_get_uri ()">gtuber_website_get_uri</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
-<td class="function_type">
-<span class="returnvalue">void</span>
+<td class="function_type">const <span class="returnvalue">gchar</span> *
 </td>
 <td class="function_name">
-<a class="link" href="GtuberWebsite.html#gtuber-website-set-uri" title="gtuber_website_set_uri ()">gtuber_website_set_uri</a> <span class="c_punctuation">()</span>
+<a class="link" href="GtuberWebsite.html#gtuber-website-get-uri-string" title="gtuber_website_get_uri_string ()">gtuber_website_get_uri_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gboolean</span>
+</td>
+<td class="function_name">
+<a class="link" href="GtuberWebsite.html#gtuber-website-get-use-http" title="gtuber_website_get_use_http ()">gtuber_website_get_use_http</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -230,8 +256,93 @@ separated by <code class="literal">_</code>.</p></td>
 </div>
 <hr>
 <div class="refsect2">
+<a name="GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE:CAPS"></a><h3>GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE()</h3>
+<pre class="programlisting">#define             GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE(lower)</pre>
+<p>Convenient macro that exports plugin supported hosts from
+  user provided config file.</p>
+<div class="refsect3">
+<a name="GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>lower</p></td>
+<td class="parameter_description"><p>lowercase name of the website, with multiple words
+separated by <code class="literal">_</code>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-FALLBACK:CAPS"></a><h3>GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK()</h3>
+<pre class="programlisting">#define             GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK(lower, ...)</pre>
+<p>Convenient macro that exports plugin supported hosts from
+  user provided config file and if it does not exists uses
+  hardcoded list of hosts as fallback.</p>
+<div class="refsect3">
+<a name="GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-FALLBACK.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>lower</p></td>
+<td class="parameter_description"><p>lowercase name of the website, with multiple words
+separated by <code class="literal">_</code>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>...</p></td>
+<td class="parameter_description"><p><code class="literal">NULL</code> terminated list of supported hosts.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-PREPEND:CAPS"></a><h3>GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND()</h3>
+<pre class="programlisting">#define             GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND(lower, ...)</pre>
+<p>Convenient macro that exports plugin supported hosts from
+  user provided config file with prepended additional hosts
+  without touching said file.</p>
+<div class="refsect3">
+<a name="GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-PREPEND.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>lower</p></td>
+<td class="parameter_description"><p>lowercase name of the website, with multiple words
+separated by <code class="literal">_</code>.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>...</p></td>
+<td class="parameter_description"><p><code class="literal">NULL</code> terminated list of supported hosts.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
 <a name="gtuber-website-get-uri"></a><h3>gtuber_website_get_uri ()</h3>
-<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+<pre class="programlisting"><span class="returnvalue">GUri</span> *
 gtuber_website_get_uri (<em class="parameter"><code><a class="link" href="GtuberWebsite.html" title="GtuberWebsite"><span class="type">GtuberWebsite</span></a> *website</code></em>);</pre>
 <div class="refsect3">
 <a name="gtuber-website-get-uri.parameters"></a><h4>Parameters</h4>
@@ -256,35 +367,55 @@ gtuber_website_get_uri (<em class="parameter"><code><a class="link" href="Gtuber
 </div>
 <hr>
 <div class="refsect2">
-<a name="gtuber-website-set-uri"></a><h3>gtuber_website_set_uri ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-gtuber_website_set_uri (<em class="parameter"><code><a class="link" href="GtuberWebsite.html" title="GtuberWebsite"><span class="type">GtuberWebsite</span></a> *website</code></em>,
-                        <em class="parameter"><code>const <span class="type">gchar</span> *uri</code></em>);</pre>
-<p>Set current requested URI.</p>
-<p>This is only useful for plugin implementations where
-user requested URI needs to be altered, otherwise
-<a class="link" href="GtuberClient.html" title="GtuberClient"><span class="type">GtuberClient</span></a> will set it automatically.</p>
+<a name="gtuber-website-get-uri-string"></a><h3>gtuber_website_get_uri_string ()</h3>
+<pre class="programlisting">const <span class="returnvalue">gchar</span> *
+gtuber_website_get_uri_string (<em class="parameter"><code><a class="link" href="GtuberWebsite.html" title="GtuberWebsite"><span class="type">GtuberWebsite</span></a> *website</code></em>);</pre>
 <div class="refsect3">
-<a name="gtuber-website-set-uri.parameters"></a><h4>Parameters</h4>
+<a name="gtuber-website-get-uri-string.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
 <col width="200px" class="parameters_annotations">
 </colgroup>
-<tbody>
-<tr>
+<tbody><tr>
 <td class="parameter_name"><p>website</p></td>
 <td class="parameter_description"><p>a <a class="link" href="GtuberWebsite.html" title="GtuberWebsite"><span class="type">GtuberWebsite</span></a></p></td>
 <td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>uri</p></td>
-<td class="parameter_description"><p>requested URI</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-website-get-uri-string.returns"></a><h4>Returns</h4>
+<p>current requested URI as string. </p>
+<p><span class="annotation">[<acronym title="The data is owned by the callee, which is responsible of freeing it."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-website-get-use-http"></a><h3>gtuber_website_get_use_http ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>
+gtuber_website_get_use_http (<em class="parameter"><code><a class="link" href="GtuberWebsite.html" title="GtuberWebsite"><span class="type">GtuberWebsite</span></a> *website</code></em>);</pre>
+<p>Check if user provided URI indicates that unsecure HTTP
+connection should be used.</p>
+<div class="refsect3">
+<a name="gtuber-website-get-use-http.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>website</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GtuberWebsite.html" title="GtuberWebsite"><span class="type">GtuberWebsite</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-website-get-use-http.returns"></a><h4>Returns</h4>
+<p> <code class="literal">TRUE</code> if user requested HTTP, <code class="literal">FALSE</code> otherwise.</p>
 </div>
 </div>
 <hr>

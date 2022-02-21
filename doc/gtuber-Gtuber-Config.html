@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Gtuber Config: Gtuber Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Gtuber Reference Manual">
+<link rel="up" href="gtuber-devel.html" title="Plugin Development Reference">
+<link rel="prev" href="gtuber-Gtuber-Cache.html" title="Gtuber Cache">
+<link rel="next" href="api-index-full.html" title="Index">
+<meta name="generator" content="GTK-Doc V1.33.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gtuber-Gtuber-Config.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="gtuber-devel.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="gtuber-Gtuber-Cache.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="api-index-full.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="gtuber-Gtuber-Config"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="gtuber-Gtuber-Config.top_of_page"></a>Gtuber Config</span></h2>
+<p>Gtuber Config — functions for reading local user config</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="gtuber-Gtuber-Config.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_proto_type">
+<col class="functions_proto_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir-path" title="gtuber_config_obtain_config_dir_path ()">gtuber_config_obtain_config_dir_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gchar</span> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-file-path" title="gtuber_config_obtain_config_file_path ()">gtuber_config_obtain_config_file_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GFile</span> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir" title="gtuber_config_obtain_config_dir ()">gtuber_config_obtain_config_dir</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GFile</span> *
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-obtain-config-dir-file" title="gtuber_config_obtain_config_dir_file ()">gtuber_config_obtain_config_dir_file</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gchar</span> **
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-read-plugin-hosts-file" title="gtuber_config_read_plugin_hosts_file ()">gtuber_config_read_plugin_hosts_file</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">gchar</span> **
+</td>
+<td class="function_name">
+<a class="link" href="gtuber-Gtuber-Config.html#gtuber-config-read-plugin-hosts-file-with-prepend" title="gtuber_config_read_plugin_hosts_file_with_prepend ()">gtuber_config_read_plugin_hosts_file_with_prepend</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="gtuber-Gtuber-Config.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="gtuber-Gtuber-Config.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="gtuber-config-obtain-config-dir-path"></a><h3>gtuber_config_obtain_config_dir_path ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *
+gtuber_config_obtain_config_dir_path (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Obtains a complete filename leading to gtuber config
+folder within user config directory.</p>
+<div class="refsect3">
+<a name="gtuber-config-obtain-config-dir-path.returns"></a><h4>Returns</h4>
+<p>filename of config directory. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-config-obtain-config-file-path"></a><h3>gtuber_config_obtain_config_file_path ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> *
+gtuber_config_obtain_config_file_path (<em class="parameter"><code>const <span class="type">gchar</span> *file_name</code></em>);</pre>
+<p>Obtains a complete filename leading to a file within
+gtuber config directory.</p>
+<div class="refsect3">
+<a name="gtuber-config-obtain-config-file-path.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>file_name</p></td>
+<td class="parameter_description"><p>name of the config file</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-config-obtain-config-file-path.returns"></a><h4>Returns</h4>
+<p>filename of config file. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-config-obtain-config-dir"></a><h3>gtuber_config_obtain_config_dir ()</h3>
+<pre class="programlisting"><span class="returnvalue">GFile</span> *
+gtuber_config_obtain_config_dir (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Obtains a <span class="type">GFile</span> from path leading to gtuber config directory.</p>
+<div class="refsect3">
+<a name="gtuber-config-obtain-config-dir.returns"></a><h4>Returns</h4>
+<p>a <span class="type">GFile</span> from gtuber config directory. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-config-obtain-config-dir-file"></a><h3>gtuber_config_obtain_config_dir_file ()</h3>
+<pre class="programlisting"><span class="returnvalue">GFile</span> *
+gtuber_config_obtain_config_dir_file (<em class="parameter"><code>const <span class="type">gchar</span> *file_name</code></em>);</pre>
+<p>Obtains a <span class="type">GFile</span> from file within gtuber config directory.</p>
+<div class="refsect3">
+<a name="gtuber-config-obtain-config-dir-file.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>file_name</p></td>
+<td class="parameter_description"><p>name of the config file</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-config-obtain-config-dir-file.returns"></a><h4>Returns</h4>
+<p>a <span class="type">GFile</span> from file within gtuber config directory. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-config-read-plugin-hosts-file"></a><h3>gtuber_config_read_plugin_hosts_file ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> **
+gtuber_config_read_plugin_hosts_file (<em class="parameter"><code>const <span class="type">gchar</span> *file_name</code></em>);</pre>
+<p>Obtains a list of hosts read from file within gtuber config directory.</p>
+<div class="refsect3">
+<a name="gtuber-config-read-plugin-hosts-file.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>file_name</p></td>
+<td class="parameter_description"><p>name of the config file</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-config-read-plugin-hosts-file.returns"></a><h4>Returns</h4>
+<p>a list of hosts from config file. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gtuber-config-read-plugin-hosts-file-with-prepend"></a><h3>gtuber_config_read_plugin_hosts_file_with_prepend ()</h3>
+<pre class="programlisting"><span class="returnvalue">gchar</span> **
+gtuber_config_read_plugin_hosts_file_with_prepend
+                               (<em class="parameter"><code>const <span class="type">gchar</span> *file_name</code></em>,
+                                <em class="parameter"><code>...</code></em>);</pre>
+<p>Obtains a list of hosts read from file within gtuber config directory.
+Additional hosts are prepended to the list without modifying file contents.</p>
+<div class="refsect3">
+<a name="gtuber-config-read-plugin-hosts-file-with-prepend.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>file_name</p></td>
+<td class="parameter_description"><p>name of the config file</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>...</p></td>
+<td class="parameter_description"><p><code class="literal">NULL</code> terminated list of additional hosts to prepend</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gtuber-config-read-plugin-hosts-file-with-prepend.returns"></a><h4>Returns</h4>
+<p>a combined list of hosts. </p>
+<p><span class="annotation">[<acronym title="The caller owns the data, and is responsible for free it."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.33.1</div>
+</body>
+</html>
