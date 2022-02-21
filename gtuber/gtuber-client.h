@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_CLIENT_H__
-#define __GTUBER_CLIENT_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -66,5 +65,3 @@ GtuberMediaInfo * gtuber_client_fetch_media_info_finish    (GtuberClient *client
 GQuark            gtuber_client_error_quark                (void);
 
 G_END_DECLS
-
-#endif /* __GTUBER_CLIENT_H__ */

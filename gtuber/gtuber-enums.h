@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_ENUMS_H__
-#define __GTUBER_ENUMS_H__
+#pragma once
 
 /**
  * SECTION:gtuber-enums
@@ -134,5 +133,3 @@ typedef enum
 } GtuberFlow;
 
 G_END_DECLS
-
-#endif /* __GTUBER_ENUMS_H__ */

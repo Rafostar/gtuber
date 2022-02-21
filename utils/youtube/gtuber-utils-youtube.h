@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_UTILS_YOUTUBE_H__
-#define __GTUBER_UTILS_YOUTUBE_H__
+#pragma once
 
 #include <glib.h>
 #include <gtuber/gtuber.h>
@@ -34,5 +33,3 @@ gboolean   gtuber_utils_youtube_parse_hls_input_stream               (GInputStre
 gboolean   gtuber_utils_youtube_parse_hls_input_stream_with_base_uri (GInputStream *stream, GtuberMediaInfo *info, const gchar *base_uri, GError **error);
 
 G_END_DECLS
-
-#endif /* __GTUBER_UTILS_YOUTUBE_H__ */

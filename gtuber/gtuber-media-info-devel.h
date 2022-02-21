@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_MEDIA_INFO_DEVEL_H__
-#define __GTUBER_MEDIA_INFO_DEVEL_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -45,5 +44,3 @@ void              gtuber_media_info_add_stream              (GtuberMediaInfo *in
 void              gtuber_media_info_add_adaptive_stream     (GtuberMediaInfo *info, GtuberAdaptiveStream *stream);
 
 G_END_DECLS
-
-#endif /* __GTUBER_MEDIA_INFO_DEVEL_H__ */

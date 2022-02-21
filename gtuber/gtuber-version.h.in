@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_VERSION_H__
-#define __GTUBER_VERSION_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -85,5 +84,3 @@
    (GTUBER_MAJOR_VERSION == (major) && GTUBER_MINOR_VERSION > (minor)) || \
    (GTUBER_MAJOR_VERSION == (major) && GTUBER_MINOR_VERSION == (minor) && \
     GTUBER_MICRO_VERSION >= (micro)))
-
-#endif /* __GTUBER_VERSION_H__ */

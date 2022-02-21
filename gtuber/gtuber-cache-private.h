@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_CACHE_PRIVATE_H__
-#define __GTUBER_CACHE_PRIVATE_H__
+#pragma once
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -35,5 +34,3 @@ G_GNUC_INTERNAL
 const gchar *const * gtuber_cache_get_supported_schemes (void);
 
 G_END_DECLS
-
-#endif /* __GTUBER_CACHE_PRIVATE_H__ */

@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_WEBSITE_H__
-#define __GTUBER_WEBSITE_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -231,11 +230,10 @@ struct _GtuberWebsiteClass
 
 GType         gtuber_website_get_type              (void);
 
-const gchar * gtuber_website_get_uri               (GtuberWebsite *website);
-void          gtuber_website_set_uri               (GtuberWebsite *website, const gchar *uri);
+GUri *        gtuber_website_get_uri               (GtuberWebsite *website);
+
+const gchar * gtuber_website_get_uri_string        (GtuberWebsite *website);
 
 GQuark        gtuber_website_error_quark           (void);
 
 G_END_DECLS
-
-#endif /* __GTUBER_WEBSITE_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rafał Dzięgiel <rafostar.github@gmail.com>
+ * Copyright (C) 2022 Rafał Dzięgiel <rafostar.github@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,15 +19,13 @@
 
 #pragma once
 
-#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
-#error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
-#endif
-
 #include <glib.h>
 
 G_BEGIN_DECLS
 
-gboolean             gtuber_has_plugin_for_uri             (const gchar *uri, gchar **filename);
-const gchar *const * gtuber_get_supported_schemes          (void);
+typedef struct _GtuberWebsitePrivate GtuberWebsitePrivate;
+
+G_GNUC_INTERNAL
+void gtuber_website_set_uri (GtuberWebsite *website, GUri *uri);
 
 G_END_DECLS

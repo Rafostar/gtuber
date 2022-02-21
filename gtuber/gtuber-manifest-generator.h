@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_MANIFEST_GENERATOR_H__
-#define __GTUBER_MANIFEST_GENERATOR_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -91,5 +90,3 @@ gboolean                     gtuber_manifest_generator_to_file             (Gtub
 GQuark                       gtuber_manifest_generator_error_quark         (void);
 
 G_END_DECLS
-
-#endif /* __GTUBER_MANIFEST_GENERATOR_H__ */
