@@ -37,11 +37,8 @@ struct _GtuberPeertube
 {
   GtuberWebsite parent;
 
-  gchar *host;
   gchar *video_id;
   gchar *hls_uri;
-
-  gboolean use_http;
 };
 
 #define parent_class gtuber_peertube_parent_class
@@ -79,7 +76,6 @@ gtuber_peertube_finalize (GObject *object)
 
   g_debug ("Peertube finalize");
 
-  g_free (self->host);
   g_free (self->video_id);
   g_free (self->hls_uri);
 
@@ -165,13 +161,22 @@ gtuber_peertube_create_request (GtuberWebsite *website,
   GtuberPeertube *self = GTUBER_PEERTUBE (website);
 
   if (!self->hls_uri) {
-    GUri *guri;
+    GUri *guri, *website_uri;
     gchar *path;
+    gboolean use_http;
+
+    website_uri = gtuber_website_get_uri (website);
+    use_http = (g_uri_get_port (website_uri) == 80
+        || strcmp (g_uri_get_scheme (website_uri), "http") == 0);
+
+    g_debug ("Using secure HTTP: %s", use_http ? "no" : "yes");
 
     path = g_strdup_printf ("/api/v1/videos/%s", self->video_id);
     guri = g_uri_build (G_URI_FLAGS_ENCODED,
-        self->use_http ? "http" : "https",
-        NULL, self->host, -1, path, NULL, NULL);
+        use_http ? "http" : "https", NULL,
+        g_uri_get_host (website_uri),
+        g_uri_get_port (website_uri),
+        path, NULL, NULL);
     g_free (path);
 
     *msg = soup_message_new_from_uri ("GET", guri);
@@ -198,14 +203,10 @@ gtuber_peertube_parse_input_stream (GtuberWebsite *website,
   }
 
   parser = json_parser_new ();
-  json_parser_load_from_stream (parser, stream, NULL, error);
-  if (*error)
-    goto finish;
-
-  gtuber_utils_json_parser_debug (parser);
-  parse_response_data (self, parser, info, error);
-
-finish:
+  if (json_parser_load_from_stream (parser, stream, NULL, error)) {
+    gtuber_utils_json_parser_debug (parser);
+    parse_response_data (self, parser, info, error);
+  }
   g_object_unref (parser);
 
   if (*error)
@@ -229,11 +230,9 @@ plugin_query (GUri *uri)
 
     peertube = gtuber_peertube_new ();
     peertube->video_id = id;
-    peertube->host = g_strdup (g_uri_get_host (uri));
-    peertube->use_http = strcmp (g_uri_get_scheme (uri), "http") == 0;
 
     g_debug ("Requested host: %s, video: %s",
-        peertube->host, peertube->video_id);
+        g_uri_get_host (uri), peertube->video_id);
 
     return GTUBER_WEBSITE (peertube);
   }
