@@ -620,7 +620,7 @@ fail:
 }
 
 static gboolean
-gtuber_cache_write_plugin_compat (FILE *file,
+gtuber_cache_write_plugins_compat (FILE *file,
     const gchar *dir_path, GCancellable *cancellable, GError **error)
 {
   GFile *dir;
@@ -765,7 +765,7 @@ gtuber_cache_init (GCancellable *cancellable, GError **error)
       dir_paths = gtuber_loader_obtain_plugin_dir_paths ();
 
       for (i = 0; dir_paths[i]; i++) {
-        if (!(success = gtuber_cache_write_plugin_compat (file, dir_paths[i],
+        if (!(success = gtuber_cache_write_plugins_compat (file, dir_paths[i],
             cancellable, error))) {
           gtuber_cache_clear ();
           break;
