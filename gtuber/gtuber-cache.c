@@ -628,11 +628,12 @@ gtuber_cache_write_plugin_compat (FILE *file,
   GtuberCachePluginDirData *dir_data;
   gint64 mod_time = 0;
   guint i, n_plugins = 0;
+  gboolean success = TRUE;
 
   dir = g_file_new_for_path (dir_path);
   if (!dir) {
     g_warning ("Malformed path in \"GTUBER_PLUGIN_PATH\" env: %s", dir_path);
-    goto fail;
+    return FALSE;
   }
 
   write_string (file, dir_path);
@@ -652,7 +653,6 @@ gtuber_cache_write_plugin_compat (FILE *file,
   for (i = 0; i < module_names->len; i++) {
     GtuberCachePluginCompatData *data;
     gchar *module_path;
-    gboolean success = FALSE;
     guint j;
 
     const gchar *module_name;
@@ -668,9 +668,12 @@ gtuber_cache_write_plugin_compat (FILE *file,
         &plugin_schemes, &plugin_hosts);
     g_free (module_path);
 
-    /* Plugin might not export any hosts if it reads them from config file */
-    if (!success)
-      g_debug ("No exported hosts support in plugin: %s", module_name);
+    /* Instant failure, if we skip a write here number of plugins
+     * in cache will not match number of plugin data objects */
+    if (!success) {
+      g_warning ("Could not read plugin compat: %s", module_name);
+      break;
+    }
 
     write_string (file, module_name);
     data = gtuber_cache_plugin_compat_data_new (module_name);
@@ -698,10 +701,7 @@ gtuber_cache_write_plugin_compat (FILE *file,
   g_ptr_array_unref (module_names);
   gtuber_cache_take_dir_data (dir_data);
 
-  return TRUE;
-
-fail:
-  return FALSE;
+  return success;
 }
 
 void
