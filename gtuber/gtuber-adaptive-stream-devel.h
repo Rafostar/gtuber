@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_DEVEL_H__
-#define __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_DEVEL_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -37,5 +36,3 @@ void                   gtuber_adaptive_stream_set_init_range      (GtuberAdaptiv
 void                   gtuber_adaptive_stream_set_index_range     (GtuberAdaptiveStream *stream, guint64 start, guint64 end);
 
 G_END_DECLS
-
-#endif /* __GTUBER_ADAPTIVE_ADAPTIVE_STREAM_DEVEL_H__ */

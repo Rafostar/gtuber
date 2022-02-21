@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_CONFIG_H__
-#define __GTUBER_CONFIG_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -42,5 +41,3 @@ gchar **    gtuber_config_read_plugin_hosts_file              (const gchar *file
 gchar **    gtuber_config_read_plugin_hosts_file_with_prepend (const gchar *file_name, ...) G_GNUC_NULL_TERMINATED;
 
 G_END_DECLS
-
-#endif /* __GTUBER_CONFIG_H__ */

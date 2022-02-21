@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_MISC_FUNCTIONS_H__
-#define __GTUBER_MISC_FUNCTIONS_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -32,5 +31,3 @@ gboolean             gtuber_has_plugin_for_uri             (const gchar *uri, gc
 const gchar *const * gtuber_get_supported_schemes          (void);
 
 G_END_DECLS
-
-#endif /* __GTUBER_MISC_FUNCTIONS_H__ */

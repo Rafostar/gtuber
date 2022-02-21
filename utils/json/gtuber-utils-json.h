@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_UTILS_JSON_H__
-#define __GTUBER_UTILS_JSON_H__
+#pragma once
 
 #include <glib.h>
 #include <json-glib/json-glib.h>
@@ -41,5 +40,3 @@ gboolean             gtuber_utils_json_array_foreach        (JsonReader *reader,
 void                 gtuber_utils_json_parser_debug         (JsonParser *parser);
 
 G_END_DECLS
-
-#endif /* __GTUBER_UTILS_JSON_H__ */

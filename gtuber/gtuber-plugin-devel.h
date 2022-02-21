@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_PLUGIN_DEVEL_H__
-#define __GTUBER_PLUGIN_DEVEL_H__
+#pragma once
 
 #include <gtuber/gtuber.h>
 
@@ -32,5 +31,3 @@
 #include <gtuber/gtuber-media-info-devel.h>
 
 #undef __GTUBER_INSIDE__
-
-#endif /* __GTUBER_PLUGIN_DEVEL_H__ */

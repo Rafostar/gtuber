@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_LOADER_PRIVATE_H__
-#define __GTUBER_LOADER_PRIVATE_H__
+#pragma once
 
 #include <glib.h>
 #include <gmodule.h>
@@ -47,5 +46,3 @@ G_GNUC_INTERNAL
 void gtuber_loader_close_module (GModule *module);
 
 G_END_DECLS
-
-#endif /* __GTUBER_LOADER_PRIVATE_H__ */

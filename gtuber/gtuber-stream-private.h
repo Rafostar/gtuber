@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_STREAM_PRIVATE_H__
-#define __GTUBER_STREAM_PRIVATE_H__
+#pragma once
 
 #include <glib.h>
 #include <gtuber/gtuber-stream.h>
@@ -47,5 +46,3 @@ struct _GtuberStreamClass
 };
 
 G_END_DECLS
-
-#endif /* __GTUBER_STREAM_PRIVATE_H__ */

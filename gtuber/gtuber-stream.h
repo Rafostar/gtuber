@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_STREAM_H__
-#define __GTUBER_STREAM_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -75,5 +74,3 @@ guint                gtuber_stream_get_fps              (GtuberStream *stream);
 guint                gtuber_stream_get_bitrate          (GtuberStream *stream);
 
 G_END_DECLS
-
-#endif /* __GTUBER_STREAM_H__ */

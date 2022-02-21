@@ -17,8 +17,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GTUBER_CACHE_H__
-#define __GTUBER_CACHE_H__
+#pragma once
 
 #if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
 #error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
@@ -33,5 +32,3 @@ void    gtuber_cache_plugin_write       (const gchar *plugin_name, const gchar *
 void    gtuber_cache_plugin_write_epoch (const gchar *plugin_name, const gchar *key, const gchar *val, gint64 epoch);
 
 G_END_DECLS
-
-#endif /* __GTUBER_CACHE_H__ */
