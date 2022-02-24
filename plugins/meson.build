@@ -11,6 +11,7 @@ all_plugins = [
 
 # Shared deps
 json_glib_dep = dependency('json-glib-1.0', version: '>=1.2.0', required: false)
+libxml_dep = dependency('libxml-2.0', version: '>=2.9.0', required: false)
 
 build_plugins = []
 foreach name : all_plugins

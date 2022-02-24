@@ -10,6 +10,7 @@ option('gst-gtuber', type: 'feature', value: 'auto', description: 'GStreamer plu
 # Utils
 option('utils-common', type: 'feature', value: 'auto')
 option('utils-json', type: 'feature', value: 'auto')
+option('utils-xml', type: 'feature', value: 'auto')
 option('utils-youtube', type: 'feature', value: 'auto')
 
 # Plugins

@@ -2,6 +2,7 @@
 all_utils = [
   'common',
   'json',
+  'xml',
   'youtube',
 ]
 
