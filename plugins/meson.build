@@ -3,6 +3,7 @@ all_plugins = [
   'bilibili',
   'invidious',
   'lbry',
+  'niconico',
   'peertube',
   'piped',
   'twitch',
