@@ -3,6 +3,7 @@ all_tests = {
   'bilibili': [1, 2, 3],
   'invidious': [1, 2],
   'lbry': [1, 2, 3, 4],
+  'niconico': [1],
   'peertube': [1, 2],
   'piped': [1, 2],
   'twitch': [1, 2],
