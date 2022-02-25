@@ -24,6 +24,8 @@
 #include "utils/json/gtuber-utils-json.h"
 #include "utils/xml/gtuber-utils-xml.h"
 
+#include "gtuber-niconico-heartbeat.h"
+
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "nicovideo.jp",
   NULL
@@ -446,8 +448,23 @@ gtuber_niconico_parse_input_stream (GtuberWebsite *website,
             "Could not obtain streaming permission");
       }
     } else {
-      if (!(self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader,
+      /* We have HLS URI now, so also add heartbeat */
+      if ((self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader,
           "data", "session", "content_uri", NULL)))) {
+        GtuberHeartbeat *heartbeat;
+        guint interval;
+
+        heartbeat = gtuber_niconico_heartbeat_new (self->api_uri,
+            json_parser_get_root (parser));
+
+        /* 1/3 of lifetime as interval */
+        interval = (gtuber_utils_json_get_int (reader, "data", "session",
+            "keep_method", "heartbeat", "lifetime", NULL) / 3);
+        g_debug ("Heartbeat interval: %ums", interval);
+        gtuber_heartbeat_set_interval (heartbeat, interval);
+
+        gtuber_media_info_take_heartbeat (info, heartbeat);
+      } else {
         g_set_error (error, GTUBER_WEBSITE_ERROR,
             GTUBER_WEBSITE_ERROR_PARSE_FAILED,
             "No content URI in session response");

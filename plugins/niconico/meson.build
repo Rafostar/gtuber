@@ -5,6 +5,9 @@ plugin_deps += [
   json_glib_dep,
   libxml_dep,
 ]
+plugin_sources += [
+  'gtuber-' + name + '-heartbeat.c'
+]
 foreach dep : plugin_deps
   if not dep.found()
     if plugin_option.enabled()
