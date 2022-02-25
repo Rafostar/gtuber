@@ -120,6 +120,19 @@ typedef enum
 } GtuberWebsiteError;
 
 /**
+ * GtuberHeartbeatError:
+ * @GTUBER_HEARTBEAT_ERROR_PING_FAILED: ping action on website failed.
+ * @GTUBER_HEARTBEAT_ERROR_PONG_FAILED: pong action from website failed.
+ * @GTUBER_HEARTBEAT_ERROR_OTHER: some other error occured.
+ */
+typedef enum
+{
+  GTUBER_HEARTBEAT_ERROR_PING_FAILED,
+  GTUBER_HEARTBEAT_ERROR_PONG_FAILED,
+  GTUBER_HEARTBEAT_ERROR_OTHER,
+} GtuberHeartbeatError;
+
+/**
  * GtuberFlow:
  * @GTUBER_FLOW_OK: continue parsing.
  * @GTUBER_FLOW_ERROR: give up.

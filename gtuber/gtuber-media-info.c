@@ -32,6 +32,7 @@
 #include "gtuber-media-info-devel.h"
 #include "gtuber-stream-private.h"
 #include "gtuber-adaptive-stream-private.h"
+#include "gtuber-heartbeat-private.h"
 
 enum
 {
@@ -59,6 +60,8 @@ struct _GtuberMediaInfo
 
   GHashTable *chapters;
   GHashTable *req_headers;
+
+  GtuberHeartbeat *heartbeat;
 };
 
 struct _GtuberMediaInfoClass
@@ -73,6 +76,7 @@ static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
 static void gtuber_media_info_get_property (GObject *object, guint prop_id,
     GValue *value, GParamSpec *pspec);
+static void gtuber_media_info_dispose (GObject *object);
 static void gtuber_media_info_finalize (GObject *object);
 
 static void
@@ -103,6 +107,7 @@ gtuber_media_info_class_init (GtuberMediaInfoClass *klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
   gobject_class->get_property = gtuber_media_info_get_property;
+  gobject_class->dispose = gtuber_media_info_dispose;
   gobject_class->finalize = gtuber_media_info_finalize;
 
   param_specs[PROP_ID] = g_param_spec_string ("id",
@@ -163,6 +168,16 @@ gtuber_media_info_get_property (GObject *object, guint prop_id,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
+}
+
+static void
+gtuber_media_info_dispose (GObject *object)
+{
+  GtuberMediaInfo *self = GTUBER_MEDIA_INFO (object);
+
+  g_clear_object (&self->heartbeat);
+
+  G_OBJECT_CLASS (parent_class)->dispose (object);
 }
 
 static void
@@ -469,4 +484,26 @@ gtuber_media_info_get_request_headers (GtuberMediaInfo *self)
   g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);
 
   return self->req_headers;
+}
+
+/**
+ * gtuber_media_info_take_heartbeat:
+ * @info: a #GtuberMediaInfo
+ * @heartbeat: (transfer full): a #GtuberHeartbeat
+ *
+ * Transfers a #GtuberHeartbeat into #GtuberMediaInfo and starts it,
+ * do not free it afterwards.
+ *
+ * This is mainly useful for plugin development.
+ */
+void
+gtuber_media_info_take_heartbeat (GtuberMediaInfo *self, GtuberHeartbeat *heartbeat)
+{
+  g_return_if_fail (GTUBER_IS_MEDIA_INFO (self));
+  g_return_if_fail (GTUBER_IS_HEARTBEAT (heartbeat));
+
+  g_clear_object (&self->heartbeat);
+  self->heartbeat = heartbeat;
+
+  gtuber_heartbeat_start (self->heartbeat);
 }

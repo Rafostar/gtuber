@@ -70,6 +70,7 @@ gtuber_headers = [
 gtuber_plugin_devel_headers = [
   'gtuber-plugin-devel.h',
   'gtuber-website.h',
+  'gtuber-heartbeat.h',
   'gtuber-cache.h',
   'gtuber-config.h',
   'gtuber-stream-devel.h',
@@ -86,6 +87,7 @@ gtuber_sources = [
 ]
 gtuber_plugin_devel_sources = [
   'gtuber-website.c',
+  'gtuber-heartbeat.c',
   'gtuber-cache.c',
   'gtuber-config.c',
 ]
