@@ -48,6 +48,8 @@ struct _GstGtuberSrc
 
   GCancellable *cancellable;
   gsize buf_size;
+
+  GtuberMediaInfo *info;
 };
 
 G_END_DECLS
