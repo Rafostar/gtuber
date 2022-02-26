@@ -11,8 +11,10 @@ ignore_headers = [
   'gtuber.h',
   'gtuber-plugin-devel.h',
   'gtuber-website-private.h',
+  'gtuber-heartbeat-private.h',
   'gtuber-cache-private.h',
   'gtuber-loader-private.h',
+  'gtuber-media-info-private.h',
   'gtuber-stream-private.h',
   'gtuber-adaptive-stream-private.h',
 ]
