@@ -10,12 +10,14 @@ option('gst-gtuber', type: 'feature', value: 'auto', description: 'GStreamer plu
 # Utils
 option('utils-common', type: 'feature', value: 'auto')
 option('utils-json', type: 'feature', value: 'auto')
+option('utils-xml', type: 'feature', value: 'auto')
 option('utils-youtube', type: 'feature', value: 'auto')
 
 # Plugins
 option('bilibili', type: 'feature', value: 'auto')
 option('invidious', type: 'feature', value: 'auto')
 option('lbry', type: 'feature', value: 'auto')
+option('niconico', type: 'feature', value: 'auto')
 option('peertube', type: 'feature', value: 'auto')
 option('piped', type: 'feature', value: 'auto')
 option('twitch', type: 'feature', value: 'auto')

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rafał Dzięgiel <rafostar.github@gmail.com>
+ * Copyright (C) 2022 Rafał Dzięgiel <rafostar.github@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include <gtuber/gtuber.h>
+#include <glib.h>
 
-#define __GTUBER_INSIDE__
+G_BEGIN_DECLS
 
-#include <gtuber/gtuber-website.h>
-#include <gtuber/gtuber-heartbeat.h>
-#include <gtuber/gtuber-cache.h>
-#include <gtuber/gtuber-config.h>
-#include <gtuber/gtuber-stream-devel.h>
-#include <gtuber/gtuber-adaptive-stream-devel.h>
-#include <gtuber/gtuber-media-info-devel.h>
+typedef struct _GtuberHeartbeatPrivate GtuberHeartbeatPrivate;
 
-#undef __GTUBER_INSIDE__
+G_GNUC_INTERNAL
+void gtuber_heartbeat_start (GtuberHeartbeat *heartbeat);
+
+G_GNUC_INTERNAL
+void gtuber_heartbeat_set_request_headers (GtuberHeartbeat *heartbeat, GHashTable *req_headers);
+
+G_END_DECLS

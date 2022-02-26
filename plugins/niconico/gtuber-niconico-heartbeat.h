@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rafał Dzięgiel <rafostar.github@gmail.com>
+ * Copyright (C) 2022 Rafał Dzięgiel <rafostar.github@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,16 +19,15 @@
 
 #pragma once
 
-#include <gtuber/gtuber.h>
+#include <gtuber/gtuber-plugin-devel.h>
+#include <json-glib/json-glib.h>
 
-#define __GTUBER_INSIDE__
+G_BEGIN_DECLS
 
-#include <gtuber/gtuber-website.h>
-#include <gtuber/gtuber-heartbeat.h>
-#include <gtuber/gtuber-cache.h>
-#include <gtuber/gtuber-config.h>
-#include <gtuber/gtuber-stream-devel.h>
-#include <gtuber/gtuber-adaptive-stream-devel.h>
-#include <gtuber/gtuber-media-info-devel.h>
+#define GTUBER_TYPE_NICONICO_HEARTBEAT (gtuber_niconico_heartbeat_get_type ())
+G_DECLARE_FINAL_TYPE (GtuberNiconicoHeartbeat, gtuber_niconico_heartbeat,
+    GTUBER, NICONICO_HEARTBEAT, GtuberHeartbeat)
 
-#undef __GTUBER_INSIDE__
+GtuberHeartbeat * gtuber_niconico_heartbeat_new (const gchar *api_uri, JsonNode *root);
+
+G_END_DECLS

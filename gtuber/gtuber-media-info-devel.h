@@ -26,6 +26,7 @@
 #include <gtuber/gtuber-media-info.h>
 #include <gtuber/gtuber-stream.h>
 #include <gtuber/gtuber-adaptive-stream.h>
+#include <gtuber/gtuber-heartbeat.h>
 
 G_BEGIN_DECLS
 
@@ -42,5 +43,7 @@ void              gtuber_media_info_insert_chapter          (GtuberMediaInfo *in
 void              gtuber_media_info_add_stream              (GtuberMediaInfo *info, GtuberStream *stream);
 
 void              gtuber_media_info_add_adaptive_stream     (GtuberMediaInfo *info, GtuberAdaptiveStream *stream);
+
+void              gtuber_media_info_take_heartbeat          (GtuberMediaInfo *info, GtuberHeartbeat *heartbeat);
 
 G_END_DECLS

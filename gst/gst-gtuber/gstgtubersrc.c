@@ -186,6 +186,7 @@ gst_gtuber_src_finalize (GObject *object)
   g_array_unref (self->itags);
 
   g_clear_object (&self->cancellable);
+  g_clear_object (&self->info);
 
   g_mutex_clear (&self->client_lock);
   g_cond_clear (&self->client_finished);
@@ -398,6 +399,7 @@ gst_gtuber_src_stop (GstBaseSrc *base_src)
 
   GST_DEBUG_OBJECT (self, "Stop");
 
+  g_clear_object (&self->info);
   self->buf_size = 0;
 
   return TRUE;
@@ -863,6 +865,8 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
   if (*outbuf)
     gst_gtuber_src_push_events (self, data->info);
 
+  /* Hold media info in order for data in it to stay valid */
+  self->info = g_object_ref (data->info);
   gst_gtuber_thread_data_free (data);
 
   return (*outbuf) ? TRUE : FALSE;

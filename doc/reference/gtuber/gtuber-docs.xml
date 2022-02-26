@@ -49,6 +49,7 @@
     <xi:include href="xml/gtuber-media-info-devel.xml" />
     <xi:include href="xml/gtuber-stream-devel.xml" />
     <xi:include href="xml/gtuber-adaptive-stream-devel.xml" />
+    <xi:include href="xml/gtuber-heartbeat.xml" />
     <xi:include href="xml/gtuber-cache.xml" />
     <xi:include href="xml/gtuber-config.xml" />
   </chapter>

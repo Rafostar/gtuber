@@ -25,6 +25,82 @@
 
 G_BEGIN_DECLS
 
+/*
+ * Fills JSON data into gchar pointer, it is safe to call "break"
+ * inside passed code block to cancel this operation.
+ */
+#define GTUBER_UTILS_JSON_BUILD_OBJECT(dest, ...) {                    \
+    JsonBuilder *_utils_builder = json_builder_new ();                 \
+    gboolean _obj_ok = FALSE;                                          \
+    *dest = NULL;                                                      \
+    while (TRUE) {                                                     \
+      json_builder_begin_object (_utils_builder);                      \
+      __VA_ARGS__                                                      \
+      _obj_ok = (json_builder_end_object (_utils_builder) != NULL);    \
+      break;                                                           \
+    }                                                                  \
+    if (_obj_ok) {                                                     \
+      JsonGenerator *_utils_gen = json_generator_new ();               \
+      JsonNode *_utils_root = json_builder_get_root (_utils_builder);  \
+      json_generator_set_pretty (_utils_gen, TRUE);                    \
+      json_generator_set_indent (_utils_gen, 2);                       \
+      json_generator_set_root (_utils_gen, _utils_root);               \
+      *dest = json_generator_to_data (_utils_gen, NULL);               \
+      g_object_unref (_utils_gen);                                     \
+      json_node_free (_utils_root);                                    \
+    }                                                                  \
+    g_object_unref (_utils_builder); }
+
+#define GTUBER_UTILS_JSON_ADD_OBJECT(...)                              \
+    json_builder_begin_object (_utils_builder);                        \
+    __VA_ARGS__                                                        \
+    json_builder_end_object (_utils_builder);
+
+#define GTUBER_UTILS_JSON_ADD_ARRAY(...)                               \
+    json_builder_begin_array (_utils_builder);                         \
+    __VA_ARGS__                                                        \
+    json_builder_end_array (_utils_builder);
+
+#define GTUBER_UTILS_JSON_ADD_NAMED_OBJECT(name, ...)                  \
+    json_builder_set_member_name (_utils_builder, name);               \
+    json_builder_begin_object (_utils_builder);                        \
+    __VA_ARGS__                                                        \
+    json_builder_end_object (_utils_builder);
+
+#define GTUBER_UTILS_JSON_ADD_NAMED_ARRAY(name, ...)                   \
+    json_builder_set_member_name (_utils_builder, name);               \
+    json_builder_begin_array (_utils_builder);                         \
+    __VA_ARGS__                                                        \
+    json_builder_end_array (_utils_builder);
+
+#define GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING(key, val)                 \
+    json_builder_set_member_name (_utils_builder, key);                \
+    json_builder_add_string_value (_utils_builder, val);
+
+#define GTUBER_UTILS_JSON_ADD_KEY_VAL_YES_NO(key, val)                 \
+    json_builder_set_member_name (_utils_builder, key);                \
+    if (val)                                                           \
+      json_builder_add_string_value (_utils_builder, "yes");           \
+    else                                                               \
+      json_builder_add_string_value (_utils_builder, "no");
+
+#define GTUBER_UTILS_JSON_ADD_KEY_VAL_INT(key, val)                    \
+    json_builder_set_member_name (_utils_builder, key);                \
+    json_builder_add_int_value (_utils_builder, val);
+
+#define GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN(key, val)                \
+    json_builder_set_member_name (_utils_builder, key);                \
+    json_builder_add_boolean_value (_utils_builder, val);
+
+#define GTUBER_UTILS_JSON_ADD_VAL_STRING(val)                          \
+    json_builder_add_string_value (_utils_builder, val);
+
+#define GTUBER_UTILS_JSON_ADD_VAL_INT(val)                             \
+    json_builder_add_int_value (_utils_builder, val);
+
+#define GTUBER_UTILS_JSON_ADD_VAL_BOOLEAN(val)                         \
+    json_builder_add_boolean_value (_utils_builder, val);
+
 const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
 
 gint64               gtuber_utils_json_get_int              (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;

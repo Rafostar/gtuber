@@ -346,7 +346,7 @@ typedef enum
 static HlsParamType
 get_hls_param_type (const gchar *param)
 {
-  if (!strcmp (param, "BANDWIDTH"))
+  if (!strcmp (param, "BANDWIDTH") || !strcmp (param, "AVERAGE-BANDWIDTH"))
     return HLS_PARAM_BANDWIDTH;
   if (!strcmp (param, "RESOLUTION"))
     return HLS_PARAM_RESOLUTION;
@@ -432,10 +432,19 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
         }
 
         switch (last) {
-          case HLS_PARAM_BANDWIDTH:
-            g_debug ("HLS stream bitrate: %s", str);
-            gtuber_stream_set_bitrate (bstream, atoi (str));
+          case HLS_PARAM_BANDWIDTH:{
+            guint old_bitrate, bitrate;
+
+            old_bitrate = gtuber_stream_get_bitrate (bstream);
+            bitrate = atoi (str);
+
+            /* Use average bitrate if available */
+            if (old_bitrate == 0 || old_bitrate > bitrate) {
+              g_debug ("HLS stream bitrate: %s", str);
+              gtuber_stream_set_bitrate (bstream, bitrate);
+            }
             break;
+          }
           case HLS_PARAM_RESOLUTION:{
             gchar **resolution = g_strsplit (str, "x", 3);
             if (resolution[0] && resolution[1]) {
