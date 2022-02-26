@@ -115,6 +115,10 @@ gtuber_heartbeat_dispose (GObject *object)
 
   g_mutex_lock (&priv->lock);
 
+  /* Remove before stopping main loop, to not
+   * trigger ping after Soup session is gone */
+  _remove_ping_source (self);
+
   if (priv->loop) {
     g_main_loop_quit (priv->loop);
 
@@ -126,8 +130,6 @@ gtuber_heartbeat_dispose (GObject *object)
     g_main_loop_unref (priv->loop);
     priv->loop = NULL;
   }
-
-  _remove_ping_source (self);
 
   g_mutex_unlock (&priv->lock);
 
