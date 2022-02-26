@@ -30,6 +30,7 @@
 
 #include "gtuber-media-info.h"
 #include "gtuber-media-info-devel.h"
+#include "gtuber-media-info-private.h"
 #include "gtuber-stream-private.h"
 #include "gtuber-adaptive-stream-private.h"
 #include "gtuber-heartbeat-private.h"
@@ -491,8 +492,7 @@ gtuber_media_info_get_request_headers (GtuberMediaInfo *self)
  * @info: a #GtuberMediaInfo
  * @heartbeat: (transfer full): a #GtuberHeartbeat
  *
- * Transfers a #GtuberHeartbeat into #GtuberMediaInfo and starts it,
- * do not free it afterwards.
+ * Transfers a #GtuberHeartbeat into #GtuberMediaInfo, do not free it afterwards.
  *
  * This is mainly useful for plugin development.
  */
@@ -504,6 +504,14 @@ gtuber_media_info_take_heartbeat (GtuberMediaInfo *self, GtuberHeartbeat *heartb
 
   g_clear_object (&self->heartbeat);
   self->heartbeat = heartbeat;
+}
 
+void
+gtuber_media_info_init_heartbeat (GtuberMediaInfo *self)
+{
+  if (!self->heartbeat)
+    return;
+
+  gtuber_heartbeat_set_request_headers (self->heartbeat, self->req_headers);
   gtuber_heartbeat_start (self->heartbeat);
 }

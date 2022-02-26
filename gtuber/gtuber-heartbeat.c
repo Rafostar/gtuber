@@ -39,6 +39,8 @@ struct _GtuberHeartbeatPrivate
   GSource *ping_source;
   GCancellable *cancellable;
   guint interval;
+
+  GHashTable *req_headers;
 };
 
 #define parent_class gtuber_heartbeat_parent_class
@@ -142,10 +144,22 @@ gtuber_heartbeat_finalize (GObject *object)
 
   g_object_unref (priv->cancellable);
 
+  if (priv->req_headers)
+    g_hash_table_unref (priv->req_headers);
+
   g_mutex_clear (&priv->lock);
   g_cond_clear (&priv->cond);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
+static void
+insert_header_cb (const gchar *name, const gchar *value, SoupMessageHeaders *headers)
+{
+  if (!soup_message_headers_get_one (headers, name)) {
+    soup_message_headers_append (headers, name, value);
+    g_debug ("Heartbeat added request header, %s: %s", name, value);
+  }
 }
 
 static gboolean
@@ -153,6 +167,7 @@ ping_cb (GtuberHeartbeat *self)
 {
   GtuberHeartbeatPrivate *priv = gtuber_heartbeat_get_instance_private (self);
   GtuberHeartbeatClass *heartbeat_class = GTUBER_HEARTBEAT_GET_CLASS (self);
+  SoupMessageHeaders *headers;
   SoupMessage *msg = NULL;
   GInputStream *stream = NULL;
   GError *my_error = NULL;
@@ -177,6 +192,12 @@ beginning:
     goto decide_flow;
   if (!msg)
     goto finish;
+
+  headers = soup_message_get_request_headers (msg);
+
+  g_mutex_lock (&priv->lock);
+  g_hash_table_foreach (priv->req_headers, (GHFunc) insert_header_cb, headers);
+  g_mutex_unlock (&priv->lock);
 
   stream = soup_session_send (priv->session, msg, priv->cancellable, &my_error);
 
@@ -366,5 +387,19 @@ gtuber_heartbeat_start (GtuberHeartbeat *self)
 
   g_mutex_lock (&priv->lock);
   _add_ping_source (self);
+  g_mutex_unlock (&priv->lock);
+}
+
+void
+gtuber_heartbeat_set_request_headers (GtuberHeartbeat *self, GHashTable *req_headers)
+{
+  GtuberHeartbeatPrivate *priv = gtuber_heartbeat_get_instance_private (self);
+
+  g_mutex_lock (&priv->lock);
+
+  if (priv->req_headers)
+    g_hash_table_unref (priv->req_headers);
+  priv->req_headers = g_hash_table_ref (req_headers);
+
   g_mutex_unlock (&priv->lock);
 }

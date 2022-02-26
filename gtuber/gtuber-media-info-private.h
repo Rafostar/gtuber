@@ -20,15 +20,11 @@
 #pragma once
 
 #include <glib.h>
+#include <gtuber/gtuber-media-info.h>
 
 G_BEGIN_DECLS
 
-typedef struct _GtuberHeartbeatPrivate GtuberHeartbeatPrivate;
-
 G_GNUC_INTERNAL
-void gtuber_heartbeat_start (GtuberHeartbeat *heartbeat);
-
-G_GNUC_INTERNAL
-void gtuber_heartbeat_set_request_headers (GtuberHeartbeat *heartbeat, GHashTable *req_headers);
+void gtuber_media_info_init_heartbeat (GtuberMediaInfo *info);
 
 G_END_DECLS

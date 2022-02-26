@@ -29,6 +29,7 @@
 #include "gtuber-enums.h"
 #include "gtuber-client.h"
 #include "gtuber-media-info.h"
+#include "gtuber-media-info-private.h"
 #include "gtuber-loader-private.h"
 #include "gtuber-website.h"
 
@@ -275,6 +276,8 @@ invalid_info:
     gtuber_client_verify_media_info (self, info, &my_error);
     if (my_error)
       goto invalid_info;
+
+    gtuber_media_info_init_heartbeat (info);
   }
 
   return info;
