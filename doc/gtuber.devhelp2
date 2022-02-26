@@ -19,6 +19,7 @@
       <sub name="GtuberMediaInfo Development" link="gtuber-GtuberMediaInfo-Development.html"/>
       <sub name="GtuberStream Development" link="gtuber-GtuberStream-Development.html"/>
       <sub name="GtuberAdaptiveStream Development" link="gtuber-GtuberAdaptiveStream-Development.html"/>
+      <sub name="GtuberHeartbeat" link="GtuberHeartbeat.html"/>
       <sub name="Gtuber Cache" link="gtuber-Gtuber-Cache.html"/>
       <sub name="Gtuber Config" link="gtuber-Gtuber-Config.html"/>
     </sub>
@@ -33,6 +34,7 @@
     <keyword type="enum" name="enum GtuberClientError" link="gtuber-Enumeration-Types.html#GtuberClientError"/>
     <keyword type="enum" name="enum GtuberManifestGeneratorError" link="gtuber-Enumeration-Types.html#GtuberManifestGeneratorError"/>
     <keyword type="enum" name="enum GtuberWebsiteError" link="gtuber-Enumeration-Types.html#GtuberWebsiteError"/>
+    <keyword type="enum" name="enum GtuberHeartbeatError" link="gtuber-Enumeration-Types.html#GtuberHeartbeatError"/>
     <keyword type="enum" name="enum GtuberFlow" link="gtuber-Enumeration-Types.html#GtuberFlow"/>
     <keyword type="macro" name="GTUBER_ENCODE_VERSION()" link="gtuber-Gtuber-Version.html#GTUBER-ENCODE-VERSION:CAPS"/>
     <keyword type="macro" name="GTUBER_CHECK_VERSION()" link="gtuber-Gtuber-Version.html#GTUBER-CHECK-VERSION:CAPS"/>
@@ -134,6 +136,7 @@
     <keyword type="function" name="gtuber_media_info_insert_chapter ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-insert-chapter"/>
     <keyword type="function" name="gtuber_media_info_add_stream ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-add-stream"/>
     <keyword type="function" name="gtuber_media_info_add_adaptive_stream ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-add-adaptive-stream"/>
+    <keyword type="function" name="gtuber_media_info_take_heartbeat ()" link="gtuber-GtuberMediaInfo-Development.html#gtuber-media-info-take-heartbeat"/>
     <keyword type="function" name="gtuber_stream_new ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-new"/>
     <keyword type="function" name="gtuber_stream_set_uri ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-uri"/>
     <keyword type="function" name="gtuber_stream_set_itag ()" link="gtuber-GtuberStream-Development.html#gtuber-stream-set-itag"/>
@@ -149,6 +152,11 @@
     <keyword type="function" name="gtuber_adaptive_stream_set_manifest_type ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-manifest-type"/>
     <keyword type="function" name="gtuber_adaptive_stream_set_init_range ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-init-range"/>
     <keyword type="function" name="gtuber_adaptive_stream_set_index_range ()" link="gtuber-GtuberAdaptiveStream-Development.html#gtuber-adaptive-stream-set-index-range"/>
+    <keyword type="function" name="gtuber_heartbeat_set_interval ()" link="GtuberHeartbeat.html#gtuber-heartbeat-set-interval"/>
+    <keyword type="function" name="gtuber_heartbeat_error_quark ()" link="GtuberHeartbeat.html#gtuber-heartbeat-error-quark"/>
+    <keyword type="macro" name="GTUBER_HEARTBEAT_ERROR" link="GtuberHeartbeat.html#GTUBER-HEARTBEAT-ERROR:CAPS"/>
+    <keyword type="struct" name="struct GtuberHeartbeat" link="GtuberHeartbeat.html#GtuberHeartbeat-struct"/>
+    <keyword type="struct" name="struct GtuberHeartbeatClass" link="GtuberHeartbeat.html#GtuberHeartbeatClass"/>
     <keyword type="function" name="gtuber_cache_plugin_read ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-read"/>
     <keyword type="function" name="gtuber_cache_plugin_write ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write"/>
     <keyword type="function" name="gtuber_cache_plugin_write_epoch ()" link="gtuber-Gtuber-Cache.html#gtuber-cache-plugin-write-epoch"/>
@@ -180,6 +188,9 @@
     <keyword type="constant" name="GTUBER_WEBSITE_ERROR_REQUEST_CREATE_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-REQUEST-CREATE-FAILED:CAPS"/>
     <keyword type="constant" name="GTUBER_WEBSITE_ERROR_PARSE_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-PARSE-FAILED:CAPS"/>
     <keyword type="constant" name="GTUBER_WEBSITE_ERROR_OTHER" link="gtuber-Enumeration-Types.html#GTUBER-WEBSITE-ERROR-OTHER:CAPS"/>
+    <keyword type="constant" name="GTUBER_HEARTBEAT_ERROR_PING_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-HEARTBEAT-ERROR-PING-FAILED:CAPS"/>
+    <keyword type="constant" name="GTUBER_HEARTBEAT_ERROR_PONG_FAILED" link="gtuber-Enumeration-Types.html#GTUBER-HEARTBEAT-ERROR-PONG-FAILED:CAPS"/>
+    <keyword type="constant" name="GTUBER_HEARTBEAT_ERROR_OTHER" link="gtuber-Enumeration-Types.html#GTUBER-HEARTBEAT-ERROR-OTHER:CAPS"/>
     <keyword type="constant" name="GTUBER_FLOW_OK" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-OK:CAPS"/>
     <keyword type="constant" name="GTUBER_FLOW_ERROR" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-ERROR:CAPS"/>
     <keyword type="constant" name="GTUBER_FLOW_RESTART" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-RESTART:CAPS"/>
@@ -190,5 +201,7 @@
     <keyword type="member" name="GtuberWebsiteClass.parse-data" link="GtuberWebsite.html#GtuberWebsiteClass.parse-data"/>
     <keyword type="member" name="GtuberWebsiteClass.parse-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.parse-input-stream"/>
     <keyword type="member" name="GtuberWebsiteClass.set-user-req-headers" link="GtuberWebsite.html#GtuberWebsiteClass.set-user-req-headers"/>
+    <keyword type="member" name="GtuberHeartbeatClass.ping" link="GtuberHeartbeat.html#GtuberHeartbeatClass.ping"/>
+    <keyword type="member" name="GtuberHeartbeatClass.pong" link="GtuberHeartbeat.html#GtuberHeartbeatClass.pong"/>
   </functions>
 </book>
