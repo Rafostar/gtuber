@@ -332,6 +332,7 @@ gtuber_niconico_create_request (GtuberWebsite *website,
 {
   GtuberNiconico *self = GTUBER_NICONICO (website);
   SoupMessageHeaders *headers;
+  gchar *referer;
 
   /* First, download HTML */
   if (!self->api_data) {
@@ -366,9 +367,14 @@ gtuber_niconico_create_request (GtuberWebsite *website,
   *msg = soup_message_new ("GET", self->hls_uri);
 
 have_msg:
+  referer = g_uri_to_string_partial (gtuber_website_get_uri (website),
+      G_URI_HIDE_QUERY | G_URI_HIDE_FRAGMENT);
+
   headers = soup_message_get_request_headers (*msg);
   soup_message_headers_replace (headers, "Origin", "https://www.nicovideo.jp");
-  soup_message_headers_replace (headers, "Referer", "https://www.nicovideo.jp/");
+  soup_message_headers_replace (headers, "Referer", referer);
+
+  g_free (referer);
 
   return GTUBER_FLOW_OK;
 }
