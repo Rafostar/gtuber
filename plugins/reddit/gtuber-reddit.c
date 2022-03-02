@@ -37,6 +37,8 @@ struct _GtuberReddit
 
   gchar *dash_uri;
   gchar *hls_uri;
+
+  gchar *cookie_str;
 };
 
 #define parent_class gtuber_reddit_parent_class
@@ -44,8 +46,11 @@ GTUBER_WEBSITE_PLUGIN_DEFINE (Reddit, reddit)
 
 static void gtuber_reddit_finalize (GObject *object);
 
+static void gtuber_reddit_prepare (GtuberWebsite *website);
 static GtuberFlow gtuber_reddit_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error);
+static GtuberFlow gtuber_reddit_read_response (GtuberWebsite *website,
+    SoupMessage *msg, GError **error);
 static GtuberFlow gtuber_reddit_parse_input_stream (GtuberWebsite *website,
     GInputStream *stream, GtuberMediaInfo *info, GError **error);
 
@@ -63,7 +68,9 @@ gtuber_reddit_class_init (GtuberRedditClass *klass)
   gobject_class->finalize = gtuber_reddit_finalize;
 
   website_class->handles_input_stream = TRUE;
+  website_class->prepare = gtuber_reddit_prepare;
   website_class->create_request = gtuber_reddit_create_request;
+  website_class->read_response = gtuber_reddit_read_response;
   website_class->parse_input_stream = gtuber_reddit_parse_input_stream;
 }
 
@@ -76,6 +83,8 @@ gtuber_reddit_finalize (GObject *object)
 
   g_free (self->dash_uri);
   g_free (self->hls_uri);
+
+  g_free (self->cookie_str);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -160,18 +169,28 @@ finish:
   g_object_unref (reader);
 }
 
+static void
+gtuber_reddit_prepare (GtuberWebsite *website)
+{
+  GtuberReddit *self = GTUBER_REDDIT (website);
+
+  self->cookie_str = gtuber_reddit_cache_read ("cookie_str");
+}
+
 static GtuberFlow
 gtuber_reddit_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error)
 {
   GtuberReddit *self = GTUBER_REDDIT (website);
   SoupMessageHeaders *headers;
+  gboolean needs_cookies = FALSE;
 
   if (!self->dash_uri && !self->hls_uri) {
     GUri *guri, *website_uri;
     gchar *path;
 
     website_uri = gtuber_website_get_uri (website);
+    needs_cookies = TRUE;
 
     path = g_strdup_printf ("%s.json", g_uri_get_path (website_uri));
     guri = g_uri_build (G_URI_FLAGS_ENCODED,
@@ -192,6 +211,34 @@ gtuber_reddit_create_request (GtuberWebsite *website,
   headers = soup_message_get_request_headers (*msg);
   soup_message_headers_replace (headers, "Origin", "https://www.reddit.com");
   soup_message_headers_replace (headers, "Referer", "https://www.reddit.com/");
+
+  if (needs_cookies && self->cookie_str) {
+    soup_message_headers_replace (headers, "Cookie", self->cookie_str);
+    g_debug ("Using cookie: %s", self->cookie_str);
+  }
+
+  return GTUBER_FLOW_OK;
+}
+
+static GtuberFlow
+gtuber_reddit_read_response (GtuberWebsite *website,
+    SoupMessage *msg, GError **error)
+{
+  GtuberReddit *self = GTUBER_REDDIT (website);
+
+  if (!self->cookie_str) {
+    GSList *cookies;
+
+    if (!(cookies = soup_cookies_from_response (msg))) {
+      g_debug ("No cookies in response");
+      return GTUBER_FLOW_OK;
+    }
+
+    if ((self->cookie_str = soup_cookies_to_cookie_header (cookies)))
+      gtuber_reddit_cache_write ("cookie_str", self->cookie_str, 3600);
+
+    soup_cookies_free (cookies);
+  }
 
   return GTUBER_FLOW_OK;
 }
