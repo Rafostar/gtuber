@@ -6,6 +6,7 @@ all_tests = {
   'niconico': [1],
   'peertube': [1, 2],
   'piped': [1, 2],
+  'reddit': [1, 2, 3],
   'twitch': [1, 2],
   'youtube': [1, 2, 3],
 }
