@@ -6,6 +6,7 @@ all_plugins = [
   'niconico',
   'peertube',
   'piped',
+  'reddit',
   'twitch',
   'youtube',
 ]
