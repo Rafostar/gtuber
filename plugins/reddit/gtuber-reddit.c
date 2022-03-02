@@ -165,6 +165,7 @@ gtuber_reddit_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error)
 {
   GtuberReddit *self = GTUBER_REDDIT (website);
+  SoupMessageHeaders *headers;
 
   if (!self->dash_uri && !self->hls_uri) {
     GUri *guri, *website_uri;
@@ -187,6 +188,10 @@ gtuber_reddit_create_request (GtuberWebsite *website,
   } else if (self->hls_uri) {
     *msg = soup_message_new ("GET", self->hls_uri);
   }
+
+  headers = soup_message_get_request_headers (*msg);
+  soup_message_headers_replace (headers, "Origin", "https://www.reddit.com");
+  soup_message_headers_replace (headers, "Referer", "https://www.reddit.com/");
 
   return GTUBER_FLOW_OK;
 }
