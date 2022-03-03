@@ -637,7 +637,7 @@ _add_hls_stream_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
         && gtuber_stream_get_video_codec (stream) == NULL);
 
     /* EXT-X-MEDIA */
-    g_string_append (data->string, "#EXT-X-STREAM-INF");
+    g_string_append (data->string, "#EXT-X-MEDIA");
     g_string_append_printf (data->string, ":TYPE=%s",
         audio_only ? "AUDIO" : "VIDEO");
     g_string_append_printf (data->string, ",GROUP-ID=\"%u\"", itag);
