@@ -652,8 +652,9 @@ _add_hls_stream_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
     /* EXT-X-STREAM-INF */
     g_string_append (data->string, "#EXT-X-STREAM-INF");
 
-    if (bitrate)
-      g_string_append_printf (data->string, ":BANDWIDTH=%u", bitrate);
+    /* RFC8216: "Every EXT-X-STREAM-INF tag MUST include the BANDWIDTH attribute" */
+    g_string_append_printf (data->string, ":BANDWIDTH=%u", bitrate);
+
     if (width || height)
       g_string_append_printf (data->string, ",RESOLUTION=%ux%u", width, height);
 
