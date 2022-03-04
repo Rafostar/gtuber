@@ -168,7 +168,8 @@ gst_gtuber_adaptive_bin_get_property (GObject *object, guint prop_id,
 }
 
 static gboolean
-has_ghostpad_for_pad (GstGtuberAdaptiveBin *self, const gchar *pad_name, GstPad **ghostpad)
+has_ghostpad_for_pad (GstGtuberAdaptiveBin *self, GstPad *src_pad,
+    const gchar *pad_name, GstPad **ghostpad)
 {
   GstIterator *iter;
   GValue value = { 0, };
@@ -184,7 +185,21 @@ has_ghostpad_for_pad (GstGtuberAdaptiveBin *self, const gchar *pad_name, GstPad 
     name = gst_object_get_name (GST_OBJECT (my_pad));
     strv = g_strsplit (name, "_", 2);
 
-    has_ghostpad = g_str_has_prefix (pad_name, strv[0]);
+    /* On similiar name, check caps compatibility */
+    if (g_str_has_prefix (pad_name, strv[0])) {
+      GstCaps *my_caps, *his_caps;
+
+      my_caps = gst_pad_get_current_caps (my_pad);
+      his_caps = gst_pad_get_current_caps (src_pad);
+
+      if ((has_ghostpad = (my_caps != NULL
+          && his_caps != NULL
+          && gst_caps_is_always_compatible (my_caps, his_caps))))
+        GST_DEBUG ("Found ghostpad \"%s\" for pad \"%s\"", name, pad_name);
+
+      gst_clear_caps (&my_caps);
+      gst_clear_caps (&his_caps);
+    }
 
     g_value_unset (&value);
     g_free (name);
@@ -211,8 +226,9 @@ demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberAdaptiveBin *se
     return;
 
   pad_name = gst_object_get_name (GST_OBJECT (pad));
+  GST_DEBUG ("Demuxer added pad \"%s\"", pad_name);
 
-  if (has_ghostpad_for_pad (self, pad_name, &ghostpad)) {
+  if (has_ghostpad_for_pad (self, pad, pad_name, &ghostpad)) {
     GST_DEBUG ("Changing ghostpad target to \"%s\"", pad_name);
 
     gst_pad_set_active (ghostpad, FALSE);
