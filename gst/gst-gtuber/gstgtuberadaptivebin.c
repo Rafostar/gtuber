@@ -54,8 +54,6 @@ static void gst_gtuber_adaptive_bin_get_property (GObject *object,
 /* GstElement */
 static GstStateChangeReturn gst_gtuber_adaptive_bin_change_state (
     GstElement *element, GstStateChange transition);
-static void demuxer_pad_added_cb (GstElement *element,
-    GstPad *pad, GstGtuberAdaptiveBin *self);
 static void demuxer_no_more_pads_cb (GstElement *element,
     GstGtuberAdaptiveBin *self);
 
@@ -117,8 +115,6 @@ gst_gtuber_adaptive_bin_constructed (GObject* object)
   if (!gst_element_add_pad (GST_ELEMENT (self), ghostpad))
     g_critical ("Failed to add sink pad to bin");
 
-  g_signal_connect (self->demuxer, "pad-added",
-      (GCallback) demuxer_pad_added_cb, self);
   g_signal_connect (self->demuxer, "no-more-pads",
       (GCallback) demuxer_no_more_pads_cb, self);
 }
@@ -221,16 +217,13 @@ has_ghostpad_for_pad (GstGtuberAdaptiveBin *self, GstPad *src_pad,
 }
 
 static void
-demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberAdaptiveBin *self)
+demuxer_pad_link_with_ghostpad (GstPad *pad, GstGtuberAdaptiveBin *self)
 {
   GstPad *ghostpad = NULL;
   gchar *pad_name;
 
-  if (gst_pad_get_direction (pad) != GST_PAD_SRC)
-    return;
-
   pad_name = gst_object_get_name (GST_OBJECT (pad));
-  GST_DEBUG ("Demuxer added pad \"%s\"", pad_name);
+  GST_DEBUG ("Demuxer has source pad \"%s\"", pad_name);
 
   if (has_ghostpad_for_pad (self, pad, pad_name, &ghostpad)) {
     GST_DEBUG ("Changing ghostpad target to \"%s\"", pad_name);
@@ -261,6 +254,23 @@ demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberAdaptiveBin *se
 static void
 demuxer_no_more_pads_cb (GstElement *element, GstGtuberAdaptiveBin *self)
 {
+  GstIterator *iter;
+  GValue value = { 0, };
+
+  iter = gst_element_iterate_src_pads (element);
+  GST_DEBUG_OBJECT (self, "Linking demuxer pads with ghostpads");
+
+  while (gst_iterator_next (iter, &value) == GST_ITERATOR_OK) {
+    GstPad *demuxer_pad;
+
+    demuxer_pad = g_value_get_object (&value);
+    if (!gst_pad_is_linked (demuxer_pad))
+      demuxer_pad_link_with_ghostpad (demuxer_pad, self);
+
+    g_value_unset (&value);
+  }
+  gst_iterator_free (iter);
+
   GST_DEBUG_OBJECT (self, "Signalling \"no more pads\"");
   gst_element_no_more_pads (GST_ELEMENT (self));
 }
