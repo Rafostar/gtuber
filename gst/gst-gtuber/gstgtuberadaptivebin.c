@@ -56,6 +56,8 @@ static GstStateChangeReturn gst_gtuber_adaptive_bin_change_state (
     GstElement *element, GstStateChange transition);
 static void demuxer_pad_added_cb (GstElement *element,
     GstPad *pad, GstGtuberAdaptiveBin *self);
+static void demuxer_no_more_pads_cb (GstElement *element,
+    GstGtuberAdaptiveBin *self);
 
 static void
 gst_gtuber_adaptive_bin_class_init (GstGtuberAdaptiveBinClass *klass)
@@ -117,6 +119,8 @@ gst_gtuber_adaptive_bin_constructed (GObject* object)
 
   g_signal_connect (self->demuxer, "pad-added",
       (GCallback) demuxer_pad_added_cb, self);
+  g_signal_connect (self->demuxer, "no-more-pads",
+      (GCallback) demuxer_no_more_pads_cb, self);
 }
 
 static void
@@ -252,6 +256,13 @@ demuxer_pad_added_cb (GstElement *element, GstPad *pad, GstGtuberAdaptiveBin *se
   }
 
   g_free (pad_name);
+}
+
+static void
+demuxer_no_more_pads_cb (GstElement *element, GstGtuberAdaptiveBin *self)
+{
+  GST_DEBUG_OBJECT (self, "Signalling \"no more pads\"");
+  gst_element_no_more_pads (GST_ELEMENT (self));
 }
 
 static void
