@@ -94,7 +94,7 @@ parse_response_data (GtuberReddit *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
-  const gchar *id_uri, *direct_uri;
+  const gchar *id_uri;
 
   /* Data is at: res[0].data.children[0].data */
   if (!json_reader_is_array (reader)
@@ -140,26 +140,11 @@ parse_response_data (GtuberReddit *self, JsonParser *parser,
 
   gtuber_media_info_set_duration (info, gtuber_utils_json_get_int (reader, "duration", NULL));
 
-  if ((direct_uri = gtuber_utils_json_get_string (reader, "fallback_url", NULL))) {
-    GtuberStream *stream = gtuber_stream_new ();
-
-    gtuber_stream_set_uri (stream, direct_uri);
-    gtuber_stream_set_bitrate (stream, gtuber_utils_json_get_int (reader, "bitrate_kbps", NULL));
-    gtuber_stream_set_width (stream, gtuber_utils_json_get_int (reader, "width", NULL));
-    gtuber_stream_set_height (stream, gtuber_utils_json_get_int (reader, "height", NULL));
-    gtuber_stream_set_itag (stream, 200);
-
-    /* XXX: Reddit fallback URI is always "avc1" + "mp4a" AFAIK */
-    gtuber_stream_set_codecs (stream, "avc1", "mp4a");
-
-    gtuber_media_info_add_stream (info, stream);
-  }
-
   /* FIXME: Support parsing DASH files */
   //self->dash_uri = g_strdup (gtuber_utils_json_get_string (reader, "dash_url", NULL));
   self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hls_url", NULL));
 
-  if (!direct_uri && !self->dash_uri && !self->hls_uri) {
+  if (!self->dash_uri && !self->hls_uri) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "Could not extract any media URIs");
