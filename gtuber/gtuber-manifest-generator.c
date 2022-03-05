@@ -492,6 +492,15 @@ add_escaped_xml_uri (GString *string, const gchar *uri_str)
   g_uri_unref (uri);
 }
 
+static gboolean
+_is_stream_audio_only (GtuberStream *stream)
+{
+  return (gtuber_stream_get_width (stream) == 0
+      && gtuber_stream_get_height (stream) == 0
+      && gtuber_stream_get_fps (stream) == 0
+      && !gtuber_stream_get_video_codec (stream));
+}
+
 static gint
 _sort_streams_cb (gconstpointer a, gconstpointer b)
 {
@@ -505,6 +514,30 @@ _sort_streams_cb (gconstpointer a, gconstpointer b)
   bitrate_b = gtuber_stream_get_bitrate (stream_b);
 
   return (bitrate_a - bitrate_b);
+}
+
+static gint
+_sort_hls_streams_cb (gconstpointer a, gconstpointer b)
+{
+  GtuberStream *stream_a, *stream_b;
+  gboolean a_audio_only, b_audio_only;
+
+  stream_a = *((GtuberStream **) a);
+  stream_b = *((GtuberStream **) b);
+
+  a_audio_only = _is_stream_audio_only (stream_a);
+  b_audio_only = _is_stream_audio_only (stream_b);
+
+  /* HLS audio-only from best to worst,
+   * remaining from worst to best */
+  if (a_audio_only && b_audio_only)
+    return _sort_streams_cb (b, a);
+  if (!a_audio_only && !b_audio_only)
+    return _sort_streams_cb (a, b);
+  if (a_audio_only && !b_audio_only)
+    return -1;
+
+  return 1;
 }
 
 static void
@@ -636,7 +669,7 @@ _astreams_into_hls_string (GtuberManifestGenerator *self,
     fps = gtuber_stream_get_fps (stream);
     video_codec = gtuber_stream_get_video_codec (stream);
 
-    audio_only = (width == 0 && height == 0 && fps == 0 && !video_codec);
+    audio_only = _is_stream_audio_only (stream);
     video_only = (!audio_only && gtuber_stream_get_audio_codec (stream) == NULL);
 
     if (audio_only) {
@@ -836,7 +869,8 @@ dump_hls_data (GtuberManifestGenerator *self, GString *string)
   /* Copy pointers only as we need to sort streams, not modify them */
   sorted_astreams = g_ptr_array_copy (astreams, (GCopyFunc) g_object_ref, NULL);
 
-  g_ptr_array_sort (sorted_astreams, (GCompareFunc) _sort_streams_cb);
+  /* Special ver for HLS to make sure best audio track is used */
+  g_ptr_array_sort (sorted_astreams, (GCompareFunc) _sort_hls_streams_cb);
 
   _astreams_into_hls_string (self, sorted_astreams, string);
 
