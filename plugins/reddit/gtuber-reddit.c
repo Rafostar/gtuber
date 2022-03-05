@@ -170,6 +170,57 @@ finish:
 }
 
 static void
+update_hls_audio_bitrates (GtuberMediaInfo *info)
+{
+  GPtrArray *astreams;
+  guint i;
+
+  astreams = gtuber_media_info_get_adaptive_streams (info);
+
+  for (i = 0; i < astreams->len; i++) {
+    GtuberAdaptiveStream *astream;
+    GtuberStream *stream;
+    GtuberAdaptiveStreamManifest manifest_type;
+
+    astream = g_ptr_array_index (astreams, i);
+    stream = GTUBER_STREAM (astream);
+    manifest_type = gtuber_adaptive_stream_get_manifest_type (astream);
+
+    /* Update HLS audio-only streams that do not have bitrate set yet */
+    if (manifest_type == GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS
+        && gtuber_stream_get_bitrate (stream) == 0
+        && gtuber_stream_get_audio_codec (stream)
+        && !gtuber_stream_get_video_codec (stream)) {
+      gchar **parts;
+      const gchar *uri;
+      guint j;
+
+      /* Extract bitrate info from URI */
+      uri = gtuber_stream_get_uri (stream);
+      parts = g_strsplit (uri, "_", 0);
+
+      for (j = 0; parts[j]; j++) {
+        guint bitrate;
+
+        if (!g_ascii_isdigit (parts[j][0]))
+          continue;
+
+        /* Kb/s -> bit/s */
+        bitrate = 1000 * g_ascii_strtoull (parts[j], NULL, 10);
+        gtuber_stream_set_bitrate (stream, bitrate);
+
+        g_debug ("Updated HLS audio itag %u bitrate: %u",
+            gtuber_stream_get_itag (stream),
+            gtuber_stream_get_bitrate (stream));
+        break;
+      }
+
+      g_strfreev (parts);
+    }
+  }
+}
+
+static void
 gtuber_reddit_prepare (GtuberWebsite *website)
 {
   GtuberReddit *self = GTUBER_REDDIT (website);
@@ -259,8 +310,9 @@ gtuber_reddit_parse_input_stream (GtuberWebsite *website,
   }
 
   if (self->hls_uri) {
-    gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream,
-        info, self->hls_uri, error);
+    if (gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream,
+        info, self->hls_uri, error))
+      update_hls_audio_bitrates (info);
 
     g_free (self->hls_uri);
     self->hls_uri = NULL;
