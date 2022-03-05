@@ -27,7 +27,7 @@ GTUBER_TEST_CASE (2)
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
   gtuber_media_info_set_id (info, "27746");
-  gtuber_media_info_set_title (info, "Libera Resistenza Lecco - avv. Teresa Rosano");
+  gtuber_media_info_set_title (info, "Libera Resistenza Lecco 12.02.2022 - avv. Teresa Rosano");
   gtuber_media_info_set_description (info, "Modifica alla Costituzione: benefici apparenti e gravi pericoli.");
   gtuber_media_info_set_duration (info, 630);
 
