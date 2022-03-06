@@ -382,8 +382,8 @@ make_soup_msg (const char *method, const char *uri_string,
   *msg = soup_message_new (method, uri_string);
   headers = soup_message_get_request_headers (*msg);
 
-  soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv");
   soup_message_headers_replace (headers, "Origin", "https://player.twitch.tv");
+  soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv/");
   soup_message_headers_append (headers, "Client-ID", "kimne78kx3ncx6brgo4mv6wki5h1ko");
 
   if (req_body)
