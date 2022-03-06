@@ -382,9 +382,9 @@ make_soup_msg (const char *method, const char *uri_string,
   *msg = soup_message_new (method, uri_string);
   headers = soup_message_get_request_headers (*msg);
 
-  soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv");
   soup_message_headers_replace (headers, "Origin", "https://player.twitch.tv");
-  soup_message_headers_append (headers, "Client-ID", "kimne78kx3ncx6brgo4mv6wki5h1ko");
+  soup_message_headers_replace (headers, "Referer", "https://player.twitch.tv/");
+  soup_message_headers_append (headers, "Client-Id", "kimne78kx3ncx6brgo4mv6wki5h1ko");
 
   if (req_body)
     gtuber_utils_common_msg_take_request (*msg, "application/json", req_body);
@@ -489,7 +489,7 @@ create_hls_msg (GtuberTwitch *self, SoupMessage **msg, GError **error)
       "allow_source", "true",
       "allow_audio_only", "true",
       "allow_spectre", "false",
-      "fast_bread", "true",
+      "fast_bread", "false", // We do not support EXT-X-TWITCH-PREFETCH (low latency tags)
       "p", p_id,
       "player", "twitchweb",
       "player_backend", "mediaplayer",
@@ -562,7 +562,7 @@ gtuber_twitch_set_user_req_headers (GtuberWebsite *website,
     SoupMessageHeaders *req_headers, GHashTable *user_headers, GError **error)
 {
   /* Only used for API */
-  soup_message_headers_remove (req_headers, "Client-ID");
+  soup_message_headers_remove (req_headers, "Client-Id");
 
   return GTUBER_WEBSITE_CLASS (parent_class)->set_user_req_headers (website,
       req_headers, user_headers, error);

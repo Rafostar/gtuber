@@ -44,7 +44,6 @@ GTUBER_TEST_CASE (3)
 
   compare_fetch (client, "https://www.reddit.com/r/linux_gaming/comments/t4dvbj", info, &out_info);
 
-  check_streams (out_info);
   check_adaptive_streams (out_info);
 
   g_object_unref (info);

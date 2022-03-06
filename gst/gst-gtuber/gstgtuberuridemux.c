@@ -183,8 +183,12 @@ gst_gtuber_uri_demux_process_buffer (GstGtuberUriDemux *self, GstBuffer *buffer)
 
       gst_pad_set_active (src_ghostpad, TRUE);
 
-      if (!gst_element_add_pad (GST_ELEMENT (self), src_ghostpad))
+      if (!gst_element_add_pad (GST_ELEMENT (self), src_ghostpad)) {
         g_critical ("Failed to add source pad to bin");
+      } else {
+        GST_DEBUG_OBJECT (self, "Signalling \"no more pads\"");
+        gst_element_no_more_pads (GST_ELEMENT (self));
+      }
     }
 
     gst_memory_unmap (mem, &info);

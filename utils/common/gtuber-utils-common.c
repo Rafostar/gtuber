@@ -341,6 +341,9 @@ typedef enum
   HLS_PARAM_RESOLUTION,
   HLS_PARAM_FRAME_RATE,
   HLS_PARAM_CODECS,
+  HLS_PARAM_URI,
+  HLS_PARAM_GROUP_ID,
+  HLS_PARAM_AUDIO
 } HlsParamType;
 
 static HlsParamType
@@ -354,6 +357,12 @@ get_hls_param_type (const gchar *param)
     return HLS_PARAM_FRAME_RATE;
   if (!strcmp (param, "CODECS"))
     return HLS_PARAM_CODECS;
+  if (!strcmp (param, "URI"))
+    return HLS_PARAM_URI;
+  if (!strcmp (param, "GROUP-ID"))
+    return HLS_PARAM_GROUP_ID;
+  if (!strcmp (param, "AUDIO"))
+    return HLS_PARAM_AUDIO;
 
   return (g_ascii_isupper (param[0]))
       ? HLS_PARAM_UNSUPPORTED
@@ -387,6 +396,18 @@ gtuber_utils_common_parse_hls_input_stream (GInputStream *stream,
   return gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream, info, NULL, error);
 }
 
+static void
+_unquote_str (gchar *string)
+{
+  gsize index = strlen (string) - 1;
+
+  if (string[index] == '"')
+    string[index] = '\0';
+
+  if (string[0] == '"')
+    memmove (string, string + 1, strlen (string));
+}
+
 gboolean
 gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
     GtuberMediaInfo *info, const gchar *base_uri, GError **error)
@@ -400,21 +421,32 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
   g_debug ("Parsing HLS...");
 
   while ((line = g_data_input_stream_read_line (dstream, NULL, NULL, error))) {
-    if (g_str_has_prefix (line, "#EXT-X-STREAM-INF:")) {
-      gchar **params = g_strsplit_set (line + 18, ",=\"", 0);
-      const gchar *str;
+    guint line_offset = 0;
+
+    if (g_str_has_prefix (line, "#EXT-X-MEDIA:"))
+      line_offset = 13;
+    else if (g_str_has_prefix (line, "#EXT-X-STREAM-INF:"))
+      line_offset = 18;
+
+    if (line_offset > 0) {
+      gchar **params = g_strsplit_set (line + line_offset, ",=", 0);
+      gchar *str;
       gint i = 0;
+      guint group_itag = 0;
       HlsParamType last = HLS_PARAM_NONE;
       GtuberStream *bstream;
 
-      astream = gtuber_adaptive_stream_new ();
+      if (!astream) {
+        astream = gtuber_adaptive_stream_new ();
+
+        gtuber_adaptive_stream_set_manifest_type (astream,
+            GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
+        gtuber_stream_set_itag ((GtuberStream *) astream, itag);
+
+        g_debug ("Created new adaptive stream, itag: %u", itag);
+      }
+
       bstream = GTUBER_STREAM (astream);
-
-      gtuber_adaptive_stream_set_manifest_type (astream,
-          GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
-      gtuber_stream_set_itag (bstream, itag);
-
-      g_debug ("Created new adaptive stream, itag: %i", itag);
 
       while ((str = params[i])) {
         HlsParamType current;
@@ -430,6 +462,8 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
           i++;
           continue;
         }
+
+        _unquote_str (str);
 
         switch (last) {
           case HLS_PARAM_BANDWIDTH:{
@@ -470,13 +504,58 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
               gtuber_stream_set_audio_codec (bstream, str);
             }
             break;
+          case HLS_PARAM_URI:
+            g_free (line);
+            line = g_strdup (str);
+            break;
+          case HLS_PARAM_GROUP_ID:
+          case HLS_PARAM_AUDIO:{
+            if (group_itag == 0)
+              group_itag = g_str_hash (str);
+            if (last == HLS_PARAM_GROUP_ID) {
+              g_debug ("Replaced itag from GROUP-ID: %u", group_itag);
+              gtuber_stream_set_itag (bstream, group_itag);
+            }
+            break;
+          }
           default:
             break;
         }
         i++;
       }
       g_strfreev (params);
-    } else if (astream && !g_str_has_prefix (line, "#")) {
+
+      /* Move audio codec from video-only to audio-only stream */
+      if (group_itag > 0
+          && gtuber_stream_get_video_codec (bstream) != NULL
+          && gtuber_stream_get_audio_codec (bstream) != NULL) {
+        GPtrArray *astreams;
+        guint j;
+
+        astreams = gtuber_media_info_get_adaptive_streams (info);
+
+        for (j = 0; j < astreams->len; j++) {
+          GtuberAdaptiveStream *tmp_astream;
+          GtuberAdaptiveStreamManifest manifest_type;
+
+          tmp_astream = g_ptr_array_index (astreams, j);
+          manifest_type = gtuber_adaptive_stream_get_manifest_type (tmp_astream);
+
+          /* We might already have some non-HLS adaptive streams
+           * added by website plugin, make sure to update HLS only */
+          if (manifest_type != GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS
+              || gtuber_stream_get_itag ((GtuberStream *) tmp_astream) != group_itag)
+            continue;
+
+          gtuber_stream_set_audio_codec ((GtuberStream *) tmp_astream,
+              gtuber_stream_get_audio_codec (bstream));
+          gtuber_stream_set_audio_codec (bstream, NULL);
+        }
+      }
+    }
+    if (astream && !g_str_has_prefix (line, "#")) {
+      gboolean duplicate = FALSE;
+
       if (base_uri) {
         gchar *full_uri;
 
@@ -494,10 +573,42 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
         }
       }
 
-      gtuber_stream_set_uri (GTUBER_STREAM (astream), line);
-      g_debug ("HLS stream URI: %s", line);
+      /* HLS streams with seperate audio might have URI duplicates,
+       * due to possible multiple video+audio combinations.
+       * Lets simply drop them, so they will not appear twice */
+      if (!gtuber_stream_get_audio_codec ((GtuberStream *) astream)) {
+        GPtrArray *astreams;
+        guint j;
 
-      gtuber_media_info_add_adaptive_stream (info, astream);
+        g_debug ("Checking for duplicated URIs...");
+        astreams = gtuber_media_info_get_adaptive_streams (info);
+
+        for (j = 0; j < astreams->len; j++) {
+          GtuberStream *tmp_stream;
+          const gchar *present_uri;
+
+          tmp_stream = (GtuberStream *) g_ptr_array_index (astreams, j);
+          present_uri = gtuber_stream_get_uri (tmp_stream);
+
+          if ((duplicate = strcmp (present_uri, line) == 0))
+            break;
+        }
+        g_debug ("Duplicated URIs found: %s", duplicate ? "yes" : "no");
+      }
+
+      g_debug ("%s adaptive stream, itag: %u",
+          duplicate ? "Dropped duplicated" : "Added",
+          gtuber_stream_get_itag ((GtuberStream *) astream));
+
+      if (!duplicate) {
+        gtuber_stream_set_uri ((GtuberStream *) astream, line);
+        g_debug ("HLS stream URI: %s", line);
+
+        gtuber_media_info_add_adaptive_stream (info, astream);
+      } else {
+        g_object_unref (astream);
+      }
+
       astream = NULL;
       success = TRUE;
 
@@ -513,7 +624,7 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
 
   g_object_unref (dstream);
 
-  if (!success && !*error) {
+  if (!success && *error == NULL) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "Could not extract adaptive streams from HLS");
