@@ -489,7 +489,7 @@ create_hls_msg (GtuberTwitch *self, SoupMessage **msg, GError **error)
       "allow_source", "true",
       "allow_audio_only", "true",
       "allow_spectre", "false",
-      "fast_bread", "true",
+      "fast_bread", "false", // We do not support EXT-X-TWITCH-PREFETCH (low latency tags)
       "p", p_id,
       "player", "twitchweb",
       "player_backend", "mediaplayer",
