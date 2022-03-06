@@ -510,11 +510,8 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
             break;
           case HLS_PARAM_GROUP_ID:
           case HLS_PARAM_AUDIO:{
-            if (group_itag == 0) {
-              guint j;
-              for (j = 0; str[j]; j++)
-                group_itag += str[j];
-            }
+            if (group_itag == 0)
+              group_itag = g_str_hash (str);
             if (last == HLS_PARAM_GROUP_ID) {
               g_debug ("Replaced itag from GROUP-ID: %u", group_itag);
               gtuber_stream_set_itag (bstream, group_itag);
