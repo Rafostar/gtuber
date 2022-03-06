@@ -436,14 +436,17 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
       HlsParamType last = HLS_PARAM_NONE;
       GtuberStream *bstream;
 
-      astream = gtuber_adaptive_stream_new ();
+      if (!astream) {
+        astream = gtuber_adaptive_stream_new ();
+
+        gtuber_adaptive_stream_set_manifest_type (astream,
+            GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
+        gtuber_stream_set_itag ((GtuberStream *) astream, itag);
+
+        g_debug ("Created new adaptive stream, itag: %u", itag);
+      }
+
       bstream = GTUBER_STREAM (astream);
-
-      gtuber_adaptive_stream_set_manifest_type (astream,
-          GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS);
-      gtuber_stream_set_itag (bstream, itag);
-
-      g_debug ("Created new adaptive stream, itag: %u", itag);
 
       while ((str = params[i])) {
         HlsParamType current;
@@ -596,6 +599,10 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
         g_debug ("Duplicated URIs found: %s", duplicate ? "yes" : "no");
       }
 
+      g_debug ("%s adaptive stream, itag: %u",
+          duplicate ? "Dropped duplicated" : "Added",
+          gtuber_stream_get_itag ((GtuberStream *) astream));
+
       if (!duplicate) {
         gtuber_stream_set_uri ((GtuberStream *) astream, line);
         g_debug ("HLS stream URI: %s", line);
@@ -604,9 +611,6 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
       } else {
         g_object_unref (astream);
       }
-
-      g_debug ("%s adaptive stream, itag: %u",
-          duplicate ? "Dropped duplicated" : "Added", itag);
 
       astream = NULL;
       success = TRUE;
