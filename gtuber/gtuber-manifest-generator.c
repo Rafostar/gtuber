@@ -645,88 +645,209 @@ finish:
 }
 
 static void
+_append_hls_audio_only_stream (GtuberStream *audio_stream, GString *string)
+{
+  /* EXT-X-MEDIA */
+  g_string_append (string, "#EXT-X-MEDIA:TYPE=AUDIO");
+  g_string_append_printf (string, ",GROUP-ID=\"%u\"",
+      gtuber_stream_get_itag (audio_stream));
+  g_string_append_printf (string, ",NAME=\"audio_only\"");
+  g_string_append_printf (string, ",AUTOSELECT=YES");
+  g_string_append_printf (string, ",DEFAULT=YES");
+  g_string_append_printf (string, ",URI=\"%s\"",
+      gtuber_stream_get_uri (audio_stream));
+  g_string_append (string, "\n");
+}
+
+static void
+_append_hls_stream (GtuberStream *video_stream, GtuberStream *audio_stream, GString *string)
+{
+  const gchar *video_codec = NULL, *audio_codec = NULL;
+  guint bitrate = 0;
+
+  g_return_if_fail (video_stream != NULL || audio_stream != NULL);
+
+  /* EXT-X-STREAM-INF */
+  g_string_append (string, "#EXT-X-STREAM-INF");
+
+  /* RFC8216: "Every EXT-X-STREAM-INF tag MUST include the BANDWIDTH attribute", so
+   * use it to append initial ":" character */
+  if (video_stream)
+    bitrate += gtuber_stream_get_bitrate (video_stream);
+  if (audio_stream)
+    bitrate += gtuber_stream_get_bitrate (audio_stream);
+  g_string_append_printf (string, ":BANDWIDTH=%u", bitrate);
+
+  if (video_stream) {
+    guint width, height, fps;
+
+    width = gtuber_stream_get_width (video_stream);
+    height = gtuber_stream_get_height (video_stream);
+    fps = gtuber_stream_get_fps (video_stream);
+
+    if (width || height)
+      g_string_append_printf (string, ",RESOLUTION=%ux%u", width, height);
+    if (fps)
+      g_string_append_printf (string, ",FRAME-RATE=%u", fps);
+  }
+
+  if (video_stream)
+    video_codec = gtuber_stream_get_video_codec (video_stream);
+
+  audio_codec = (audio_stream != NULL)
+      ? gtuber_stream_get_audio_codec (audio_stream)
+      : gtuber_stream_get_audio_codec (video_stream);
+
+  if (video_codec || audio_codec) {
+    g_string_append (string, ",CODECS=\"");
+
+    if (video_codec)
+      g_string_append (string, video_codec);
+    if (video_codec && audio_codec)
+      g_string_append (string, ",");
+    if (audio_codec)
+      g_string_append_printf (string, "%s", audio_codec);
+
+    g_string_append (string, "\"");
+  }
+
+  /* If we have both, that means we are dealing with video-only,
+   * so set the itag of audio-only stream to use with it */
+  if (video_stream && audio_stream) {
+    g_string_append_printf (string, ",AUDIO=\"%u\"",
+        gtuber_stream_get_itag (audio_stream));
+  }
+
+  g_string_append (string, "\n");
+
+  /* URI */
+  if (video_stream)
+    g_string_append_printf (string, "%s\n", gtuber_stream_get_uri (video_stream));
+  else
+    g_string_append_printf (string, "%s\n", gtuber_stream_get_uri (audio_stream));
+}
+
+static gboolean
 _astreams_into_hls_string (GtuberManifestGenerator *self,
     GPtrArray *sorted_astreams, GString *string)
 {
+  GPtrArray *video_only_streams = NULL;
+  GPtrArray *audio_only_streams = NULL;
+  GPtrArray *combined_streams = NULL;
+  gsize initial_length = string->len;
   guint i;
-  GtuberStream *best_audio = NULL;
 
+  /* First sort streams to video-only, audio-only and combined streams,
+   * how manifest will look like depends on what we have to deal with.
+   * Since we have sorted streams by quality prior to this point,
+   * no further sorting is required here */
   for (i = 0; i < sorted_astreams->len; i++) {
-    GtuberAdaptiveStream *astream = g_ptr_array_index (sorted_astreams, i);
-    GtuberStream *stream;
-    guint width, height, fps;
-    gboolean audio_only, video_only;
-    const gchar *video_codec;
+    GtuberAdaptiveStream *astream;
+    gboolean video_only, audio_only;
+
+    astream = g_ptr_array_index (sorted_astreams, i);
 
     if (!get_should_add_adaptive_stream (self, astream,
         GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS))
       continue;
 
-    stream = GTUBER_STREAM (astream);
-
-    width = gtuber_stream_get_width (stream);
-    height = gtuber_stream_get_height (stream);
-    fps = gtuber_stream_get_fps (stream);
-    video_codec = gtuber_stream_get_video_codec (stream);
-
-    audio_only = _is_stream_audio_only (stream);
-    video_only = (!audio_only && gtuber_stream_get_audio_codec (stream) == NULL);
+    audio_only = _is_stream_audio_only ((GtuberStream *) astream);
 
     if (audio_only) {
-      gboolean is_first = (string->len == 0);
+      if (!audio_only_streams)
+        audio_only_streams = g_ptr_array_new ();
 
-      if (is_first)
-        best_audio = stream;
+      g_ptr_array_add (audio_only_streams, g_ptr_array_index (sorted_astreams, i));
+      continue;
+    }
 
-      /* EXT-X-MEDIA */
-      g_string_append (string, "#EXT-X-MEDIA:TYPE=AUDIO");
-      g_string_append_printf (string, ",GROUP-ID=\"audio\"");
-      g_string_append_printf (string, ",NAME=\"audio_only\"");
-      g_string_append_printf (string, ",AUTOSELECT=YES");
-      g_string_append_printf (string, ",DEFAULT=%s",
-          is_first ? "YES" : "NO");
-      g_string_append_printf (string, ",URI=\"%s\"",
-          gtuber_stream_get_uri (stream));
-      g_string_append (string, "\n");
-    } else {
-      const gchar *audio_codec;
+    video_only = (!audio_only
+        && gtuber_stream_get_audio_codec ((GtuberStream *) astream) == NULL);
 
-      /* EXT-X-STREAM-INF */
-      g_string_append (string, "#EXT-X-STREAM-INF:PROGRAM-ID=1");
+    if (video_only) {
+      if (!video_only_streams)
+        video_only_streams = g_ptr_array_new ();
 
-      /* RFC8216: "Every EXT-X-STREAM-INF tag MUST include the BANDWIDTH attribute" */
-      g_string_append_printf (string, ",BANDWIDTH=%u",
-          gtuber_stream_get_bitrate (stream));
+      g_ptr_array_add (video_only_streams, g_ptr_array_index (sorted_astreams, i));
+      continue;
+    }
 
-      if (width || height)
-        g_string_append_printf (string, ",RESOLUTION=%ux%u", width, height);
+    if (!combined_streams)
+      combined_streams = g_ptr_array_new ();
 
-      audio_codec = (video_only && best_audio)
-          ? gtuber_stream_get_audio_codec (best_audio)
-          : gtuber_stream_get_audio_codec (stream);
+    g_ptr_array_add (combined_streams, g_ptr_array_index (sorted_astreams, i));
+  }
 
-      if (video_codec || audio_codec) {
-        g_string_append (string, ",CODECS=\"");
+  if (audio_only_streams) {
+    for (i = 0; i < audio_only_streams->len; i++) {
+      GtuberStream *audio_stream;
 
-        if (video_codec)
-          g_string_append (string, video_codec);
-        if (audio_codec)
-          g_string_append_printf (string, ",%s", audio_codec);
+      audio_stream = (GtuberStream *) g_ptr_array_index (audio_only_streams, i);
 
-        g_string_append (string, "\"");
+      /* If we have video-only, then audio is to be used with it,
+       * otherwise treat audio as an usable stream on its own */
+      if (video_only_streams) {
+        /* Do not allow more audio-only streams then video-only,
+         * as audio streams without matching video would be invalid */
+        if (i >= video_only_streams->len)
+          break;
+
+        _append_hls_audio_only_stream (audio_stream, string);
+      } else {
+        /* Dynamic inserting/removing video decoder in most playback backends
+         * with adaptive streaming leads to unpredicted behavior, lets not do that */
+        if (combined_streams)
+          break;
+
+        _append_hls_stream (NULL, audio_stream, string);
       }
-      if (fps)
-        g_string_append_printf (string, ",FRAME-RATE=%u", fps);
-
-      if (video_only)
-        g_string_append (string, ",AUDIO=\"audio\"");
-
-      g_string_append (string, "\n");
-
-      /* URI */
-      g_string_append_printf (string, "%s\n", gtuber_stream_get_uri (stream));
     }
   }
+
+  if (video_only_streams) {
+    guint per_n_videos = 0, audio_index = 0;
+
+    if (audio_only_streams
+        && video_only_streams->len >= audio_only_streams->len
+        && audio_only_streams->len > 0) {
+      audio_index = audio_only_streams->len;
+      per_n_videos = (video_only_streams->len / audio_only_streams->len);
+    }
+
+    for (i = 0; i < video_only_streams->len; i++) {
+      GtuberStream *video_stream, *audio_stream = NULL;
+
+      video_stream = (GtuberStream *) g_ptr_array_index (video_only_streams, i);
+
+      /* Distribute audio-only streams to video-only from best to worst */
+      if (audio_only_streams && per_n_videos > 0) {
+        if (audio_index > 0 && (i % per_n_videos) == 0)
+          audio_index--;
+
+        audio_stream = (GtuberStream *) g_ptr_array_index (audio_only_streams, audio_index);
+      }
+
+      _append_hls_stream (video_stream, audio_stream, string);
+    }
+  }
+
+  if (combined_streams) {
+    for (i = 0; i < combined_streams->len; i++) {
+      GtuberStream *combined_stream;
+
+      combined_stream = (GtuberStream *) g_ptr_array_index (combined_streams, i);
+      _append_hls_stream (combined_stream, NULL, string);
+    }
+  }
+
+  if (video_only_streams)
+    g_ptr_array_unref (video_only_streams);
+  if (audio_only_streams)
+    g_ptr_array_unref (audio_only_streams);
+  if (combined_streams)
+    g_ptr_array_unref (combined_streams);
+
+  return (string->len > initial_length);
 }
 
 static gchar *
@@ -861,6 +982,7 @@ static gboolean
 dump_hls_data (GtuberManifestGenerator *self, GString *string)
 {
   GPtrArray *astreams, *sorted_astreams;
+  gboolean success;
 
   g_debug ("Generating HLS manifest data...");
 
@@ -872,18 +994,15 @@ dump_hls_data (GtuberManifestGenerator *self, GString *string)
   /* Special ver for HLS to make sure best audio track is used */
   g_ptr_array_sort (sorted_astreams, (GCompareFunc) _sort_hls_streams_cb);
 
-  _astreams_into_hls_string (self, sorted_astreams, string);
+  g_string_append (string, "#EXTM3U\n");
+  success = _astreams_into_hls_string (self, sorted_astreams, string);
 
   g_ptr_array_unref (sorted_astreams);
 
-  if (string->len == 0) {
+  if (!success) {
     g_debug ("No HLS streams added");
     return FALSE;
   }
-
-  /* Prepend header now that we know data is not empty */
-  g_string_prepend (string, "#EXTM3U\n");
-
   g_debug ("HLS manifest data generated");
 
   return TRUE;
@@ -913,10 +1032,10 @@ gen_to_data_internal (GtuberManifestGenerator *self, gsize *length)
   if (!success && get_allows_type (self, GTUBER_ADAPTIVE_STREAM_MANIFEST_HLS))
     success = dump_hls_data (self, string);
 
-  if (length)
+  if (success && length)
     *length = string->len;
 
-  return g_string_free (string, string->len == 0);
+  return g_string_free (string, !success);
 }
 
 /**
