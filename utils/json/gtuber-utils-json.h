@@ -101,13 +101,17 @@ G_BEGIN_DECLS
 #define GTUBER_UTILS_JSON_ADD_VAL_BOOLEAN(val)                         \
     json_builder_add_boolean_value (_utils_builder, val);
 
-const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
+/* JSON array navigation, for use as VA arg */
+#define GTUBER_UTILS_JSON_ARRAY_INDEX(index)                           \
+    GUINT_TO_POINTER (index + 1)
 
-gint64               gtuber_utils_json_get_int              (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
+const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
 
-gboolean             gtuber_utils_json_get_boolean          (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
+gint64               gtuber_utils_json_get_int              (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
 
-gboolean             gtuber_utils_json_go_to                (JsonReader *reader, const gchar *key, ...) G_GNUC_NULL_TERMINATED;
+gboolean             gtuber_utils_json_get_boolean          (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
+
+gboolean             gtuber_utils_json_go_to                (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
 
 void                 gtuber_utils_json_go_back              (JsonReader *reader, guint count);
 

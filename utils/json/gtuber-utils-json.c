@@ -20,34 +20,52 @@
 #include "gtuber-utils-json.h"
 
 static gboolean
-_json_reader_va_iter (JsonReader *reader, const gchar *key, va_list args, guint *depth)
+_json_reader_va_iter (JsonReader *reader, va_list args, guint *depth)
 {
-  const gchar *name;
   gboolean success = TRUE;
 
-  name = key;
-  while (success && name) {
-    if (!(success = json_reader_is_object (reader)))
+  while (success) {
+    gpointer arg;
+
+    if (!(arg = va_arg (args, gpointer)))
       break;
-    *depth += 1;
-    if (!(success = json_reader_read_member (reader, name)))
-      break;
-    name = va_arg (args, const gchar *);
+
+    if ((success = json_reader_is_object (reader))) {
+      const gchar *name = (const gchar *) arg;
+
+      *depth += 1;
+      if (!(success = json_reader_read_member (reader, name)))
+        break;
+    } else if ((success = json_reader_is_array (reader))) {
+      guint index = GPOINTER_TO_UINT (arg);
+
+      /* Safety check */
+      if (!(success = index > 0))
+        break;
+
+      index--;
+      if (!(success = index < json_reader_count_elements (reader)))
+        break;
+
+      *depth += 1;
+      if (!(success = json_reader_read_element (reader, index)))
+        break;
+    }
   }
 
   return success;
 }
 
 const gchar *
-gtuber_utils_json_get_string (JsonReader *reader, const gchar *key, ...)
+gtuber_utils_json_get_string (JsonReader *reader, ...)
 {
   va_list args;
   const gchar *value = NULL;
   guint depth = 0;
   gboolean success;
 
-  va_start (args, key);
-  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_start (args, reader);
+  success = _json_reader_va_iter (reader, args, &depth);
   va_end (args);
 
   /* Reading null as string makes reader stuck */
@@ -55,69 +73,65 @@ gtuber_utils_json_get_string (JsonReader *reader, const gchar *key, ...)
       && !json_reader_get_null_value (reader))
     value = json_reader_get_string_value (reader);
 
-  while (depth--)
-    json_reader_end_member (reader);
+  gtuber_utils_json_go_back (reader, depth);
 
   return value;
 }
 
 gint64
-gtuber_utils_json_get_int (JsonReader *reader, const gchar *key, ...)
+gtuber_utils_json_get_int (JsonReader *reader, ...)
 {
   va_list args;
   gint64 value = 0;
   guint depth = 0;
   gboolean success;
 
-  va_start (args, key);
-  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_start (args, reader);
+  success = _json_reader_va_iter (reader, args, &depth);
   va_end (args);
 
   if (success && json_reader_is_value (reader))
     value = json_reader_get_int_value (reader);
 
-  while (depth--)
-    json_reader_end_member (reader);
+  gtuber_utils_json_go_back (reader, depth);
 
   return value;
 }
 
 gboolean
-gtuber_utils_json_get_boolean (JsonReader *reader, const gchar *key, ...)
+gtuber_utils_json_get_boolean (JsonReader *reader, ...)
 {
   va_list args;
   gboolean value = FALSE;
   guint depth = 0;
   gboolean success;
 
-  va_start (args, key);
-  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_start (args, reader);
+  success = _json_reader_va_iter (reader, args, &depth);
   va_end (args);
 
   if (success && json_reader_is_value (reader))
     value = json_reader_get_boolean_value (reader);
 
-  while (depth--)
-    json_reader_end_member (reader);
+  gtuber_utils_json_go_back (reader, depth);
 
   return value;
 }
 
 gboolean
-gtuber_utils_json_go_to (JsonReader *reader, const gchar *key, ...)
+gtuber_utils_json_go_to (JsonReader *reader, ...)
 {
   va_list args;
   guint depth = 0;
   gboolean success;
 
-  va_start (args, key);
-  success = _json_reader_va_iter (reader, key, args, &depth);
+  va_start (args, reader);
+  success = _json_reader_va_iter (reader, args, &depth);
   va_end (args);
 
-  if (!success) {
-    while (depth--)
-      json_reader_end_member (reader);
-  }
+  /* We do not go back here on success */
+  if (!success)
+    gtuber_utils_json_go_back (reader, depth);
 
   return success;
 }
@@ -125,8 +139,13 @@ gtuber_utils_json_go_to (JsonReader *reader, const gchar *key, ...)
 void
 gtuber_utils_json_go_back (JsonReader *reader, guint count)
 {
+  /* FIXME: This is an abuse of json-glib mechanics, where
+   * leaving array might position us in either parent array
+   * or object thus result is the same as calling `end_member`
+   * on an object. It would be nice if json-glib had an API
+   * to check if we are currently inside of array */
   while (count--)
-    json_reader_end_member (reader);
+    json_reader_end_element (reader);
 }
 
 /**
