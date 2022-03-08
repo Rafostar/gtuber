@@ -26,7 +26,7 @@ main (int argc, char **argv)
   GError *error = NULL;
 
   if (!argv[1]) {
-    g_printerr ("No URI privided as argument!\n");
+    g_printerr ("No URI provided as argument!\n");
     return 1;
   }
 

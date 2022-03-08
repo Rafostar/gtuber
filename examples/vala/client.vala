@@ -29,7 +29,7 @@ int
 main (string[] argv)
 {
   if (argv.length < 2) {
-    stderr.printf ("Error: No URI privided as argument!\n");
+    stderr.printf ("Error: No URI provided as argument!\n");
     return 1;
   }
 

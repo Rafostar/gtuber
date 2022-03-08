@@ -3,7 +3,7 @@ gi.require_version('Gtuber', '0.0')
 from gi.repository import GLib, Gtuber
 
 if len(sys.argv) < 2:
-    print("No URI privided as argument!")
+    print("No URI provided as argument!")
     sys.exit(1)
 
 client = Gtuber.Client()

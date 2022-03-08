@@ -37,5 +37,5 @@ if (ARGV[0]) {
   client.fetch_media_info_async(ARGV[0], null).then(printInfo).catch(printError);
   loop.run();
 } else {
-  logError(new Error ("No URI privided as argument!"));
+  logError(new Error ("No URI provided as argument!"));
 }

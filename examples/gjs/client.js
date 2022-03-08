@@ -5,7 +5,7 @@ let info;
 
 try {
   if (!ARGV[0])
-    throw new Error("No URI privided as argument!");
+    throw new Error("No URI provided as argument!");
 
   info = client.fetch_media_info(ARGV[0], null);
 } catch(err) {
