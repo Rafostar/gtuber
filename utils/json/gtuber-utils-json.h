@@ -111,6 +111,8 @@ gint64               gtuber_utils_json_get_int              (JsonReader *reader,
 
 gboolean             gtuber_utils_json_get_boolean          (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
 
+gint                 gtuber_utils_json_count_elements       (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
+
 gboolean             gtuber_utils_json_go_to                (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
 
 void                 gtuber_utils_json_go_back              (JsonReader *reader, guint count);

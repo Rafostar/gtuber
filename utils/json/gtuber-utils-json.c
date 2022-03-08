@@ -118,6 +118,26 @@ gtuber_utils_json_get_boolean (JsonReader *reader, ...)
   return value;
 }
 
+gint
+gtuber_utils_json_count_elements (JsonReader *reader, ...)
+{
+  va_list args;
+  gint n_elems = -1;
+  guint depth = 0;
+  gboolean success;
+
+  va_start (args, reader);
+  success = _json_reader_va_iter (reader, args, &depth);
+  va_end (args);
+
+  if (success && json_reader_is_array (reader))
+    n_elems = json_reader_count_elements (reader);
+
+  gtuber_utils_json_go_back (reader, depth);
+
+  return n_elems;
+}
+
 gboolean
 gtuber_utils_json_go_to (JsonReader *reader, ...)
 {
