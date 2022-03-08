@@ -186,21 +186,16 @@ _parse_and_obtain_session_post_msg (GtuberNiconico *self, JsonReader *reader,
             for (i = 0; i < vid_count; i++) {
               const gchar *vid_id;
 
-              gtuber_utils_json_go_to (reader, "videos", NULL);
+              vid_id = gtuber_utils_json_get_string (reader, "videos",
+                  GTUBER_UTILS_JSON_ARRAY_INDEX (i), NULL);
 
-              json_reader_read_element (reader, i);
-              vid_id = json_reader_get_string_value (reader);
-              json_reader_end_element (reader);
-
-              gtuber_utils_json_go_back (reader, 1);
               gtuber_utils_json_go_to (reader, "audios", NULL);
 
               for (j = 0; j < json_reader_count_elements (reader); j++) {
                 const gchar *aud_id;
 
-                json_reader_read_element (reader, j);
-                aud_id = json_reader_get_string_value (reader);
-                json_reader_end_element (reader);
+                aud_id = gtuber_utils_json_get_string (reader,
+                    GTUBER_UTILS_JSON_ARRAY_INDEX (j), NULL);
 
                 GTUBER_UTILS_JSON_ADD_OBJECT ({
                   GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("src_id_to_mux", {
@@ -225,9 +220,8 @@ _parse_and_obtain_session_post_msg (GtuberNiconico *self, JsonReader *reader,
         });
       });
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("protocol", {
-        if (!gtuber_utils_json_go_to (reader, "protocols", NULL)
-            || !json_reader_is_array (reader)
-            || !json_reader_read_element (reader, 0)) {
+        if (!gtuber_utils_json_go_to (reader, "protocols",
+            GTUBER_UTILS_JSON_ARRAY_INDEX (0), NULL)) {
           g_debug ("Missing API protocols array");
           break;
         }
@@ -238,16 +232,14 @@ _parse_and_obtain_session_post_msg (GtuberNiconico *self, JsonReader *reader,
         }
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("name", proto_name);
 
-        json_reader_end_element (reader);
-        gtuber_utils_json_go_back (reader, 1);
+        gtuber_utils_json_go_back (reader, 2);
 
         GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("parameters", {
           GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("http_parameters", {
             GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("parameters", {
               GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("hls_parameters", {
-                if (!gtuber_utils_json_go_to (reader, "urls", NULL)
-                    || !json_reader_is_array (reader)
-                    || !json_reader_read_element (reader, 0)) {
+                if (!gtuber_utils_json_go_to (reader, "urls",
+                    GTUBER_UTILS_JSON_ARRAY_INDEX (0), NULL)) {
                   g_debug ("Missing API urls array");
                   break;
                 }
@@ -266,8 +258,7 @@ _parse_and_obtain_session_post_msg (GtuberNiconico *self, JsonReader *reader,
                 GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("transfer_preset", "");
                 GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("segment_duration", 6000);
 
-                json_reader_end_element (reader);
-                gtuber_utils_json_go_back (reader, 1);
+                gtuber_utils_json_go_back (reader, 2);
               });
             });
           });
