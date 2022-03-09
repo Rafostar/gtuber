@@ -62,34 +62,25 @@ bilibili_normal_parse_info (GtuberBilibili *self, JsonReader *reader,
   gtuber_media_info_set_description (info, description);
   g_debug ("Video description: %s", description);
 
-  /* FIXME: Add convenient util to enter arr */
-  if (json_reader_read_member (reader, "data")) {
-    if (json_reader_read_member (reader, "pages")
-        && json_reader_is_array (reader)) {
-      gint count = json_reader_count_elements (reader);
-      gint i;
+  if (gtuber_utils_json_go_to (reader, "data", "pages", NULL)) {
+    gint i, count = gtuber_utils_json_count_elements (reader, NULL);
 
-      for (i = 0; i < count; i++) {
-        if (json_reader_read_element (reader, i)) {
-          guint el_cid;
+    for (i = 0; i < count; i++) {
+      guint el_cid, duration;
 
-          el_cid = gtuber_utils_json_get_int (reader, "cid", NULL);
-          if (el_cid == self->cid) {
-            guint duration;
+      el_cid = gtuber_utils_json_get_int (reader,
+          GTUBER_UTILS_JSON_ARRAY_INDEX (i), "cid", NULL);
+      if (el_cid != self->cid)
+        continue;
 
-            duration = gtuber_utils_json_get_int (reader, "duration", NULL);
-            gtuber_media_info_set_duration (info, duration);
-
-            json_reader_end_element (reader);
-            break;
-          }
-        }
-        json_reader_end_element (reader);
-      }
+      duration = gtuber_utils_json_get_int (reader,
+          GTUBER_UTILS_JSON_ARRAY_INDEX (i), "duration", NULL);
+      gtuber_media_info_set_duration (info, duration);
+      break;
     }
-    json_reader_end_member (reader);
+
+    gtuber_utils_json_go_back (reader, 2);
   }
-  json_reader_end_member (reader);
 
   /* Check redirect and eventually switch to Bangumi */
   redirect = gtuber_utils_json_get_string (reader, "data", "redirect_url", NULL);
