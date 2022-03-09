@@ -28,6 +28,10 @@ plugin_init (GstPlugin *plugin)
 {
   gboolean res = FALSE;
 
+  gst_plugin_add_dependency_simple (plugin,
+      "GTUBER_PLUGIN_PATH", GTUBER_PLUGIN_PATH, NULL,
+      GST_PLUGIN_DEPENDENCY_FLAG_PATHS_ARE_DEFAULT_ONLY);
+
   res |= GST_ELEMENT_REGISTER (gtubersrc, plugin);
   res |= GST_ELEMENT_REGISTER (gtuberuridemux, plugin);
   res |= GST_ELEMENT_REGISTER (gtuberdashdemux, plugin);
