@@ -44,7 +44,9 @@ GTUBER_TEST_CASE (3)
 
   compare_fetch (client, "https://www.reddit.com/r/linux_gaming/comments/t4dvbj", info, &out_info);
 
-  check_adaptive_streams (out_info);
+  /* GitHub host seems to be blacklisted */
+  if (!g_getenv ("GITHUB_ACTIONS"))
+    check_adaptive_streams (out_info);
 
   g_object_unref (info);
   g_object_unref (out_info);

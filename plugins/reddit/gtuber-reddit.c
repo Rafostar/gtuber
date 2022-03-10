@@ -97,12 +97,9 @@ parse_response_data (GtuberReddit *self, JsonParser *parser,
   const gchar *id_uri;
 
   /* Data is at: res[0].data.children[0].data */
-  if (!json_reader_is_array (reader)
-      || !json_reader_read_element (reader, 0)
-      || !gtuber_utils_json_go_to (reader, "data", "children", NULL)
-      || !json_reader_is_array (reader)
-      || !json_reader_read_element (reader, 0)
-      || !gtuber_utils_json_go_to (reader, "data", NULL)) {
+  if (!gtuber_utils_json_go_to (reader,
+      GTUBER_UTILS_JSON_ARRAY_INDEX (0), "data", "children",
+      GTUBER_UTILS_JSON_ARRAY_INDEX (0), "data", NULL)) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "Could not read response JSON data");

@@ -25,8 +25,13 @@ static gboolean
 _read_episodes (GtuberBilibili *self, JsonReader *reader,
     GtuberMediaInfo *info, GError **error, GtuberFlow *res)
 {
-  gint j, episodes = json_reader_count_elements (reader);
+  gint j, episodes = gtuber_utils_json_count_elements (reader, NULL);
   guint search_id = 0;
+
+  if (episodes <= 0) {
+    g_debug ("No episodes in array");
+    return FALSE;
+  }
 
   /* With episode number find the exact episode info,
    * otherwise knowing season use latest episode */
@@ -38,59 +43,60 @@ _read_episodes (GtuberBilibili *self, JsonReader *reader,
   /* Find latest published episode of season */
   if (self->bili_type == BILIBILI_BANGUMI_SS) {
     for (j = 0; j < episodes; j++) {
-      if (json_reader_read_element (reader, j)) {
-        guint pub_time;
+      guint pub_time;
 
-        pub_time = gtuber_utils_json_get_int (reader, "pub_time", NULL);
-        if (pub_time > search_id) {
-          search_id = pub_time;
-          g_debug ("Latest publish date: %i", search_id);
-        }
+      pub_time = gtuber_utils_json_get_int (reader,
+          GTUBER_UTILS_JSON_ARRAY_INDEX (j), "pub_time", NULL);
+      if (pub_time > search_id) {
+        search_id = pub_time;
+        g_debug ("Latest publish date: %i", search_id);
       }
-      json_reader_end_element (reader);
     }
   }
 
   for (j = 0; j < episodes; j++) {
+    guint found_id;
     gboolean found_params = FALSE;
 
-    if (json_reader_read_element (reader, j)) {
-      guint found_id = (self->bili_type == BILIBILI_BANGUMI_EP)
-          ? gtuber_utils_json_get_int (reader, "id", NULL)
-          : gtuber_utils_json_get_int (reader, "pub_time", NULL);
+    if (!gtuber_utils_json_go_to (reader, GTUBER_UTILS_JSON_ARRAY_INDEX (j), NULL))
+      continue;
 
-      if ((found_params = found_id == search_id)) {
-        self->bvid = g_strdup (gtuber_utils_json_get_string (reader, "bvid", NULL));
-        self->aid = gtuber_utils_json_get_int (reader, "aid", NULL);
-        self->cid = gtuber_utils_json_get_int (reader, "cid", NULL);
+    found_id = (self->bili_type == BILIBILI_BANGUMI_EP)
+        ? gtuber_utils_json_get_int (reader, "id", NULL)
+        : gtuber_utils_json_get_int (reader, "pub_time", NULL);
 
-        *res = bilibili_get_flow_from_plugin_props (self, error);
+    if ((found_params = found_id == search_id)) {
+      self->bvid = g_strdup (gtuber_utils_json_get_string (reader, "bvid", NULL));
+      self->aid = gtuber_utils_json_get_int (reader, "aid", NULL);
+      self->cid = gtuber_utils_json_get_int (reader, "cid", NULL);
 
-        if (*res != GTUBER_FLOW_ERROR) {
-          const gchar *title, *l_title;
-          guint duration;
+      *res = bilibili_get_flow_from_plugin_props (self, error);
 
-          bilibili_set_media_info_id_from_cid (self, info);
+      if (*res != GTUBER_FLOW_ERROR) {
+        const gchar *title, *l_title;
+        guint duration;
 
-          title = gtuber_utils_json_get_string (reader, "title", NULL);
-          l_title = gtuber_utils_json_get_string (reader, "long_title", NULL);
+        bilibili_set_media_info_id_from_cid (self, info);
 
-          if (title && l_title) {
-            gchar *merged_title = g_strdup_printf ("%s %s", title, l_title);
-            gtuber_media_info_set_title (info, merged_title);
-            g_free (merged_title);
-          } else if (title) {
-            gtuber_media_info_set_title (info, title);
-          }
-          g_debug ("Video title: %s", gtuber_media_info_get_title (info));
+        title = gtuber_utils_json_get_string (reader, "title", NULL);
+        l_title = gtuber_utils_json_get_string (reader, "long_title", NULL);
 
-          /* Bilibili Bangumi has value in milliseconds */
-          duration = (gtuber_utils_json_get_int (reader, "duration", NULL) / 1000);
-          gtuber_media_info_set_duration (info, duration);
+        if (title && l_title) {
+          gchar *merged_title = g_strdup_printf ("%s %s", title, l_title);
+          gtuber_media_info_set_title (info, merged_title);
+          g_free (merged_title);
+        } else if (title) {
+          gtuber_media_info_set_title (info, title);
         }
+        g_debug ("Video title: %s", gtuber_media_info_get_title (info));
+
+        /* Bilibili Bangumi has value in milliseconds */
+        duration = (gtuber_utils_json_get_int (reader, "duration", NULL) / 1000);
+        gtuber_media_info_set_duration (info, duration);
       }
     }
-    json_reader_end_element (reader);
+
+    gtuber_utils_json_go_back (reader, 1);
 
     if (found_params)
       return TRUE;
@@ -123,10 +129,7 @@ bilibili_bangumi_parse_info (GtuberBilibili *self, JsonReader *reader,
   gboolean found_params = FALSE;
   gint i;
 
-  if (!json_reader_read_member (reader, "result")) {
-    /* Close reading result before return */
-    json_reader_end_member (reader);
-
+  if (!gtuber_utils_json_go_to (reader, "result", NULL)) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "No result data in response");
@@ -136,36 +139,31 @@ bilibili_bangumi_parse_info (GtuberBilibili *self, JsonReader *reader,
   g_debug ("Searching for requested video info...");
 
   /* Find our video in "section" array -> "episodes" array */
-  if (json_reader_read_member (reader, "section")
-      && json_reader_is_array (reader)) {
-    gint sections = json_reader_count_elements (reader);
+  if (gtuber_utils_json_go_to (reader, "section", NULL)) {
+    gint sections = gtuber_utils_json_count_elements (reader, NULL);
 
     for (i = 0; i < sections; i++) {
-      if (json_reader_read_element (reader, i)) {
-        if (json_reader_read_member (reader, "episodes")
-            && json_reader_is_array (reader)) {
-          found_params = _read_episodes (self, reader, info, error, &res);
-        }
-        json_reader_end_member (reader);
+      if (gtuber_utils_json_go_to (reader, GTUBER_UTILS_JSON_ARRAY_INDEX (i),
+          "episodes", NULL)) {
+        found_params = _read_episodes (self, reader, info, error, &res);
+        gtuber_utils_json_go_back (reader, 2);
       }
-      json_reader_end_element (reader);
 
       if (found_params)
         break;
     }
 
     g_debug ("Found info in section->episodes array: %s",
-          found_params ? "yes" : "no");
+        found_params ? "yes" : "no");
+    gtuber_utils_json_go_back (reader, 1);
   }
-  json_reader_end_member (reader);
 
   /* Also try another "episodes" array if above failed */
   if (!found_params) {
-    if (json_reader_read_member (reader, "episodes")
-        && json_reader_is_array (reader)) {
+    if (gtuber_utils_json_go_to (reader, "episodes", NULL)) {
       found_params = _read_episodes (self, reader, info, error, &res);
+      gtuber_utils_json_go_back (reader, 1);
     }
-    json_reader_end_member (reader);
 
     g_debug ("Found info in episodes array: %s",
           found_params ? "yes" : "no");
@@ -182,7 +180,7 @@ bilibili_bangumi_parse_info (GtuberBilibili *self, JsonReader *reader,
   g_debug ("Parsing video info %ssuccessful", !found_params ? "un" : "");
 
   /* Finish reading "result" */
-  json_reader_end_member (reader);
+  gtuber_utils_json_go_back (reader, 1);
 
 finish:
   return res;
