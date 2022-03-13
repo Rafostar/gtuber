@@ -198,6 +198,37 @@ _read_audio_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *s
 }
 
 static void
+_read_caption_stream_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
+{
+  GtuberCaptionStream *cstream;
+  GtuberStream *stream;
+  GPtrArray *cstreams;
+  GtuberStreamMimeType mime_type;
+  const gchar *uri;
+
+  /* No point continuing without URI */
+  if (!(uri = gtuber_utils_json_get_string (reader, "url", NULL)))
+    return;
+
+  cstream = gtuber_caption_stream_new ();
+  stream = GTUBER_STREAM (cstream);
+
+  gtuber_stream_set_uri (stream, uri);
+  gtuber_caption_stream_set_lang_code (cstream,
+      gtuber_utils_json_get_string (reader, "code", NULL));
+
+  mime_type = gtuber_utils_common_get_mime_type_from_string (
+      gtuber_utils_json_get_string (reader, "mimeType", NULL));
+  gtuber_stream_set_mime_type (stream, mime_type);
+
+  /* We do not have itag for captions, make one ourselves */
+  cstreams = gtuber_media_info_get_caption_streams (info);
+  gtuber_stream_set_itag (stream, 10001 + cstreams->len);
+
+  gtuber_media_info_add_caption_stream (info, cstream);
+}
+
+static void
 _read_chapter_cb (JsonReader *reader, GtuberMediaInfo *info, GtuberPiped *self)
 {
   const gchar *title;
@@ -247,6 +278,11 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
     if (gtuber_utils_json_go_to (reader, "audioStreams", NULL)) {
       gtuber_utils_json_array_foreach (reader, info,
           (GtuberFunc) _read_audio_stream_cb, self);
+      gtuber_utils_json_go_back (reader, 1);
+    }
+    if (gtuber_utils_json_go_to (reader, "subtitles", NULL)) {
+      gtuber_utils_json_array_foreach (reader, info,
+          (GtuberFunc) _read_caption_stream_cb, self);
       gtuber_utils_json_go_back (reader, 1);
     }
     if (gtuber_utils_json_go_to (reader, "chapters", NULL)) {
