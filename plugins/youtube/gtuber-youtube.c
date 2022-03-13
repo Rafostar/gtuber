@@ -204,6 +204,34 @@ _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer us
   gtuber_media_info_add_adaptive_stream (info, astream);
 }
 
+static void
+_read_caption_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer user_data)
+{
+  GtuberCaptionStream *cstream;
+  GtuberStream *stream;
+  GPtrArray *cstreams;
+  const gchar *uri;
+
+  /* No point continuing without URI */
+  if (!(uri = gtuber_utils_json_get_string (reader, "baseUrl", NULL)))
+    return;
+
+  cstream = gtuber_caption_stream_new ();
+  stream = GTUBER_STREAM (cstream);
+
+  gtuber_stream_set_uri (stream, uri);
+  gtuber_caption_stream_set_lang_code (cstream,
+      gtuber_utils_json_get_string (reader, "languageCode", NULL));
+
+  gtuber_stream_set_mime_type (stream, GTUBER_STREAM_MIME_TYPE_CAPTION_TTML);
+
+  /* We do not have itag for captions, make one ourselves */
+  cstreams = gtuber_media_info_get_caption_streams (info);
+  gtuber_stream_set_itag (stream, 10001 + cstreams->len);
+
+  gtuber_media_info_add_caption_stream (info, cstream);
+}
+
 static GtuberFlow
 parse_response_data (GtuberYoutube *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
@@ -266,6 +294,12 @@ parse_response_data (GtuberYoutube *self, JsonParser *parser,
       }
     }
     gtuber_utils_json_go_back (reader, 1);
+  }
+  if (!self->hls_uri && gtuber_utils_json_go_to (reader, "captions",
+      "playerCaptionsTracklistRenderer", "captionTracks", NULL)) {
+    gtuber_utils_json_array_foreach (reader, info,
+        (GtuberFunc) _read_caption_stream_cb, NULL);
+    gtuber_utils_json_go_back (reader, 3);
   }
 
   visitor_data = gtuber_utils_json_get_string (reader, "responseContext", "visitorData", NULL);
