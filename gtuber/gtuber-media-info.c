@@ -44,6 +44,7 @@ enum
   PROP_DURATION,
   PROP_HAS_STREAMS,
   PROP_HAS_ADAPTIVE_STREAMS,
+  PROP_HAS_CAPTION_STREAMS,
   PROP_LAST
 };
 
@@ -58,6 +59,7 @@ struct _GtuberMediaInfo
 
   GPtrArray *streams;
   GPtrArray *adaptive_streams;
+  GPtrArray *caption_streams;
 
   GHashTable *chapters;
   GHashTable *req_headers;
@@ -92,6 +94,8 @@ gtuber_media_info_init (GtuberMediaInfo *self)
   self->streams =
       g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
   self->adaptive_streams =
+      g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
+  self->caption_streams =
       g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
 
   self->chapters =
@@ -137,6 +141,11 @@ gtuber_media_info_class_init (GtuberMediaInfoClass *klass)
       "Check if media info has any adaptive streams",
       FALSE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_HAS_CAPTION_STREAMS] =
+      g_param_spec_boolean ("has-caption-streams", "Has Caption Streams",
+      "Check if media info has any caption streams",
+      FALSE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 }
 
@@ -164,6 +173,9 @@ gtuber_media_info_get_property (GObject *object, guint prop_id,
       break;
     case PROP_HAS_ADAPTIVE_STREAMS:
       g_value_set_boolean (value, gtuber_media_info_get_has_adaptive_streams (self));
+      break;
+    case PROP_HAS_CAPTION_STREAMS:
+      g_value_set_boolean (value, gtuber_media_info_get_has_caption_streams (self));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -194,6 +206,7 @@ gtuber_media_info_finalize (GObject *object)
 
   g_ptr_array_unref (self->streams);
   g_ptr_array_unref (self->adaptive_streams);
+  g_ptr_array_unref (self->caption_streams);
 
   g_hash_table_unref (self->chapters);
   g_hash_table_unref (self->req_headers);
@@ -466,6 +479,58 @@ gtuber_media_info_add_adaptive_stream (GtuberMediaInfo *self, GtuberAdaptiveStre
   g_return_if_fail (GTUBER_IS_ADAPTIVE_STREAM (stream));
 
   g_ptr_array_add (self->adaptive_streams, stream);
+}
+
+/**
+ * gtuber_media_info_get_has_caption_streams:
+ * @info: a #GtuberMediaInfo
+ *
+ * Returns: %TRUE if info has caption streams, %FALSE otherwise.
+ */
+gboolean
+gtuber_media_info_get_has_caption_streams (GtuberMediaInfo *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), FALSE);
+
+  return (self->caption_streams && self->caption_streams->len);
+}
+
+/**
+ * gtuber_media_info_get_caption_streams:
+ * @info: a #GtuberMediaInfo
+ *
+ * Get a #GPtrArray of #GtuberCaptionStream instances. When no caption streams are
+ *   available, an empty array is returned. Use gtuber_media_info_get_has_caption_streams()
+ *   to check if array will be empty.
+ *
+ * Returns: (transfer none) (element-type GtuberCaptionStream): a #GPtrArray of
+ *   available #GtuberCaptionStream instances.
+ */
+GPtrArray *
+gtuber_media_info_get_caption_streams (GtuberMediaInfo *self)
+{
+  g_return_val_if_fail (GTUBER_IS_MEDIA_INFO (self), NULL);
+
+  return self->caption_streams;
+}
+
+/**
+ * gtuber_media_info_add_caption_stream:
+ * @info: a #GtuberMediaInfo
+ * @caption: a #GtuberCaptionStream
+ *
+ * Add another #GtuberCaptionStream to the end of caption streams array.
+ *   This adds the caption stream pointer to the #GPtrArray. Do not free it afterwards.
+ *
+ * This is mainly useful for plugin development.
+ */
+void
+gtuber_media_info_add_caption_stream (GtuberMediaInfo *self, GtuberCaptionStream *stream)
+{
+  g_return_if_fail (GTUBER_IS_MEDIA_INFO (self));
+  g_return_if_fail (GTUBER_IS_CAPTION_STREAM (stream));
+
+  g_ptr_array_add (self->caption_streams, stream);
 }
 
 /**

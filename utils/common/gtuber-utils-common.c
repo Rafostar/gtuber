@@ -311,11 +311,14 @@ gtuber_utils_common_get_mime_type_from_string (const gchar *string)
 {
   gboolean is_mp4, is_webm;
 
+  if (G_UNLIKELY (string == NULL))
+    return GTUBER_STREAM_MIME_TYPE_UNKNOWN;
+
   is_mp4 = g_str_has_suffix (string, "mp4");
   is_webm = is_mp4 ? FALSE : g_str_has_suffix (string, "webm");
 
   if (!is_mp4 && !is_webm)
-    goto unknown;
+    goto try_caption;
 
   if (g_str_has_prefix (string, "video")) {
     if (is_mp4)
@@ -329,7 +332,17 @@ gtuber_utils_common_get_mime_type_from_string (const gchar *string)
       return GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM;
   }
 
-unknown:
+  return GTUBER_STREAM_MIME_TYPE_UNKNOWN;
+
+try_caption:
+  if (g_str_has_prefix (string, "text")
+      || g_str_has_prefix (string, "application")) {
+    if (g_str_has_suffix (string, "vtt"))
+      return GTUBER_STREAM_MIME_TYPE_CAPTION_VTT;
+    if (g_str_has_suffix (string, "ttml+xml"))
+      return GTUBER_STREAM_MIME_TYPE_CAPTION_TTML;
+  }
+
   return GTUBER_STREAM_MIME_TYPE_UNKNOWN;
 }
 

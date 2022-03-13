@@ -27,6 +27,7 @@
 #include <gtuber/gtuber-client.h>
 #include <gtuber/gtuber-stream.h>
 #include <gtuber/gtuber-adaptive-stream.h>
+#include <gtuber/gtuber-caption-stream.h>
 #include <gtuber/gtuber-media-info.h>
 #include <gtuber/gtuber-manifest-generator.h>
 #include <gtuber/gtuber-misc-functions.h>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rafał Dzięgiel <rafostar.github@gmail.com>
+ * Copyright (C) 2022 Rafał Dzięgiel <rafostar.github@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,17 +19,20 @@
 
 #pragma once
 
-#include <gtuber/gtuber.h>
+#include <gtuber/gtuber-caption-stream.h>
 
-#define __GTUBER_INSIDE__
+G_BEGIN_DECLS
 
-#include <gtuber/gtuber-website.h>
-#include <gtuber/gtuber-heartbeat.h>
-#include <gtuber/gtuber-cache.h>
-#include <gtuber/gtuber-config.h>
-#include <gtuber/gtuber-stream-devel.h>
-#include <gtuber/gtuber-adaptive-stream-devel.h>
-#include <gtuber/gtuber-caption-stream-devel.h>
-#include <gtuber/gtuber-media-info-devel.h>
+struct _GtuberCaptionStream
+{
+  GtuberStream parent;
 
-#undef __GTUBER_INSIDE__
+  gchar *lang_code;
+};
+
+struct _GtuberCaptionStreamClass
+{
+  GtuberStreamClass parent_class;
+};
+
+G_END_DECLS

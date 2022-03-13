@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rafał Dzięgiel <rafostar.github@gmail.com>
+ * Copyright (C) 2022 Rafał Dzięgiel <rafostar.github@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,17 +19,16 @@
 
 #pragma once
 
-#include <gtuber/gtuber.h>
+#if !defined(__GTUBER_INSIDE__) && !defined(GTUBER_COMPILATION)
+#error "Only <gtuber/gtuber.h> and <gtuber/gtuber-plugin-devel.h> can be included directly."
+#endif
 
-#define __GTUBER_INSIDE__
+#include <gtuber/gtuber-caption-stream.h>
 
-#include <gtuber/gtuber-website.h>
-#include <gtuber/gtuber-heartbeat.h>
-#include <gtuber/gtuber-cache.h>
-#include <gtuber/gtuber-config.h>
-#include <gtuber/gtuber-stream-devel.h>
-#include <gtuber/gtuber-adaptive-stream-devel.h>
-#include <gtuber/gtuber-caption-stream-devel.h>
-#include <gtuber/gtuber-media-info-devel.h>
+G_BEGIN_DECLS
 
-#undef __GTUBER_INSIDE__
+GtuberCaptionStream * gtuber_caption_stream_new                 (void);
+
+void                  gtuber_caption_stream_set_lang_code       (GtuberCaptionStream *stream, const gchar *lang_code);
+
+G_END_DECLS

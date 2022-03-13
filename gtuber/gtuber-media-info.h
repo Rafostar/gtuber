@@ -67,6 +67,10 @@ gboolean           gtuber_media_info_get_has_adaptive_streams   (GtuberMediaInfo
 
 GPtrArray *        gtuber_media_info_get_adaptive_streams       (GtuberMediaInfo *info);
 
+gboolean           gtuber_media_info_get_has_caption_streams    (GtuberMediaInfo *info);
+
+GPtrArray *        gtuber_media_info_get_caption_streams        (GtuberMediaInfo *info);
+
 GHashTable *       gtuber_media_info_get_request_headers        (GtuberMediaInfo *info);
 
 G_END_DECLS
