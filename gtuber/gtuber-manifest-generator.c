@@ -27,6 +27,7 @@
 #include "gtuber-enums.h"
 #include "gtuber-manifest-generator.h"
 #include "gtuber-stream.h"
+#include "gtuber-caption-stream.h"
 
 enum
 {
@@ -257,7 +258,8 @@ typedef struct
   guint max_width;
   guint max_height;
   guint max_fps;
-  GPtrArray *adaptive_streams;
+  gchar *lang;
+  GPtrArray *rep_streams;
 } DashAdaptationData;
 
 static DashAdaptationData *
@@ -271,7 +273,8 @@ dash_adaptation_data_new (GtuberStreamMimeType mime_type, DashCodec dash_codec)
   data->max_width = 0;
   data->max_height = 0;
   data->max_fps = 0;
-  data->adaptive_streams =
+  data->lang = NULL;
+  data->rep_streams =
       g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
 
   return data;
@@ -280,7 +283,9 @@ dash_adaptation_data_new (GtuberStreamMimeType mime_type, DashCodec dash_codec)
 static void
 dash_adaptation_data_free (DashAdaptationData *data)
 {
-  g_ptr_array_unref (data->adaptive_streams);
+  g_free (data->lang);
+  g_ptr_array_unref (data->rep_streams);
+
   g_free (data);
 }
 
@@ -400,6 +405,10 @@ parse_content_and_mime_type (GtuberStreamMimeType mime_type,
     case GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM:
       *content_str = g_strdup ("audio");
       break;
+    case GTUBER_STREAM_MIME_TYPE_CAPTION_VTT:
+    case GTUBER_STREAM_MIME_TYPE_CAPTION_TTML:
+      *content_str = g_strdup ("text");
+      break;
     default:
       *content_str = NULL;
       break;
@@ -413,6 +422,12 @@ parse_content_and_mime_type (GtuberStreamMimeType mime_type,
     case GTUBER_STREAM_MIME_TYPE_VIDEO_WEBM:
     case GTUBER_STREAM_MIME_TYPE_AUDIO_WEBM:
       *mime_str = g_strdup_printf ("%s/%s", *content_str, "webm");
+      break;
+    case GTUBER_STREAM_MIME_TYPE_CAPTION_VTT:
+      *mime_str = g_strdup_printf ("%s/%s", *content_str, "vtt");
+      break;
+    case GTUBER_STREAM_MIME_TYPE_CAPTION_TTML:
+      *mime_str = g_strdup ("application/ttml+xml");
       break;
     default:
       *mime_str = NULL;
@@ -541,14 +556,14 @@ _sort_hls_streams_cb (gconstpointer a, gconstpointer b)
 }
 
 static void
-_add_representation_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
+_add_representation_cb (gpointer rep_stream, DumpStringData *data)
 {
   GtuberStream *stream;
   gchar *codecs_str;
   guint width, height, fps;
   guint64 start, end;
 
-  stream = GTUBER_STREAM (astream);
+  stream = GTUBER_STREAM (rep_stream);
 
   width = gtuber_stream_get_width (stream);
   height = gtuber_stream_get_height (stream);
@@ -585,20 +600,25 @@ _add_representation_cb (GtuberAdaptiveStream *astream, DumpStringData *data)
   add_escaped_xml_uri (data->string, gtuber_stream_get_uri (stream));
   finish_line (data->gen, data->string, "</BaseURL>");
 
-  /* <SegmentBase> */
-  add_line_no_newline (data->gen, data->string, 4, "<SegmentBase");
-  if (gtuber_adaptive_stream_get_index_range (astream, &start, &end))
-    add_option_range (data->string, "indexRange", start, end);
-  add_option_boolean (data->string, "indexRangeExact", TRUE);
-  finish_line (data->gen, data->string, ">");
+  if (GTUBER_IS_ADAPTIVE_STREAM (rep_stream)) {
+    GtuberAdaptiveStream *astream = (GtuberAdaptiveStream *) rep_stream;
 
-  /* <Initialization> */
-  add_line_no_newline (data->gen, data->string, 5, "<Initialization");
-  if (gtuber_adaptive_stream_get_init_range (astream, &start, &end))
-    add_option_range (data->string, "range", start, end);
-  finish_line (data->gen, data->string, "/>");
+    /* <SegmentBase> */
+    add_line_no_newline (data->gen, data->string, 4, "<SegmentBase");
+    if (gtuber_adaptive_stream_get_index_range (astream, &start, &end))
+      add_option_range (data->string, "indexRange", start, end);
+    add_option_boolean (data->string, "indexRangeExact", TRUE);
+    finish_line (data->gen, data->string, ">");
 
-  add_line (data->gen, data->string, 4, "</SegmentBase>");
+    /* <Initialization> */
+    add_line_no_newline (data->gen, data->string, 5, "<Initialization");
+    if (gtuber_adaptive_stream_get_init_range (astream, &start, &end))
+      add_option_range (data->string, "range", start, end);
+    finish_line (data->gen, data->string, "/>");
+
+    add_line (data->gen, data->string, 4, "</SegmentBase>");
+  }
+
   add_line (data->gen, data->string, 3, "</Representation>");
 }
 
@@ -606,6 +626,7 @@ static void
 _add_adaptation_set_cb (DashAdaptationData *adaptation, DumpStringData *data)
 {
   gchar *content_str, *mime_str;
+  gboolean is_video, is_audio;
 
   parse_content_and_mime_type (adaptation->mime_type, &content_str, &mime_str);
 
@@ -614,12 +635,18 @@ _add_adaptation_set_cb (DashAdaptationData *adaptation, DumpStringData *data)
     goto finish;
   }
 
+  is_video = (strcmp (content_str, "video") == 0);
+  is_audio = (!is_video && strcmp (content_str, "audio") == 0);
+
   add_line_no_newline (data->gen, data->string, 2, "<AdaptationSet");
   add_option_string (data->string, "contentType", content_str);
   add_option_string (data->string, "mimeType", mime_str);
-  add_option_boolean (data->string, "subsegmentAlignment", TRUE);
-  add_option_int (data->string, "subsegmentStartsWithSAP", 1);
-  if (!strcmp (content_str, "video")) {
+
+  if (is_video || is_audio) {
+    add_option_boolean (data->string, "subsegmentAlignment", TRUE);
+    add_option_int (data->string, "subsegmentStartsWithSAP", 1);
+  }
+  if (is_video) {
     gchar *par;
 
     add_option_int (data->string, "maxWidth", adaptation->max_width);
@@ -630,12 +657,14 @@ _add_adaptation_set_cb (DashAdaptationData *adaptation, DumpStringData *data)
     g_free (par);
 
     add_option_int (data->string, "maxFrameRate", adaptation->max_fps);
+  } else if (!is_audio) {
+    add_option_string (data->string, "lang", adaptation->lang);
   }
   finish_line (data->gen, data->string, ">");
 
   /* Sort and add representations */
-  g_ptr_array_sort (adaptation->adaptive_streams, (GCompareFunc) _sort_streams_cb);
-  g_ptr_array_foreach (adaptation->adaptive_streams, (GFunc) _add_representation_cb, data);
+  g_ptr_array_sort (adaptation->rep_streams, (GCompareFunc) _sort_streams_cb);
+  g_ptr_array_foreach (adaptation->rep_streams, (GFunc) _add_representation_cb, data);
 
   add_line (data->gen, data->string, 2, "</AdaptationSet>");
 
@@ -902,9 +931,36 @@ _sort_dash_adaptations_cb (GtuberAdaptiveStream *astream, SortStreamsData *sort_
       data->max_height = MAX (data->max_height, gtuber_stream_get_height (stream));
       data->max_fps = MAX (data->max_fps, gtuber_stream_get_fps (stream));
 
-      g_ptr_array_add (data->adaptive_streams, g_object_ref (astream));
+      g_ptr_array_add (data->rep_streams, g_object_ref (astream));
     }
   }
+}
+
+static void
+_sort_dash_captions_cb (GtuberCaptionStream *cstream, SortStreamsData *sort_data)
+{
+  DashAdaptationData *data;
+  GtuberStream *stream;
+  GtuberStreamMimeType mime_type;
+
+  stream = GTUBER_STREAM (cstream);
+  mime_type = gtuber_stream_get_mime_type (stream);
+
+  switch (mime_type) {
+    case GTUBER_STREAM_MIME_TYPE_CAPTION_VTT:
+    case GTUBER_STREAM_MIME_TYPE_CAPTION_TTML:
+      break;
+    default:
+      g_debug ("Non-caption mime type in stream, itag: %u",
+          gtuber_stream_get_itag (stream));
+      return;
+  }
+
+  data = dash_adaptation_data_new (mime_type, DASH_CODEC_UNKNOWN);
+  data->lang = g_strdup (gtuber_caption_stream_get_lang_code (cstream));
+  g_ptr_array_add (data->rep_streams, g_object_ref (cstream));
+
+  g_ptr_array_add (sort_data->adaptations, data);
 }
 
 static gboolean
@@ -913,7 +969,7 @@ dump_dash_data (GtuberManifestGenerator *self, GString *string)
   DumpStringData *data;
   SortStreamsData *sort_data;
 
-  GPtrArray *astreams, *adaptations;
+  GPtrArray *astreams, *cstreams, *adaptations;
   gchar *dur_pts, *buf_pts;
   guint buf_time, duration;
 
@@ -923,9 +979,11 @@ dump_dash_data (GtuberManifestGenerator *self, GString *string)
       g_ptr_array_new_with_free_func ((GDestroyNotify) dash_adaptation_data_free);
 
   astreams = gtuber_media_info_get_adaptive_streams (self->media_info);
+  cstreams = gtuber_media_info_get_caption_streams (self->media_info);
   sort_data = sort_streams_data_new (self, adaptations);
 
   g_ptr_array_foreach (astreams, (GFunc) _sort_dash_adaptations_cb, sort_data);
+  g_ptr_array_foreach (cstreams, (GFunc) _sort_dash_captions_cb, sort_data);
 
   sort_streams_data_free (sort_data);
 
