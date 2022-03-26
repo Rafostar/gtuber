@@ -463,9 +463,10 @@ insert_chapter_cb (guint64 time, const gchar *name, GstTocEntry *entry)
   gchar *id;
 
   clock_time = time * GST_MSECOND;
-  GST_DEBUG ("Inserting TOC chapter, time: %lu, name: %s", clock_time, name);
+  GST_DEBUG ("Inserting TOC chapter, time: %" G_GUINT64_FORMAT ", name: %s",
+      clock_time, name);
 
-  id = g_strdup_printf ("chap.%lu", time);
+  id = g_strdup_printf ("chap.%" G_GUINT64_FORMAT, time);
   subentry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_CHAPTER, id);
   g_free (id);
 

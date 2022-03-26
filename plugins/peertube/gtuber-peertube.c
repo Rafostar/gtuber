@@ -132,7 +132,7 @@ parse_response_data (GtuberPeertube *self, JsonParser *parser,
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
   gchar *id;
 
-  id = g_strdup_printf ("%li", gtuber_utils_json_get_int (reader, "id", NULL));
+  id = g_strdup_printf ("%" G_GINT64_FORMAT, gtuber_utils_json_get_int (reader, "id", NULL));
   gtuber_media_info_set_id (info, id);
   g_free (id);
 
