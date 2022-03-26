@@ -478,8 +478,12 @@ fail:
 static GtuberFlow
 create_hls_msg (GtuberTwitch *self, SoupMessage **msg, GError **error)
 {
-  gchar *p_id = g_strdup_printf ("%i", (rand () % 9000000) + 1000000);
-  gchar *path, *query, *uri_str;
+  GRand *rand;
+  gchar *p_id, *path, *query, *uri_str;
+
+  rand = g_rand_new ();
+  p_id = g_strdup_printf ("%" G_GINT32_FORMAT, g_rand_int_range (rand, 1000000, 10000000));
+  g_rand_free (rand);
 
   path = (self->media_type == TWITCH_MEDIA_CHANNEL)
     ? g_strdup_printf ("/api/channel/hls/%s.m3u8", self->video_id)
