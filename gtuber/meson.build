@@ -213,5 +213,5 @@ gtuber_dep = declare_dependency(
   link_with: gtuber_lib,
   include_directories: conf_inc,
   dependencies: gtuber_deps,
-  sources: gtuber_enums,
+  sources: [gtuber_version_header, gtuber_enums[1]],
 )
