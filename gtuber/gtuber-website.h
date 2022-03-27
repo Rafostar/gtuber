@@ -176,8 +176,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberWebsite, g_object_unref)
 struct _GtuberWebsite
 {
   GObject parent;
-
-  gchar *uri;
 };
 
 /**
