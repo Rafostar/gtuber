@@ -16,7 +16,7 @@
   <chapter id="gtuber">
     <title>Gtuber Overview</title>
     <para>
-      A C library to fetch media info from websites.
+      C library to fetch media info from websites.
     </para>
   </chapter>
 

@@ -199,7 +199,7 @@ pkgconfig.generate(
   filebase: gtuber_api_name,
   name: meson.project_name(),
   version: meson.project_version(),
-  description: ' A C library to fetch media info from websites',
+  description: 'C library to fetch media info from websites',
   requires: [
     'glib-2.0',
     'gobject-2.0',
