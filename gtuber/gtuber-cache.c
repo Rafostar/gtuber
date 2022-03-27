@@ -444,8 +444,8 @@ gtuber_cache_read_config (FILE *file, GCancellable *cancellable,
     return FALSE;
   }
 
-  g_debug ("Config compared, mod_time: %li %s %li, "
-      "n_files: %u %s %u",
+  g_debug ("Config compared, mod_time: %"
+      G_GINT64_FORMAT " %s %" G_GINT64_FORMAT ", n_files: %u %s %u",
       config_mod_time, (config_mod_time != latest_time) ? "!=" : "==", latest_time,
       config_n_files, (config_n_files != n_files) ? "!=" : "==", n_files);
 
@@ -480,7 +480,8 @@ gtuber_cache_write_config (FILE *file, GCancellable *cancellable,
     return FALSE;
   }
 
-  g_debug ("Writing config dir data, config_mod_time: %li, config_n_files: %u",
+  g_debug ("Writing config dir data, config_mod_time: %"
+      G_GINT64_FORMAT ", config_n_files: %u",
       config_mod_time, config_n_files);
 
   write_ptr_to_file (file, &config_mod_time, sizeof (gint64));
@@ -568,8 +569,8 @@ gtuber_cache_read_plugins_compat (FILE *file,
   changed = (cache_mod_time != latest_time
       || cache_n_plugins != n_plugins);
 
-  g_debug ("Cache compared, mod_time: %li %s %li, "
-      "n_plugins: %u %s %u",
+  g_debug ("Cache compared, mod_time: %"
+      G_GINT64_FORMAT " %s %" G_GINT64_FORMAT ", n_plugins: %u %s %u",
       cache_mod_time, (cache_mod_time != latest_time) ? "!=" : "==", latest_time,
       cache_n_plugins, (cache_n_plugins != n_plugins) ? "!=" : "==", n_plugins);
 
@@ -642,8 +643,8 @@ gtuber_cache_write_plugins_compat (FILE *file,
   gtuber_cache_enumerate_plugins (dir, module_names, &mod_time, &n_plugins,
       cancellable, error);
 
-  g_debug ("Writing plugin dir data, mod_time: %li, n_plugins: %u",
-      mod_time, n_plugins);
+  g_debug ("Writing plugin dir data, mod_time: %"
+      G_GINT64_FORMAT ", n_plugins: %u", mod_time, n_plugins);
 
   write_ptr_to_file (file, &mod_time, sizeof (gint64));
   write_ptr_to_file (file, &n_plugins, sizeof (guint));
@@ -1072,7 +1073,7 @@ gtuber_cache_plugin_write_epoch (const gchar *plugin_name,
   if (file) {
     write_ptr_to_file (file, &epoch, sizeof (gint64));
     write_string (file, val);
-    g_debug ("Written cache value: %s, expires: %li",
+    g_debug ("Written cache value: %s, expires: %" G_GINT64_FORMAT,
         val, epoch);
 
     fclose (file);

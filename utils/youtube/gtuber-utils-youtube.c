@@ -171,7 +171,8 @@ gtuber_utils_youtube_insert_chapters_from_description (GtuberMediaInfo *info,
           && (chapter_strv[1])[1] == ' '))
         offset = 2;
 
-      g_debug ("Inserting YT chapter, %lu: %s", total, chapter_strv[1] + offset);
+      g_debug ("Inserting YT chapter, %" G_GUINT64_FORMAT ": %s",
+          total, chapter_strv[1] + offset);
       gtuber_media_info_insert_chapter (info, total, chapter_strv[1] + offset);
 
       /* Inserted something, break on next non-chapter string */

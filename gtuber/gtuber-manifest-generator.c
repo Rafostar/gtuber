@@ -369,13 +369,14 @@ add_option_string (GString *string, const gchar *key, const gchar *value)
 static void
 add_option_int (GString *string, const gchar *key, guint64 value)
 {
-  g_string_append_printf (string, " %s=\"%lu\"", key, value);
+  g_string_append_printf (string, " %s=\"%" G_GUINT64_FORMAT "\"", key, value);
 }
 
 static void
 add_option_range (GString *string, const gchar *key, guint64 start, guint64 end)
 {
-  g_string_append_printf (string, " %s=\"%lu-%lu\"", key, start, end);
+  g_string_append_printf (string, " %s=\"%" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT "\"",
+      key, start, end);
 }
 
 static void

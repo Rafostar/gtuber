@@ -470,7 +470,7 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
             guint old_bitrate, bitrate;
 
             old_bitrate = gtuber_stream_get_bitrate (bstream);
-            bitrate = atoi (str);
+            bitrate = g_ascii_strtoull (str, NULL, 10);
 
             /* Use average bitrate if available */
             if (old_bitrate == 0 || old_bitrate > bitrate) {
@@ -483,8 +483,8 @@ gtuber_utils_common_parse_hls_input_stream_with_base_uri (GInputStream *stream,
             gchar **resolution = g_strsplit (str, "x", 3);
             if (resolution[0] && resolution[1]) {
               g_debug ("HLS stream width: %s, height: %s", resolution[0], resolution[1]);
-              gtuber_stream_set_width (bstream, atoi (resolution[0]));
-              gtuber_stream_set_height (bstream, atoi (resolution[1]));
+              gtuber_stream_set_width (bstream, g_ascii_strtoull (resolution[0], NULL, 10));
+              gtuber_stream_set_height (bstream, g_ascii_strtoull (resolution[1], NULL, 10));
             }
             g_strfreev (resolution);
             break;
