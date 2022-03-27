@@ -72,8 +72,8 @@ cdata.set('PACKAGE_VERSION', '"@0@"'.format(meson.project_version()))
 cdata.set('GTUBER_API_NAME', '"@0@"'.format(gtuber_api_name))
 cdata.set('GTUBER_PLUGIN_PATH', '"@0@"'.format(gtuber_plugins_libdir))
 
-cdata.set('GST_PACKAGE_NAME', '"gst-gtuber"')
-cdata.set('GST_PACKAGE_ORIGIN', '"Unknown package origin"')
+cdata.set('GST_PACKAGE_NAME', '"gst-plugin-gtuber"')
+cdata.set('GST_PACKAGE_ORIGIN', '"https://github.com/Rafostar/gtuber"')
 cdata.set('GST_LICENSE', '"LGPL"')
 
 configure_file(
