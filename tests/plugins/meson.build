@@ -1,6 +1,7 @@
 # Tests
 all_tests = {
   'bilibili': [1, 2, 3],
+  'crunchyroll-beta': [1, 2],
   'invidious': [1, 2],
   'lbry': [1, 2, 3, 4],
   'niconico': [1],
