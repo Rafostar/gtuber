@@ -259,7 +259,7 @@ gtuber_bilibili_create_request (GtuberWebsite *website,
 {
   GtuberBilibili *self = GTUBER_BILIBILI (website);
   SoupMessageHeaders *headers;
-  gchar *uri_str = NULL;
+  gchar *origin, *uri_str = NULL;
 
   switch (self->bili_type) {
     case BILIBILI_BV:
@@ -284,8 +284,15 @@ gtuber_bilibili_create_request (GtuberWebsite *website,
 
   headers = soup_message_get_request_headers (*msg);
 
+  origin = g_strdup_printf ("%s://%s",
+      g_uri_get_scheme (gtuber_website_get_uri (website)),
+      g_uri_get_host (gtuber_website_get_uri (website)));
+
+  soup_message_headers_replace (headers, "Origin", origin);
   soup_message_headers_replace (headers,
       "Referer", gtuber_website_get_uri_string (website));
+
+  g_free (origin);
 
   return GTUBER_FLOW_OK;
 }
