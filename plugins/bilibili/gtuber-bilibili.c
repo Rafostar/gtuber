@@ -179,11 +179,28 @@ _add_dash_media_streams (GtuberBilibili *self, JsonReader *reader,
   }
 }
 
+static gboolean
+_bilibili_api_check_resp_code (JsonReader *reader, GError **error)
+{
+  gint code = gtuber_utils_json_get_int (reader, "code", NULL);
+
+  if (code != 0) {
+    const gchar *err_msg = gtuber_utils_json_get_string (reader, "message", NULL);
+
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+        "API error code: %i - %s", code, err_msg
+            ? err_msg : "invalid response code");
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
 static GtuberFlow
-parse_info (GtuberBilibili *self, JsonParser *parser,
+parse_info (GtuberBilibili *self, JsonReader *reader,
     GtuberMediaInfo *info, GError **error)
 {
-  JsonReader *reader = json_reader_new (json_parser_get_root (parser));
   GtuberFlow res = GTUBER_FLOW_ERROR;
 
   switch (self->bili_type) {
@@ -201,16 +218,13 @@ parse_info (GtuberBilibili *self, JsonParser *parser,
 
   self->had_info = TRUE;
 
-  g_object_unref (reader);
-
   return res;
 }
 
 static GtuberFlow
-parse_media_streams (GtuberBilibili *self, JsonParser *parser,
+parse_media_streams (GtuberBilibili *self, JsonReader *reader,
     GtuberMediaInfo *info, GError **error)
 {
-  JsonReader *reader = json_reader_new (json_parser_get_root (parser));
   const gchar *obj_name = NULL;
 
   switch (self->bili_type) {
@@ -232,8 +246,6 @@ parse_media_streams (GtuberBilibili *self, JsonParser *parser,
 
     gtuber_utils_json_go_back (reader, 2);
   }
-
-  g_object_unref (reader);
 
   if (*error)
     return GTUBER_FLOW_ERROR;
@@ -284,20 +296,25 @@ gtuber_bilibili_parse_input_stream (GtuberWebsite *website,
 {
   GtuberBilibili *self = GTUBER_BILIBILI (website);
   JsonParser *parser;
-  GtuberFlow res = GTUBER_FLOW_OK;
+  GtuberFlow res = GTUBER_FLOW_ERROR;
 
   parser = json_parser_new ();
-  json_parser_load_from_stream (parser, stream, NULL, error);
-  if (*error)
-    goto finish;
 
-  gtuber_utils_json_parser_debug (parser);
+  if (json_parser_load_from_stream (parser, stream, NULL, error)) {
+    JsonReader *reader;
 
-  res = (!self->had_info)
-      ? parse_info (self, parser, info, error)
-      : parse_media_streams (self, parser, info, error);
+    gtuber_utils_json_parser_debug (parser);
+    reader = json_reader_new (json_parser_get_root (parser));
 
-finish:
+    if (_bilibili_api_check_resp_code (reader, error)) {
+      res = (!self->had_info)
+          ? parse_info (self, reader, info, error)
+          : parse_media_streams (self, reader, info, error);
+    }
+
+    g_object_unref (reader);
+  }
+
   g_object_unref (parser);
 
   if (*error)
