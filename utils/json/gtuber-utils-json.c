@@ -199,27 +199,38 @@ gtuber_utils_json_array_foreach (JsonReader *reader, GtuberMediaInfo *info, Gtub
   return (count > 0);
 }
 
+static gchar *
+_json_parser_to_string_internal (JsonParser *parser, gboolean pretty)
+{
+  JsonGenerator *gen;
+  gchar *data;
+
+  gen = json_generator_new ();
+  json_generator_set_pretty (gen, pretty);
+  json_generator_set_root (gen, json_parser_get_root (parser));
+  data = json_generator_to_data (gen, NULL);
+
+  g_object_unref (gen);
+
+  return data;
+}
+
+gchar *
+gtuber_utils_json_parser_to_string (JsonParser *parser)
+{
+  return _json_parser_to_string_internal (parser, FALSE);
+}
+
 void
 gtuber_utils_json_parser_debug (JsonParser *parser)
 {
-  gboolean would_drop = FALSE;
+  gchar *data;
 
-#if GLIB_CHECK_VERSION (2,68,0)
-  would_drop = g_log_writer_default_would_drop (G_LOG_LEVEL_DEBUG, G_LOG_DOMAIN);
-#endif
+  if (g_log_writer_default_would_drop (G_LOG_LEVEL_DEBUG, G_LOG_DOMAIN))
+    return;
 
-  if (!would_drop) {
-    JsonGenerator *gen;
-    gchar *data;
+  data = _json_parser_to_string_internal (parser, TRUE);
 
-    gen = json_generator_new ();
-    json_generator_set_pretty (gen, TRUE);
-    json_generator_set_root (gen, json_parser_get_root (parser));
-    data = json_generator_to_data (gen, NULL);
-
-    g_debug ("Parser data: %s", data);
-
-    g_free (data);
-    g_object_unref (gen);
-  }
+  g_debug ("Parser data: %s", data);
+  g_free (data);
 }

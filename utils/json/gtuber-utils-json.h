@@ -119,6 +119,8 @@ void                 gtuber_utils_json_go_back              (JsonReader *reader,
 
 gboolean             gtuber_utils_json_array_foreach        (JsonReader *reader, GtuberMediaInfo *info, GtuberFunc func, gpointer user_data);
 
+gchar *              gtuber_utils_json_parser_to_string     (JsonParser *parser);
+
 void                 gtuber_utils_json_parser_debug         (JsonParser *parser);
 
 G_END_DECLS
