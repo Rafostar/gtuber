@@ -1,6 +1,7 @@
 # Plugins
 all_plugins = [
   'bilibili',
+  'crunchyroll-beta',
   'invidious',
   'lbry',
   'niconico',
