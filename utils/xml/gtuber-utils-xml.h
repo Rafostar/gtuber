@@ -28,4 +28,6 @@ xmlDoc *          gtuber_utils_xml_load_html_from_data         (const gchar *dat
 
 const gchar *     gtuber_utils_xml_get_property_content        (xmlDoc *doc, const gchar *name);
 
+gchar *           gtuber_utils_xml_obtain_json_in_node         (xmlDoc *doc, const gchar *json_name);
+
 G_END_DECLS

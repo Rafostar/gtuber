@@ -36,7 +36,7 @@ _find_property (xmlAttr *start_attr, const gchar *search_str)
 }
 
 static const gchar *
-_iterate_nodes (xmlNode *start_node, const gchar *search_str)
+_iterate_nodes_for_prop (xmlNode *start_node, const gchar *search_str)
 {
   xmlNode *node;
   const gchar *value = NULL;
@@ -48,7 +48,62 @@ _iterate_nodes (xmlNode *start_node, const gchar *search_str)
     if ((value = _find_property (node->properties, search_str)))
       return value;
 
-    if ((value = _iterate_nodes (node->children, search_str)))
+    if ((value = _iterate_nodes_for_prop (node->children, search_str)))
+      return value;
+  }
+
+  return value;
+}
+
+static gchar *
+_obtain_json_data (const xmlChar *content, const gchar *search_str)
+{
+  gchar **data, *value = NULL;
+  guint i;
+
+  if (!content)
+    return NULL;
+
+  data = g_strsplit ((const gchar *) content, "=", 0);
+
+  for (i = 0; data[i]; i++) {
+    g_strchomp (data[i]);
+
+    if (g_str_has_suffix (data[i], search_str)) {
+      if (data[i + 1]) {
+        GString *string;
+
+        g_strstrip (data[i + 1]);
+
+        string = g_string_new (data[i + 1]);
+        if (string->str[string->len - 1] == ';')
+          g_string_truncate (string, string->len - 1);
+
+        value = g_string_free (string, FALSE);
+        break;
+      }
+    }
+  }
+
+  g_strfreev (data);
+
+  return value;
+}
+
+static gchar *
+_iterate_nodes_obtain_json (xmlNode *start_node, const gchar *search_str)
+{
+  xmlNode *node;
+  gchar *value = NULL;
+
+  for (node = start_node; node; node = node->next) {
+    if (node->type != XML_ELEMENT_NODE && node->type != XML_CDATA_SECTION_NODE)
+      continue;
+
+    if ((value = _obtain_json_data (node->content, search_str)))
+      return value;
+
+    if ((value = _iterate_nodes_obtain_json (node->children, search_str)))
       return value;
   }
 
@@ -84,7 +139,20 @@ gtuber_utils_xml_get_property_content (xmlDoc *doc, const gchar *name)
   const gchar *value;
 
   g_debug ("Node property search: %s", name);
-  value = _iterate_nodes (root, name);
+  value = _iterate_nodes_for_prop (root, name);
+  g_debug ("Found value: %s", value);
+
+  return value;
+}
+
+gchar *
+gtuber_utils_xml_obtain_json_in_node (xmlDoc *doc, const gchar *json_name)
+{
+  xmlNode *root = xmlDocGetRootElement (doc);
+  gchar *value;
+
+  g_debug ("Node JSON search: %s", json_name);
+  value = _iterate_nodes_obtain_json (root, json_name);
   g_debug ("Found value: %s", value);
 
   return value;
