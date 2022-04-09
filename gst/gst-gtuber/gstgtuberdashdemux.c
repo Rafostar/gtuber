@@ -49,7 +49,7 @@ static GstStaticPadTemplate subtitlesrc_template = GST_STATIC_PAD_TEMPLATE ("sub
 G_DEFINE_TYPE_WITH_CODE (GstGtuberDashDemux, gst_gtuber_dash_demux,
     GST_TYPE_GTUBER_ADAPTIVE_BIN, NULL);
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtuberdashdemux, "gtuberdashdemux",
-    GST_RANK_PRIMARY + 1, GST_TYPE_GTUBER_DASH_DEMUX, gst_gtuber_element_init (plugin));
+    GST_RANK_PRIMARY + 10, GST_TYPE_GTUBER_DASH_DEMUX, gst_gtuber_element_init (plugin));
 
 /* GObject */
 static void gst_gtuber_dash_demux_constructed (GObject* object);

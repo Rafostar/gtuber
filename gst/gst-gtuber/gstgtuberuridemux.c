@@ -41,7 +41,7 @@ static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
 G_DEFINE_TYPE_WITH_CODE (GstGtuberUriDemux, gst_gtuber_uri_demux,
     GST_TYPE_GTUBER_BIN, NULL);
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtuberuridemux, "gtuberuridemux",
-    GST_RANK_PRIMARY + 1, GST_TYPE_GTUBER_URI_DEMUX, gst_gtuber_element_init (plugin));
+    GST_RANK_PRIMARY + 10, GST_TYPE_GTUBER_URI_DEMUX, gst_gtuber_element_init (plugin));
 
 /* GObject */
 static void gst_gtuber_uri_demux_finalize (GObject *object);
