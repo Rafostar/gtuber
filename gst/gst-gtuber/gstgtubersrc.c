@@ -26,8 +26,8 @@
 #include "gstgtubersrc.h"
 #include "gstgtuberelement.h"
 
-GST_DEBUG_CATEGORY_STATIC (gst_gtuber_src_debug);
 #define GST_CAT_DEFAULT gst_gtuber_src_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define GST_GTUBER_HEADER_UA           "User-Agent"
 #define GST_GTUBER_PROP_UA             "user-agent"
@@ -55,7 +55,7 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS_ANY);
 
-#define gst_gtuber_src_parent_class parent_class
+#define parent_class gst_gtuber_src_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberSrc, gst_gtuber_src,
     GST_TYPE_PUSH_SRC, gst_gtuber_uri_handler_do_init (g_define_type_id));
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtubersrc, "gtubersrc",

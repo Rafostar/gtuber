@@ -37,10 +37,10 @@ enum
 
 static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
-GST_DEBUG_CATEGORY_STATIC (gst_gtuber_adaptive_bin_debug);
 #define GST_CAT_DEFAULT gst_gtuber_adaptive_bin_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
-#define gst_gtuber_adaptive_bin_parent_class parent_class
+#define parent_class gst_gtuber_adaptive_bin_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberAdaptiveBin,
     gst_gtuber_adaptive_bin, GST_TYPE_GTUBER_BIN, NULL);
 

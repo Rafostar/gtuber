@@ -23,8 +23,8 @@
 
 #include "gstgtuberelement.h"
 
-GST_DEBUG_CATEGORY_STATIC (gst_gtuber_debug);
 #define GST_CAT_DEFAULT gst_gtuber_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 void
 gst_gtuber_element_init (GstPlugin *plugin)

@@ -24,8 +24,8 @@
 #include "gstgtuberdashdemux.h"
 #include "gstgtuberelement.h"
 
-GST_DEBUG_CATEGORY_STATIC (gst_gtuber_dash_demux_debug);
 #define GST_CAT_DEFAULT gst_gtuber_dash_demux_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
@@ -45,7 +45,7 @@ static GstStaticPadTemplate subtitlesrc_template = GST_STATIC_PAD_TEMPLATE ("sub
     GST_PAD_SOMETIMES,
     GST_STATIC_CAPS_ANY);
 
-#define gst_gtuber_dash_demux_parent_class parent_class
+#define parent_class gst_gtuber_dash_demux_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberDashDemux, gst_gtuber_dash_demux,
     GST_TYPE_GTUBER_ADAPTIVE_BIN, NULL);
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtuberdashdemux, "gtuberdashdemux",
