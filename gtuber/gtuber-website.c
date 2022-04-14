@@ -30,6 +30,10 @@ struct _GtuberWebsitePrivate
 {
   GUri *uri;
   gchar *uri_str;
+
+  gchar *tmp_dir_path;
+
+  SoupCookieJar *jar;
 };
 
 #define parent_class gtuber_website_parent_class
@@ -37,6 +41,7 @@ G_DEFINE_TYPE_WITH_CODE (GtuberWebsite, gtuber_website, G_TYPE_OBJECT,
     G_ADD_PRIVATE (GtuberWebsite))
 G_DEFINE_QUARK (gtuberwebsite-error-quark, gtuber_website_error)
 
+static void gtuber_website_dispose (GObject *object);
 static void gtuber_website_finalize (GObject *object);
 
 static void gtuber_website_prepare (GtuberWebsite *website);
@@ -62,6 +67,7 @@ gtuber_website_class_init (GtuberWebsiteClass *klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
 
+  gobject_class->dispose = gtuber_website_dispose;
   gobject_class->finalize = gtuber_website_finalize;
 
   website_class->handles_input_stream = FALSE;
@@ -71,6 +77,58 @@ gtuber_website_class_init (GtuberWebsiteClass *klass)
   website_class->parse_data = gtuber_website_parse_data;
   website_class->parse_input_stream = gtuber_website_parse_input_stream;
   website_class->set_user_req_headers = gtuber_website_set_user_req_headers;
+}
+
+static gboolean
+_rm_tmp_dir (GFile *dir)
+{
+  GFileEnumerator *dir_enum;
+  gboolean success = FALSE;
+
+  if (!(dir_enum = g_file_enumerate_children (dir,
+      G_FILE_ATTRIBUTE_STANDARD_NAME,
+      G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL)))
+    return success;
+
+  while (TRUE) {
+    GFile *child = NULL;
+
+    if (!g_file_enumerator_iterate (dir_enum, NULL,
+        &child, NULL, NULL) || !child)
+      break;
+
+    g_file_delete (child, NULL, NULL);
+  }
+
+  success = g_file_delete (dir, NULL, NULL);
+  g_object_unref (dir_enum);
+
+  return success;
+}
+
+static void
+gtuber_website_dispose (GObject *object)
+{
+  GtuberWebsite *self = GTUBER_WEBSITE (object);
+  GtuberWebsitePrivate *priv = gtuber_website_get_instance_private (self);
+
+  /* Close DB connection before removing files */
+  g_clear_object (&priv->jar);
+
+  if (priv->tmp_dir_path) {
+    GFile *tmp_dir;
+
+    g_debug ("Removing temp dir: %s", priv->tmp_dir_path);
+
+    tmp_dir = g_file_new_for_path (priv->tmp_dir_path);
+    if (!_rm_tmp_dir (tmp_dir))
+      g_debug ("Could not remove temp dir: %s", priv->tmp_dir_path);
+
+    g_object_unref (tmp_dir);
+
+    g_free (priv->tmp_dir_path);
+    priv->tmp_dir_path = NULL;
+  }
 }
 
 static void
@@ -225,4 +283,72 @@ gtuber_website_get_use_http (GtuberWebsite *self)
 
   return (g_uri_get_port (priv->uri) == 80
       || strcmp (g_uri_get_scheme (priv->uri), "http") == 0);
+}
+
+/**
+ * gtuber_website_get_cookies_jar:
+ * @website: a #GtuberWebsite
+ *
+ * Get #SoupCookieJar with user provided cookies.
+ *
+ * Note that first call into this function causes blocking I/O
+ * as cookies are read. Next call will return the same jar,
+ * so its safe to use this function multiple times without
+ * getting a hold of the jar in the subclass.
+ *
+ * Returns: (nullable) (transfer none): A #SoupCookieJar with user
+ *   provided cookies or %NULL when none.
+ */
+SoupCookieJar *
+gtuber_website_get_cookies_jar (GtuberWebsite *self)
+{
+  GtuberWebsitePrivate *priv;
+
+  g_return_val_if_fail (GTUBER_IS_WEBSITE (self), NULL);
+
+  priv = gtuber_website_get_instance_private (self);
+
+  if (!priv->jar) {
+    GFile *cookies_file;
+    gchar *cookies_path;
+
+    cookies_path = gtuber_config_obtain_config_file_path ("cookies.sqlite");
+    cookies_file = g_file_new_for_path (cookies_path);
+
+    if (g_file_query_exists (cookies_file, NULL)) {
+      GError *error = NULL;
+
+      g_debug ("Creating cookies jar");
+
+      if (!priv->tmp_dir_path)
+        priv->tmp_dir_path = g_dir_make_tmp ("gtuber_XXXXXX", &error);
+
+      if (!error) {
+        GFile *tmp_file;
+        gchar *tmp_filename;
+
+        tmp_filename = g_build_filename (priv->tmp_dir_path, "cookies.sqlite", NULL);
+        tmp_file = g_file_new_for_path (tmp_filename);
+
+        if (g_file_copy (cookies_file, tmp_file, G_FILE_COPY_NONE, NULL, NULL, NULL, &error)) {
+          if ((priv->jar = soup_cookie_jar_db_new (tmp_filename, FALSE)))
+            g_debug ("Created cookies jar with DB file: %s", tmp_filename);
+        } else {
+          g_warning ("Could not copy cookies file into tmp, reason: %s", error->message);
+        }
+
+        g_object_unref (tmp_file);
+        g_free (tmp_filename);
+      } else {
+        g_warning ("Could not prepare cookies tmp file, reason: %s", error->message);
+      }
+
+      g_clear_error (&error);
+    }
+
+    g_object_unref (cookies_file);
+    g_free (cookies_path);
+  }
+
+  return priv->jar;
 }
