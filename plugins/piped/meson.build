@@ -19,7 +19,6 @@ library(
   dependencies: plugin_deps,
   include_directories: conf_inc,
   c_args: plugin_c_args,
-  version: gtuber_version,
   install: true,
   install_dir: gtuber_plugins_libdir,
 )
