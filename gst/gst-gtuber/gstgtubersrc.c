@@ -384,8 +384,8 @@ gst_gtuber_src_start (GstBaseSrc *base_src)
   g_mutex_unlock (&self->prop_lock);
 
   if (G_UNLIKELY (!can_start)) {
-    GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ, (NULL),
-        ("No media location"));
+    GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ,
+        ("No media location"), (NULL));
     return FALSE;
   }
 
@@ -884,7 +884,8 @@ gst_gtuber_src_create (GstPushSrc *push_src, GstBuffer **outbuf)
     return GST_FLOW_EOS;
 
   if (!gst_gtuber_fetch_into_buffer (self, outbuf, &error)) {
-    GST_ERROR_OBJECT (self, "%s", error->message);
+    GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
+        ("%s", error->message), (NULL));
     g_clear_error (&error);
 
     return GST_FLOW_ERROR;
