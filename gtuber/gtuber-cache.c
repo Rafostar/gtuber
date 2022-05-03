@@ -1009,7 +1009,7 @@ gtuber_cache_plugin_read (const gchar *plugin_name, const gchar *key)
  * gtuber_cache_plugin_write:
  * @plugin_name: short and unique name of plugin.
  * @key: name of the key this value is associated with.
- * @val: value to store in cache file.
+ * @val: (nullable): value to store in cache file.
  * @exp: expire time in seconds from now.
  *
  * Writes the value of a given plugin name with key. This function
@@ -1040,7 +1040,7 @@ gtuber_cache_plugin_write (const gchar *plugin_name,
  * gtuber_cache_plugin_write_epoch:
  * @plugin_name: short and unique name of plugin.
  * @key: name of the key this value is associated with.
- * @val: value to store in cache file.
+ * @val: (nullable): value to store in cache file.
  * @epoch: expire date in epoch time.
  *
  * Writes the value of a given plugin name with key. This function
@@ -1052,12 +1052,10 @@ void
 gtuber_cache_plugin_write_epoch (const gchar *plugin_name,
     const gchar *key, const gchar *val, gint64 epoch)
 {
-  FILE *file;
   gchar *encoded;
 
   g_return_if_fail (plugin_name != NULL);
   g_return_if_fail (key != NULL);
-  g_return_if_fail (val != NULL);
   g_return_if_fail (epoch > 0);
 
   g_debug ("Writing into \"%s\" cache \"%s\" data",
@@ -1067,17 +1065,33 @@ gtuber_cache_plugin_write_epoch (const gchar *plugin_name,
 
   g_mutex_lock (&cache_lock);
 
-  file = gtuber_cache_open_write (encoded);
-  g_free (encoded);
+  /* Write value if any, otherwise simply delete the file */
+  if (val) {
+    FILE *file = gtuber_cache_open_write (encoded);
 
-  if (file) {
-    write_ptr_to_file (file, &epoch, sizeof (gint64));
-    write_string (file, val);
-    g_debug ("Written cache value: %s, expires: %" G_GINT64_FORMAT,
-        val, epoch);
+    if (file) {
+      write_ptr_to_file (file, &epoch, sizeof (gint64));
+      write_string (file, val);
+      g_debug ("Written cache value: %s, expires: %" G_GINT64_FORMAT,
+          val, epoch);
 
-    fclose (file);
+      fclose (file);
+    }
+  } else {
+    GFile *file;
+    gchar *filepath;
+
+    filepath = gtuber_cache_obtain_cache_path (encoded);
+    file = g_file_new_for_path (filepath);
+
+    if (g_file_delete (file, NULL, NULL))
+      g_debug ("Deleted cache file");
+
+    g_object_unref (file);
+    g_free (filepath);
   }
 
   g_mutex_unlock (&cache_lock);
+
+  g_free (encoded);
 }

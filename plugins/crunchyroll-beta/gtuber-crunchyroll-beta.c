@@ -64,6 +64,7 @@ struct _GtuberCrunchyrollBeta
 
   gchar *video_id;
   const gchar *language;
+  gchar *etp_rt;
 
   CrunchyrollBetaStep step;
 
@@ -116,6 +117,7 @@ gtuber_crunchyroll_beta_finalize (GObject *object)
   g_debug ("CrunchyrollBeta finalize");
 
   g_free (self->video_id);
+  g_free (self->etp_rt);
 
   g_free (self->auth_token);
   g_free (self->token_type);
@@ -132,21 +134,36 @@ obtain_access_token_msg (GtuberCrunchyrollBeta *self)
 {
   SoupMessage *msg;
   SoupMessageHeaders *headers;
+  GUri *guri;
   gchar *req_uri, *auth_str;
 
   req_uri = g_strdup_printf ("%s/auth/v1/token", CRUNCHYROLL_BETA_API_URI);
-  msg = soup_message_new ("POST", req_uri);
+  guri = g_uri_parse (req_uri, G_URI_FLAGS_ENCODED, NULL);
+  msg = soup_message_new_from_uri ("POST", guri);
 
   headers = soup_message_get_request_headers (msg);
   auth_str = g_strdup_printf ("Basic %s", self->auth_token);
   soup_message_headers_replace (headers, "Authorization", auth_str);
 
-  /* FIXME: Use "grant_type=etp_rt_cookie" + login cookie
-   * when using user login */
+  if (self->etp_rt) {
+    SoupCookieJar *jar;
+    gchar *cookies_str;
+
+    jar = gtuber_website_get_cookies_jar (GTUBER_WEBSITE (self));
+
+    cookies_str = soup_cookie_jar_get_cookies (jar, guri, TRUE);
+    g_debug ("Request cookies: %s", cookies_str);
+
+    soup_message_headers_replace (headers, "Cookie", cookies_str);
+    g_free (cookies_str);
+  }
+
   gtuber_utils_common_msg_take_request (msg,
       "application/x-www-form-urlencoded",
-      g_strdup ("grant_type=client_id"));
+      g_strdup_printf ("grant_type=%s",
+          (self->etp_rt) ? "etp_rt_cookie" : "client_id"));
 
+  g_uri_unref (guri);
   g_free (req_uri);
   g_free (auth_str);
 
@@ -255,9 +272,11 @@ read_policy_response (GtuberCrunchyrollBeta *self, JsonReader *reader,
 
     g_date_time_unref (date_time);
 
-    /* TODO: Have different cache file when user is logged in */
+    /* Cache received policy_response and etp_rt used to create it */
     gtuber_crunchyroll_beta_cache_write_epoch ("policy_response",
         self->policy_response, epoch);
+    gtuber_crunchyroll_beta_cache_write_epoch ("etp_rt",
+        self->etp_rt, epoch);
   } else {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
@@ -414,12 +433,52 @@ static void
 gtuber_crunchyroll_beta_prepare (GtuberWebsite *website)
 {
   GtuberCrunchyrollBeta *self = GTUBER_CRUNCHYROLL_BETA (website);
-  gchar *ext_lang;
+  SoupCookieJar *jar;
+  gchar *ext_lang, *cached_etp_rt = NULL;
+  gboolean etp_rt_changed = FALSE;
+
+  if ((jar = gtuber_website_get_cookies_jar (website))) {
+    GUri *auth_uri;
+    GSList *cookies_list, *list;
+    gchar *req_uri;
+
+    /* We got cookies jar, so compare it with our last value */
+    cached_etp_rt = gtuber_crunchyroll_beta_cache_read ("etp_rt");
+    g_debug ("Cached etp_rt: %s", cached_etp_rt);
+
+    /* We only need to use cookies when requesting for auth token */
+    req_uri = g_strdup_printf ("%s/auth/v1/token", CRUNCHYROLL_BETA_API_URI);
+    auth_uri = g_uri_parse (req_uri, G_URI_FLAGS_ENCODED, NULL);
+    g_free (req_uri);
+
+    cookies_list = soup_cookie_jar_get_cookie_list (jar, auth_uri, TRUE);
+    g_uri_unref (auth_uri);
+
+    for (list = cookies_list; list != NULL; list = g_slist_next (list)) {
+      SoupCookie *cookie = list->data;
+      const gchar *cookie_name;
+
+      cookie_name = soup_cookie_get_name (cookie);
+
+      if (!strcmp (cookie_name, "etp_rt")) {
+        self->etp_rt = g_strdup (soup_cookie_get_value (cookie));
+        break;
+      }
+    }
+    g_debug ("Browser etp_rt: %s", self->etp_rt);
+
+    g_slist_free_full (cookies_list, (GDestroyNotify) soup_cookie_free);
+  }
+
+  etp_rt_changed = (g_strcmp0 (self->etp_rt, cached_etp_rt) != 0);
+  g_free (cached_etp_rt);
+
+  g_debug ("Token changed: %s", etp_rt_changed ? "yes" : "no");
 
   self->policy_response = gtuber_crunchyroll_beta_cache_read ("policy_response");
 
   /* If we restored cached policy, skip steps to get it */
-  if (self->policy_response) {
+  if (self->policy_response && !etp_rt_changed) {
     GTUBER_WEBSITE_GET_CLASS (self)->handles_input_stream = TRUE;
     self->step = CRUNCHYROLL_BETA_GET_POLICY_RESPONSE + 1;
   }

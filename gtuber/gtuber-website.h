@@ -226,14 +226,16 @@ struct _GtuberWebsiteClass
                                        GError            **error);
 };
 
-GType         gtuber_website_get_type              (void);
+GType           gtuber_website_get_type              (void);
 
-GUri *        gtuber_website_get_uri               (GtuberWebsite *website);
+GUri *          gtuber_website_get_uri               (GtuberWebsite *website);
 
-const gchar * gtuber_website_get_uri_string        (GtuberWebsite *website);
+const gchar *   gtuber_website_get_uri_string        (GtuberWebsite *website);
 
-gboolean      gtuber_website_get_use_http          (GtuberWebsite *website);
+gboolean        gtuber_website_get_use_http          (GtuberWebsite *website);
 
-GQuark        gtuber_website_error_quark           (void);
+SoupCookieJar * gtuber_website_get_cookies_jar       (GtuberWebsite *website);
+
+GQuark          gtuber_website_error_quark           (void);
 
 G_END_DECLS
