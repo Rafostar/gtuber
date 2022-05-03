@@ -768,6 +768,7 @@ typedef struct
   GstGtuberSrc *src;
   GtuberMediaInfo *info;
   GError *error;
+  gboolean fired;
 } GstGtuberThreadData;
 
 static GstGtuberThreadData *
@@ -779,6 +780,7 @@ gst_gtuber_thread_data_new (GstGtuberSrc *self)
   data->src = gst_object_ref (self);
   data->info = NULL;
   data->error = NULL;
+  data->fired = FALSE;
 
   return data;
 }
@@ -825,6 +827,7 @@ client_thread_func (GstGtuberThreadData *data)
 
   GST_DEBUG ("Leaving GtuberClient thread");
 
+  data->fired = TRUE;
   g_cond_signal (&self->client_finished);
   g_mutex_unlock (&self->client_lock);
 
@@ -845,7 +848,8 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
   self->client_thread = g_thread_new ("GstGtuberClientThread",
       (GThreadFunc) client_thread_func, data);
 
-  g_cond_wait (&self->client_finished, &self->client_lock);
+  while (!data->fired)
+    g_cond_wait (&self->client_finished, &self->client_lock);
 
   g_thread_unref (self->client_thread);
   self->client_thread = NULL;
