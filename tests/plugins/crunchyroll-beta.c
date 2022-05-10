@@ -4,7 +4,8 @@ GTUBER_TEST_MAIN_START ()
 
 GTUBER_TEST_CASE (1)
 {
-  GtuberMediaInfo *info, *out_info;
+  GtuberClient *client = gtuber_client_new ();
+  GtuberMediaInfo *info, *out_info = NULL;
 
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
@@ -20,12 +21,14 @@ GTUBER_TEST_CASE (1)
 
   g_object_unref (info);
   g_object_unref (out_info);
+  g_object_unref (client);
 }
 
 /* Dubbing */
 GTUBER_TEST_CASE (2)
 {
-  GtuberMediaInfo *info, *out_info;
+  GtuberClient *client = gtuber_client_new ();
+  GtuberMediaInfo *info, *out_info = NULL;
 
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 

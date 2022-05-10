@@ -5,8 +5,10 @@
 #define GTUBER_TEST_MAIN_START()                           \
 int main (int argc, char **argv)                           \
 {                                                          \
-  GtuberClient *client = gtuber_client_new ();             \
   gint _arg_num = 0;                                       \
+  if (g_getenv ("GTUBER_IS_PLUGIN_TEST")                   \
+      && g_getenv ("GITHUB_ACTIONS"))                      \
+    return 77;                                             \
   if (argc > 1)                                            \
     _arg_num = g_ascii_strtoll (argv[argc - 1], NULL, 10);
 
@@ -14,7 +16,6 @@ int main (int argc, char **argv)                           \
   if (_num == _arg_num || _arg_num == 0)
 
 #define GTUBER_TEST_MAIN_END()                             \
-  g_object_unref (client);                                 \
   return 0;                                                \
 }
 

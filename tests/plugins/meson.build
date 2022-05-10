@@ -23,6 +23,7 @@ foreach name, plugin_tests : all_tests
   foreach test_num : plugin_tests
     test('@0@ plugin test @1@'.format(name, test_num), exec,
       args: [test_num.to_string()],
+      env: ['GTUBER_IS_PLUGIN_TEST=1'],
       is_parallel: false,
       suite: name,
       timeout: 90,

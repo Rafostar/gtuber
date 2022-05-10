@@ -4,6 +4,7 @@ GTUBER_TEST_MAIN_START ()
 
 GTUBER_TEST_CASE (1)
 {
+  GtuberClient *client = gtuber_client_new ();
   GtuberMediaInfo *info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
   gtuber_media_info_set_id (info, "BaW_jenozKc");
@@ -12,17 +13,20 @@ GTUBER_TEST_CASE (1)
   compare_fetch (client, "https://invidious.snopyta.org/watch?v=BaW_jenozKc", info, NULL);
 
   g_object_unref (info);
+  g_object_unref (client);
 }
 
 GTUBER_TEST_CASE (2)
 {
-  GtuberMediaInfo *info = NULL;
+  GtuberClient *client = gtuber_client_new ();
+  GtuberMediaInfo *out_info = NULL;
 
-  compare_fetch (client, "https://vid.puffyan.us/v/BaW_jenozKc", NULL, &info);
-  check_streams (info);
-  check_adaptive_streams (info);
+  compare_fetch (client, "https://vid.puffyan.us/v/BaW_jenozKc", NULL, &out_info);
+  check_streams (out_info);
+  check_adaptive_streams (out_info);
 
-  g_object_unref (info);
+  g_object_unref (out_info);
+  g_object_unref (client);
 }
 
 GTUBER_TEST_MAIN_END ()
