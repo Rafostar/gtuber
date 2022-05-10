@@ -40,9 +40,9 @@ jobs:
 
       - name: Build
         run: |
-          meson builddir --prefix=/usr -Dauto_features=enabled -Dtests=true
+          meson builddir -Dauto_features=enabled -Dtests=true
           cd builddir
-          meson install
+          meson compile
 
       - name: Test
         run: |
