@@ -355,6 +355,7 @@ plugin_query (GUri *uri)
 
   if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL,
       "/bangumi/play/",
+      "/*/video/",
       "/video/",
       "/",
       NULL))) {
