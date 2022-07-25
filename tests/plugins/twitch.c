@@ -31,7 +31,7 @@ GTUBER_TEST_CASE (2)
 
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
-  gtuber_media_info_set_id (info, "42850523");
+  gtuber_media_info_set_id (info, "396245304");
   gtuber_media_info_set_title (info, "EA Play 2016 Live from the Novo Theatre");
   compare_fetch (client, "https://www.twitch.tv/ea/clip/FaintLightGullWholeWheat", info, &out_info);
 
