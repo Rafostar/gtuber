@@ -49,34 +49,9 @@ struct _GtuberYoutube
 #define parent_class gtuber_youtube_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
 
-static void gtuber_youtube_finalize (GObject *object);
-
-static void gtuber_youtube_prepare (GtuberWebsite *website);
-static GtuberFlow gtuber_youtube_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_youtube_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-static GtuberFlow gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
-    SoupMessageHeaders *req_headers, GHashTable *user_headers, GError **error);
-
 static void
 gtuber_youtube_init (GtuberYoutube *self)
 {
-}
-
-static void
-gtuber_youtube_class_init (GtuberYoutubeClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_youtube_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->prepare = gtuber_youtube_prepare;
-  website_class->create_request = gtuber_youtube_create_request;
-  website_class->parse_input_stream = gtuber_youtube_parse_input_stream;
-  website_class->set_user_req_headers = gtuber_youtube_set_user_req_headers;
 }
 
 static void
@@ -430,6 +405,21 @@ gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
 
   return GTUBER_WEBSITE_CLASS (parent_class)->set_user_req_headers (website,
       req_headers, user_headers, error);
+}
+
+static void
+gtuber_youtube_class_init (GtuberYoutubeClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_youtube_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->prepare = gtuber_youtube_prepare;
+  website_class->create_request = gtuber_youtube_create_request;
+  website_class->parse_input_stream = gtuber_youtube_parse_input_stream;
+  website_class->set_user_req_headers = gtuber_youtube_set_user_req_headers;
 }
 
 GtuberWebsite *

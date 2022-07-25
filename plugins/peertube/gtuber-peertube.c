@@ -44,29 +44,9 @@ struct _GtuberPeertube
 #define parent_class gtuber_peertube_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Peertube, peertube)
 
-static void gtuber_peertube_finalize (GObject *object);
-
-static GtuberFlow gtuber_peertube_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_peertube_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_peertube_init (GtuberPeertube *self)
 {
-}
-
-static void
-gtuber_peertube_class_init (GtuberPeertubeClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_peertube_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->create_request = gtuber_peertube_create_request;
-  website_class->parse_input_stream = gtuber_peertube_parse_input_stream;
 }
 
 static void
@@ -214,6 +194,19 @@ gtuber_peertube_parse_input_stream (GtuberWebsite *website,
     return GTUBER_FLOW_RESTART;
 
   return GTUBER_FLOW_OK;
+}
+
+static void
+gtuber_peertube_class_init (GtuberPeertubeClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_peertube_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->create_request = gtuber_peertube_create_request;
+  website_class->parse_input_stream = gtuber_peertube_parse_input_stream;
 }
 
 GtuberWebsite *

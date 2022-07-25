@@ -56,33 +56,10 @@ struct _GtuberLbry
 #define parent_class gtuber_lbry_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Lbry, lbry)
 
-static void gtuber_lbry_finalize (GObject *object);
-
-static GtuberFlow gtuber_lbry_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_lbry_read_response (GtuberWebsite *website,
-    SoupMessage *msg, GError **error);
-static GtuberFlow gtuber_lbry_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_lbry_init (GtuberLbry *self)
 {
   self->stream_type = LBRY_STREAM_UNKNOWN;
-}
-
-static void
-gtuber_lbry_class_init (GtuberLbryClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_lbry_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->create_request = gtuber_lbry_create_request;
-  website_class->read_response = gtuber_lbry_read_response;
-  website_class->parse_input_stream = gtuber_lbry_parse_input_stream;
 }
 
 static void
@@ -374,6 +351,20 @@ finish:
     return GTUBER_FLOW_ERROR;
 
   return flow;
+}
+
+static void
+gtuber_lbry_class_init (GtuberLbryClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_lbry_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->create_request = gtuber_lbry_create_request;
+  website_class->read_response = gtuber_lbry_read_response;
+  website_class->parse_input_stream = gtuber_lbry_parse_input_stream;
 }
 
 GtuberWebsite *

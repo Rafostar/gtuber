@@ -47,30 +47,9 @@ struct _GtuberInvidious
 #define parent_class gtuber_invidious_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Invidious, invidious)
 
-static void gtuber_invidious_finalize (GObject *object);
-
-static GtuberFlow gtuber_invidious_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_invidious_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_invidious_init (GtuberInvidious *self)
 {
-  self->hls_uri = NULL;
-}
-
-static void
-gtuber_invidious_class_init (GtuberInvidiousClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_invidious_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->create_request = gtuber_invidious_create_request;
-  website_class->parse_input_stream = gtuber_invidious_parse_input_stream;
 }
 
 static void
@@ -318,6 +297,19 @@ finish:
     return GTUBER_FLOW_RESTART;
 
   return GTUBER_FLOW_OK;
+}
+
+static void
+gtuber_invidious_class_init (GtuberInvidiousClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_invidious_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->create_request = gtuber_invidious_create_request;
+  website_class->parse_input_stream = gtuber_invidious_parse_input_stream;
 }
 
 GtuberWebsite *

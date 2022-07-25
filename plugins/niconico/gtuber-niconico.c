@@ -47,32 +47,9 @@ struct _GtuberNiconico
 #define parent_class gtuber_niconico_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Niconico, niconico)
 
-static void gtuber_niconico_finalize (GObject *object);
-
-static GtuberFlow gtuber_niconico_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_niconico_parse_data (GtuberWebsite *website,
-    gchar *data, GtuberMediaInfo *info, GError **error);
-static GtuberFlow gtuber_niconico_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_niconico_init (GtuberNiconico *self)
 {
-}
-
-static void
-gtuber_niconico_class_init (GtuberNiconicoClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_niconico_finalize;
-
-  website_class->handles_input_stream = FALSE;
-  website_class->create_request = gtuber_niconico_create_request;
-  website_class->parse_data = gtuber_niconico_parse_data;
-  website_class->parse_input_stream = gtuber_niconico_parse_input_stream;
 }
 
 static void
@@ -464,6 +441,20 @@ gtuber_niconico_parse_input_stream (GtuberWebsite *website,
     return GTUBER_FLOW_ERROR;
 
   return GTUBER_FLOW_RESTART;
+}
+
+static void
+gtuber_niconico_class_init (GtuberNiconicoClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_niconico_finalize;
+
+  website_class->handles_input_stream = FALSE;
+  website_class->create_request = gtuber_niconico_create_request;
+  website_class->parse_data = gtuber_niconico_parse_data;
+  website_class->parse_input_stream = gtuber_niconico_parse_input_stream;
 }
 
 GtuberWebsite *

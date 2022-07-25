@@ -58,29 +58,9 @@ struct _GtuberPiped
 #define parent_class gtuber_piped_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Piped, piped)
 
-static void gtuber_piped_finalize (GObject *object);
-
-static GtuberFlow gtuber_piped_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_piped_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_piped_init (GtuberPiped *self)
 {
-}
-
-static void
-gtuber_piped_class_init (GtuberPipedClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_piped_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->create_request = gtuber_piped_create_request;
-  website_class->parse_input_stream = gtuber_piped_parse_input_stream;
 }
 
 static void
@@ -312,6 +292,19 @@ finish:
     return GTUBER_FLOW_RESTART;
 
   return GTUBER_FLOW_OK;
+}
+
+static void
+gtuber_piped_class_init (GtuberPipedClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_piped_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->create_request = gtuber_piped_create_request;
+  website_class->parse_input_stream = gtuber_piped_parse_input_stream;
 }
 
 GtuberWebsite *

@@ -79,34 +79,10 @@ struct _GtuberCrunchyrollBeta
 #define parent_class gtuber_crunchyroll_beta_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (CrunchyrollBeta, crunchyroll_beta)
 
-static void gtuber_crunchyroll_beta_finalize (GObject *object);
-
-static void gtuber_crunchyroll_beta_prepare (GtuberWebsite *website);
-static GtuberFlow gtuber_crunchyroll_beta_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_crunchyroll_beta_parse_data (GtuberWebsite *website,
-    gchar *data, GtuberMediaInfo *info, GError **error);
-static GtuberFlow gtuber_crunchyroll_beta_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_crunchyroll_beta_init (GtuberCrunchyrollBeta *self)
 {
   self->step = CRUNCHYROLL_BETA_GET_AUTH_TOKEN;
-}
-
-static void
-gtuber_crunchyroll_beta_class_init (GtuberCrunchyrollBetaClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_crunchyroll_beta_finalize;
-
-  website_class->prepare = gtuber_crunchyroll_beta_prepare;
-  website_class->create_request = gtuber_crunchyroll_beta_create_request;
-  website_class->parse_data = gtuber_crunchyroll_beta_parse_data;
-  website_class->parse_input_stream = gtuber_crunchyroll_beta_parse_input_stream;
 }
 
 static void
@@ -682,6 +658,20 @@ gtuber_crunchyroll_beta_parse_input_stream (GtuberWebsite *website,
   self->step++;
 
   return GTUBER_FLOW_RESTART;
+}
+
+static void
+gtuber_crunchyroll_beta_class_init (GtuberCrunchyrollBetaClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_crunchyroll_beta_finalize;
+
+  website_class->prepare = gtuber_crunchyroll_beta_prepare;
+  website_class->create_request = gtuber_crunchyroll_beta_create_request;
+  website_class->parse_data = gtuber_crunchyroll_beta_parse_data;
+  website_class->parse_input_stream = gtuber_crunchyroll_beta_parse_input_stream;
 }
 
 GtuberWebsite *

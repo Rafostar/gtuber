@@ -30,29 +30,9 @@ GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
 #define parent_class gtuber_bilibili_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Bilibili, bilibili)
 
-static void gtuber_bilibili_finalize (GObject *object);
-
-static GtuberFlow gtuber_bilibili_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_bilibili_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_bilibili_init (GtuberBilibili *self)
 {
-}
-
-static void
-gtuber_bilibili_class_init (GtuberBilibiliClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_bilibili_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->create_request = gtuber_bilibili_create_request;
-  website_class->parse_input_stream = gtuber_bilibili_parse_input_stream;
 }
 
 static void
@@ -345,6 +325,19 @@ bilibili_get_flow_from_plugin_props (GtuberBilibili *self, GError **error)
       GTUBER_WEBSITE_ERROR_PARSE_FAILED,
       "Could not obtain required params");
   return GTUBER_FLOW_ERROR;
+}
+
+static void
+gtuber_bilibili_class_init (GtuberBilibiliClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_bilibili_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->create_request = gtuber_bilibili_create_request;
+  website_class->parse_input_stream = gtuber_bilibili_parse_input_stream;
 }
 
 GtuberWebsite *

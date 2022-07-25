@@ -44,34 +44,9 @@ struct _GtuberReddit
 #define parent_class gtuber_reddit_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Reddit, reddit)
 
-static void gtuber_reddit_finalize (GObject *object);
-
-static void gtuber_reddit_prepare (GtuberWebsite *website);
-static GtuberFlow gtuber_reddit_create_request (GtuberWebsite *website,
-    GtuberMediaInfo *info, SoupMessage **msg, GError **error);
-static GtuberFlow gtuber_reddit_read_response (GtuberWebsite *website,
-    SoupMessage *msg, GError **error);
-static GtuberFlow gtuber_reddit_parse_input_stream (GtuberWebsite *website,
-    GInputStream *stream, GtuberMediaInfo *info, GError **error);
-
 static void
 gtuber_reddit_init (GtuberReddit *self)
 {
-}
-
-static void
-gtuber_reddit_class_init (GtuberRedditClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
-
-  gobject_class->finalize = gtuber_reddit_finalize;
-
-  website_class->handles_input_stream = TRUE;
-  website_class->prepare = gtuber_reddit_prepare;
-  website_class->create_request = gtuber_reddit_create_request;
-  website_class->read_response = gtuber_reddit_read_response;
-  website_class->parse_input_stream = gtuber_reddit_parse_input_stream;
 }
 
 static void
@@ -315,6 +290,21 @@ finish:
     return GTUBER_FLOW_RESTART;
 
   return GTUBER_FLOW_OK;
+}
+
+static void
+gtuber_reddit_class_init (GtuberRedditClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GtuberWebsiteClass *website_class = (GtuberWebsiteClass *) klass;
+
+  gobject_class->finalize = gtuber_reddit_finalize;
+
+  website_class->handles_input_stream = TRUE;
+  website_class->prepare = gtuber_reddit_prepare;
+  website_class->create_request = gtuber_reddit_create_request;
+  website_class->read_response = gtuber_reddit_read_response;
+  website_class->parse_input_stream = gtuber_reddit_parse_input_stream;
 }
 
 GtuberWebsite *

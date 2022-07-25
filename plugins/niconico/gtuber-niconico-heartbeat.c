@@ -41,6 +41,19 @@ gtuber_niconico_heartbeat_init (GtuberNiconicoHeartbeat *self)
 {
 }
 
+static void
+gtuber_niconico_heartbeat_finalize (GObject *object)
+{
+  GtuberNiconicoHeartbeat *self = GTUBER_NICONICO_HEARTBEAT (object);
+
+  g_free (self->api_uri);
+
+  if (self->root)
+    json_node_unref (self->root);
+
+  G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
 static GtuberFlow
 gtuber_niconico_heartbeat_ping (GtuberHeartbeat *heartbeat,
     SoupMessage **msg, GError **error)
@@ -112,19 +125,6 @@ gtuber_niconico_heartbeat_pong (GtuberHeartbeat *heartbeat,
   g_object_unref (parser);
 
   return GTUBER_FLOW_OK;
-}
-
-static void
-gtuber_niconico_heartbeat_finalize (GObject *object)
-{
-  GtuberNiconicoHeartbeat *self = GTUBER_NICONICO_HEARTBEAT (object);
-
-  g_free (self->api_uri);
-
-  if (self->root)
-    json_node_unref (self->root);
-
-  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static void
