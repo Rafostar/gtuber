@@ -274,6 +274,29 @@ gtuber_utils_common_replace_uri_source (const gchar *uri_str, const gchar *src_u
   return mod_uri_str;
 }
 
+gchar *
+gtuber_utils_common_input_stream_to_data (GInputStream *stream, GError **error)
+{
+  GOutputStream *ostream;
+  gchar *data = NULL;
+
+  ostream = g_memory_output_stream_new_resizable ();
+  if (g_output_stream_splice (ostream, stream,
+      G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+      NULL, error) != -1) {
+    data = g_memory_output_stream_steal_data (G_MEMORY_OUTPUT_STREAM (ostream));
+  }
+  g_object_unref (ostream);
+
+  if (!data && *error == NULL) {
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+        "Could not convert input stream to data");
+  }
+
+  return data;
+}
+
 /**
  * gtuber_utils_common_msg_take_request:
  * @msg: a #SoupMessage

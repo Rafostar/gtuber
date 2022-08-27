@@ -40,6 +40,8 @@ gchar *              gtuber_utils_common_obtain_uri_source                    (G
 
 gchar *              gtuber_utils_common_replace_uri_source                   (const gchar *uri_str, const gchar *src_uri_str);
 
+gchar *              gtuber_utils_common_input_stream_to_data                 (GInputStream *stream, GError **error);
+
 void                 gtuber_utils_common_msg_take_request                     (SoupMessage *msg, const gchar *content_type, gchar *req_body);
 
 GtuberStreamMimeType gtuber_utils_common_get_mime_type_from_string            (const gchar *string);
