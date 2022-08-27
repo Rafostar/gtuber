@@ -666,7 +666,6 @@ gtuber_crunchyroll_beta_class_init (GtuberCrunchyrollBetaClass *klass)
 
   gobject_class->finalize = gtuber_crunchyroll_beta_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->prepare = gtuber_crunchyroll_beta_prepare;
   website_class->create_request = gtuber_crunchyroll_beta_create_request;
   website_class->parse_input_stream = gtuber_crunchyroll_beta_parse_input_stream;

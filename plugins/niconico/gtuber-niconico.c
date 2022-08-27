@@ -452,7 +452,6 @@ gtuber_niconico_class_init (GtuberNiconicoClass *klass)
 
   gobject_class->finalize = gtuber_niconico_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_niconico_create_request;
   website_class->parse_input_stream = gtuber_niconico_parse_input_stream;
 }

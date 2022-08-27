@@ -361,7 +361,6 @@ gtuber_lbry_class_init (GtuberLbryClass *klass)
 
   gobject_class->finalize = gtuber_lbry_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_lbry_create_request;
   website_class->read_response = gtuber_lbry_read_response;
   website_class->parse_input_stream = gtuber_lbry_parse_input_stream;

@@ -335,7 +335,6 @@ gtuber_bilibili_class_init (GtuberBilibiliClass *klass)
 
   gobject_class->finalize = gtuber_bilibili_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_bilibili_create_request;
   website_class->parse_input_stream = gtuber_bilibili_parse_input_stream;
 }

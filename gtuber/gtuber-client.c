@@ -200,31 +200,10 @@ beginning:
       goto decide_flow;
   }
 
-  if (my_error) {
-    flow = GTUBER_FLOW_ERROR;
-  } else if (website_class->handles_input_stream) {
+  if (!my_error) {
     g_debug ("Parsing response input stream...");
     flow = website_class->parse_input_stream (website, stream, info, &my_error);
-  } else {
-    GOutputStream *ostream;
-    gchar *data = NULL;
-
-    ostream = g_memory_output_stream_new_resizable ();
-    if (g_output_stream_splice (ostream, stream,
-        G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
-        cancellable, &my_error) != -1) {
-      data = g_memory_output_stream_steal_data (G_MEMORY_OUTPUT_STREAM (ostream));
-      g_debug ("Parsing response data...");
-    }
-    g_object_unref (ostream);
-
-    flow = (my_error != NULL)
-        ? GTUBER_FLOW_ERROR
-        : website_class->parse_data (website, data, info, &my_error);
-
-    g_free (data);
   }
-
   if (stream) {
     if (g_input_stream_close (stream, NULL, NULL))
       g_debug ("Input stream closed");
@@ -233,6 +212,9 @@ beginning:
 
     g_object_unref (stream);
   }
+
+  if (my_error)
+    flow = GTUBER_FLOW_ERROR;
   if (flow != GTUBER_FLOW_OK)
     goto decide_flow;
 
@@ -249,6 +231,9 @@ beginning:
     flow = website_class->set_user_req_headers (website, req_headers,
         user_headers, &my_error);
   }
+
+  if (my_error)
+    flow = GTUBER_FLOW_ERROR;
   if (flow != GTUBER_FLOW_OK)
     goto decide_flow;
 

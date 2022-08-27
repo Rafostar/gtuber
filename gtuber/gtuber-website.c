@@ -49,8 +49,6 @@ static GtuberFlow gtuber_website_create_request (GtuberWebsite *self,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error);
 static GtuberFlow gtuber_website_read_response (GtuberWebsite *self,
     SoupMessage *msg, GError **error);
-static GtuberFlow gtuber_website_parse_data (GtuberWebsite *self,
-    gchar *data, GtuberMediaInfo *info, GError **error);
 static GtuberFlow gtuber_website_parse_input_stream (GtuberWebsite *self,
     GInputStream *stream, GtuberMediaInfo *info, GError **error);
 static GtuberFlow gtuber_website_set_user_req_headers (GtuberWebsite *self,
@@ -70,11 +68,9 @@ gtuber_website_class_init (GtuberWebsiteClass *klass)
   gobject_class->dispose = gtuber_website_dispose;
   gobject_class->finalize = gtuber_website_finalize;
 
-  website_class->handles_input_stream = FALSE;
   website_class->prepare = gtuber_website_prepare;
   website_class->create_request = gtuber_website_create_request;
   website_class->read_response = gtuber_website_read_response;
-  website_class->parse_data = gtuber_website_parse_data;
   website_class->parse_input_stream = gtuber_website_parse_input_stream;
   website_class->set_user_req_headers = gtuber_website_set_user_req_headers;
 }
@@ -162,13 +158,6 @@ gtuber_website_create_request (GtuberWebsite *self,
 static GtuberFlow
 gtuber_website_read_response (GtuberWebsite *self,
     SoupMessage *msg, GError **error)
-{
-  return (*error == NULL) ? GTUBER_FLOW_OK : GTUBER_FLOW_ERROR;
-}
-
-static GtuberFlow
-gtuber_website_parse_data (GtuberWebsite *self,
-    gchar *data, GtuberMediaInfo *info, GError **error)
 {
   return (*error == NULL) ? GTUBER_FLOW_OK : GTUBER_FLOW_ERROR;
 }
