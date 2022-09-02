@@ -1,8 +1,10 @@
 plugin_deps += [
   gtuber_utils_common_dep,
   gtuber_utils_json_dep,
+  gtuber_utils_xml_dep,
   gtuber_utils_youtube_dep,
   json_glib_dep,
+  libxml_dep,
 ]
 foreach dep : plugin_deps
   if not dep.found()
