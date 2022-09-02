@@ -415,7 +415,6 @@ gtuber_youtube_class_init (GtuberYoutubeClass *klass)
 
   gobject_class->finalize = gtuber_youtube_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->prepare = gtuber_youtube_prepare;
   website_class->create_request = gtuber_youtube_create_request;
   website_class->parse_input_stream = gtuber_youtube_parse_input_stream;

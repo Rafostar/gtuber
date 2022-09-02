@@ -454,10 +454,8 @@ gtuber_crunchyroll_beta_prepare (GtuberWebsite *website)
   self->policy_response = gtuber_crunchyroll_beta_cache_read ("policy_response");
 
   /* If we restored cached policy, skip steps to get it */
-  if (self->policy_response && !etp_rt_changed) {
-    GTUBER_WEBSITE_GET_CLASS (self)->handles_input_stream = TRUE;
+  if (self->policy_response && !etp_rt_changed)
     self->step = CRUNCHYROLL_BETA_GET_POLICY_RESPONSE + 1;
-  }
 
   ext_lang = gtuber_utils_common_obtain_uri_id_from_paths (
       gtuber_website_get_uri (website), NULL, "/", NULL);
@@ -536,19 +534,21 @@ gtuber_crunchyroll_beta_create_request (GtuberWebsite *website,
       : GTUBER_FLOW_OK;
 }
 
-static GtuberFlow
-gtuber_crunchyroll_beta_parse_data (GtuberWebsite *website,
-    gchar *data, GtuberMediaInfo *info, GError **error)
+static void
+parse_auth_token (GtuberCrunchyrollBeta *self, GInputStream *stream, GError **error)
 {
-  GtuberCrunchyrollBeta *self = GTUBER_CRUNCHYROLL_BETA (website);
   JsonParser *parser;
   xmlDoc *doc;
-  gchar *json_str;
+  gchar *data, *json_str;
 
-  g_debug ("Parse step: %u", self->step);
+  if (!(data = gtuber_utils_common_input_stream_to_data (stream, error)))
+    return;
 
-  if (!(doc = gtuber_utils_xml_load_html_from_data (data, error)))
-    return GTUBER_FLOW_ERROR;
+  doc = gtuber_utils_xml_load_html_from_data (data, error);
+  g_free (data);
+
+  if (!doc)
+    return;
 
   json_str = gtuber_utils_xml_obtain_json_in_node (doc, "__APP_CONFIG__");
   xmlFreeDoc (doc);
@@ -557,7 +557,7 @@ gtuber_crunchyroll_beta_parse_data (GtuberWebsite *website,
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
         "Could not extract Crunchyroll JSON data");
-    return GTUBER_FLOW_ERROR;
+    return;
   }
 
   parser = json_parser_new ();
@@ -590,14 +590,6 @@ gtuber_crunchyroll_beta_parse_data (GtuberWebsite *website,
 
   g_object_unref (parser);
   g_free (json_str);
-
-  /* We prefer to use GInputStream for remaining requests */
-  GTUBER_WEBSITE_GET_CLASS (self)->handles_input_stream = TRUE;
-  self->step++;
-
-  return (*error)
-      ? GTUBER_FLOW_ERROR
-      : GTUBER_FLOW_RESTART;
 }
 
 static GtuberFlow
@@ -619,6 +611,11 @@ gtuber_crunchyroll_beta_parse_input_stream (GtuberWebsite *website,
   }
 
   /* FIXME: DASH support */
+
+  if (self->step == CRUNCHYROLL_BETA_GET_AUTH_TOKEN) {
+    parse_auth_token (self, stream, error);
+    goto finish_step;
+  }
 
   parser = json_parser_new ();
 
@@ -651,6 +648,7 @@ gtuber_crunchyroll_beta_parse_input_stream (GtuberWebsite *website,
   g_object_unref (reader);
   g_object_unref (parser);
 
+finish_step:
   if (*error)
     return GTUBER_FLOW_ERROR;
 
@@ -670,7 +668,6 @@ gtuber_crunchyroll_beta_class_init (GtuberCrunchyrollBetaClass *klass)
 
   website_class->prepare = gtuber_crunchyroll_beta_prepare;
   website_class->create_request = gtuber_crunchyroll_beta_create_request;
-  website_class->parse_data = gtuber_crunchyroll_beta_parse_data;
   website_class->parse_input_stream = gtuber_crunchyroll_beta_parse_input_stream;
 }
 

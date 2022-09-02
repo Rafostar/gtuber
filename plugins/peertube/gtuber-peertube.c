@@ -204,7 +204,6 @@ gtuber_peertube_class_init (GtuberPeertubeClass *klass)
 
   gobject_class->finalize = gtuber_peertube_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_peertube_create_request;
   website_class->parse_input_stream = gtuber_peertube_parse_input_stream;
 }

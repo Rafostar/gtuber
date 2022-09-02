@@ -300,7 +300,6 @@ gtuber_reddit_class_init (GtuberRedditClass *klass)
 
   gobject_class->finalize = gtuber_reddit_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->prepare = gtuber_reddit_prepare;
   website_class->create_request = gtuber_reddit_create_request;
   website_class->read_response = gtuber_reddit_read_response;

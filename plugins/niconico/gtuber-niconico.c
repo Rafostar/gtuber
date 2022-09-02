@@ -337,37 +337,38 @@ have_msg:
 }
 
 static GtuberFlow
-gtuber_niconico_parse_data (GtuberWebsite *website,
-    gchar *data, GtuberMediaInfo *info, GError **error)
-{
-  GtuberNiconico *self = GTUBER_NICONICO (website);
-  xmlDoc *doc;
-
-  if (!(doc = gtuber_utils_xml_load_html_from_data (data, error)))
-    return GTUBER_FLOW_ERROR;
-
-  self->api_data = g_strdup (gtuber_utils_xml_get_property_content (doc, "data-api-data"));
-  xmlFreeDoc (doc);
-
-  if (!self->api_data) {
-    g_set_error (error, GTUBER_WEBSITE_ERROR,
-        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
-        "Could not extract niconico API data");
-    return GTUBER_FLOW_ERROR;
-  }
-
-  /* We prefer to use GInputStream for remaining requests */
-  GTUBER_WEBSITE_GET_CLASS (self)->handles_input_stream = TRUE;
-
-  return GTUBER_FLOW_RESTART;
-}
-
-static GtuberFlow
 gtuber_niconico_parse_input_stream (GtuberWebsite *website,
     GInputStream *stream, GtuberMediaInfo *info, GError **error)
 {
   GtuberNiconico *self = GTUBER_NICONICO (website);
   JsonParser *parser;
+
+  /* Extract API data from XML first */
+  if (!self->api_data) {
+    xmlDoc *doc;
+    gchar *data;
+
+    if (!(data = gtuber_utils_common_input_stream_to_data (stream, error)))
+      return GTUBER_FLOW_ERROR;
+
+    doc = gtuber_utils_xml_load_html_from_data (data, error);
+    g_free (data);
+
+    if (!doc)
+      return GTUBER_FLOW_ERROR;
+
+    self->api_data = g_strdup (gtuber_utils_xml_get_property_content (doc, "data-api-data"));
+    xmlFreeDoc (doc);
+
+    if (!self->api_data) {
+      g_set_error (error, GTUBER_WEBSITE_ERROR,
+          GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+          "Could not extract niconico API data");
+      return GTUBER_FLOW_ERROR;
+    }
+
+    return GTUBER_FLOW_RESTART;
+  }
 
   if (self->hls_uri) {
     if (gtuber_utils_common_parse_hls_input_stream_with_base_uri (stream,
@@ -451,9 +452,7 @@ gtuber_niconico_class_init (GtuberNiconicoClass *klass)
 
   gobject_class->finalize = gtuber_niconico_finalize;
 
-  website_class->handles_input_stream = FALSE;
   website_class->create_request = gtuber_niconico_create_request;
-  website_class->parse_data = gtuber_niconico_parse_data;
   website_class->parse_input_stream = gtuber_niconico_parse_input_stream;
 }
 

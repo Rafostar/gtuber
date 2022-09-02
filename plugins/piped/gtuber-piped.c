@@ -302,7 +302,6 @@ gtuber_piped_class_init (GtuberPipedClass *klass)
 
   gobject_class->finalize = gtuber_piped_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_piped_create_request;
   website_class->parse_input_stream = gtuber_piped_parse_input_stream;
 }

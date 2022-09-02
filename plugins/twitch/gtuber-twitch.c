@@ -557,7 +557,6 @@ gtuber_twitch_class_init (GtuberTwitchClass *klass)
 
   gobject_class->finalize = gtuber_twitch_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_twitch_create_request;
   website_class->parse_input_stream = gtuber_twitch_parse_input_stream;
   website_class->set_user_req_headers = gtuber_twitch_set_user_req_headers;

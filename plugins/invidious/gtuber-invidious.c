@@ -307,7 +307,6 @@ gtuber_invidious_class_init (GtuberInvidiousClass *klass)
 
   gobject_class->finalize = gtuber_invidious_finalize;
 
-  website_class->handles_input_stream = TRUE;
   website_class->create_request = gtuber_invidious_create_request;
   website_class->parse_input_stream = gtuber_invidious_parse_input_stream;
 }
