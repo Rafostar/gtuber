@@ -9,7 +9,7 @@ all_tests = {
   'piped': [1, 2],
   'reddit': [1, 2, 3],
   'twitch': [1, 2],
-  'youtube': [1, 2, 3],
+  'youtube': [1, 2, 3, 4],
 }
 
 foreach name, plugin_tests : all_tests

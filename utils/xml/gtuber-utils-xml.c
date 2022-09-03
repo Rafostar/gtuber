@@ -64,24 +64,41 @@ _obtain_json_data (const xmlChar *content, const gchar *search_str)
   if (!content)
     return NULL;
 
-  data = g_strsplit ((const gchar *) content, "=", 0);
+  data = g_strsplit ((const gchar *) content, search_str, 0);
 
-  for (i = 0; data[i]; i++) {
-    g_strchomp (data[i]);
+  /* Start after first occurence */
+  for (i = 1; i < g_strv_length (data); i++) {
+    const gchar *text = data[i];
+    gsize index, open_index = 0;
+    gint open_brackets = 0;
+    gboolean was_open = FALSE, found = FALSE;
 
-    if (g_str_has_suffix (data[i], search_str)) {
-      if (data[i + 1]) {
-        GString *string;
-
-        g_strstrip (data[i + 1]);
-
-        string = g_string_new (data[i + 1]);
-        if (string->str[string->len - 1] == ';')
-          g_string_truncate (string, string->len - 1);
-
-        value = g_string_free (string, FALSE);
-        break;
+    /* Find index of last closing bracket */
+    for (index = 0; index < strlen (text); index++) {
+      if (text[index] == '{') {
+        if (!was_open) {
+          was_open = TRUE;
+          open_index = index;
+        }
+        open_brackets++;
+      } else if (was_open && text[index] == '}') {
+        open_brackets--;
       }
+
+      if ((found = was_open && open_brackets == 0))
+        break;
+    }
+
+    if (found) {
+      GString *string = g_string_new (text);
+
+      /* Create our substring */
+      g_string_truncate (string, index + 1);
+      if (open_index > 0)
+        g_string_erase (string, 0, open_index);
+
+      value = g_string_free (string, FALSE);
+      break;
     }
   }
 

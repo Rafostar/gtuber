@@ -22,6 +22,7 @@
 
 #include "utils/common/gtuber-utils-common.h"
 #include "utils/json/gtuber-utils-json.h"
+#include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
 #define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
@@ -262,6 +263,56 @@ finish:
 }
 
 static gchar *
+obtain_video_id (GInputStream *stream, GError **error)
+{
+  JsonParser *parser;
+  xmlDoc *doc;
+  gchar *data, *json_str, *video_id = NULL;
+
+  if (!(data = gtuber_utils_common_input_stream_to_data (stream, error)))
+    goto finish;
+
+  doc = gtuber_utils_xml_load_html_from_data (data, error);
+  g_free (data);
+
+  if (!doc)
+    goto finish;
+
+  g_debug ("Downloaded HTML");
+
+  json_str = gtuber_utils_xml_obtain_json_in_node (doc, "ytInitialPlayerResponse");
+  xmlFreeDoc (doc);
+
+  if (!json_str)
+    goto finish;
+
+  parser = json_parser_new ();
+  if ((json_parser_load_from_data (parser, json_str, -1, error))) {
+    JsonReader *reader;
+
+    g_debug ("Got initial response JSON");
+    gtuber_utils_json_parser_debug (parser);
+
+    reader = json_reader_new (json_parser_get_root (parser));
+    video_id = g_strdup (gtuber_utils_json_get_string (reader, "playabilityStatus",
+        "liveStreamability", "liveStreamabilityRenderer", "videoId", NULL));
+
+    g_object_unref (reader);
+  }
+  g_object_unref (parser);
+
+  g_free (json_str);
+
+finish:
+  if (!video_id && *error == NULL) {
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+        "Could not extract video ID");
+  }
+  return video_id;
+}
+
+static gchar *
 obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
 {
   gchar *req_body, **parts;
@@ -333,7 +384,10 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   SoupMessageHeaders *headers;
   gchar *req_body, *ua;
 
-  if (!self->hls_uri) {
+  if (!self->video_id) {
+    g_debug ("Unknown video ID, downloading HTML");
+    *msg = soup_message_new_from_uri ("GET", gtuber_website_get_uri (website));
+  } else if (!self->hls_uri) {
     self->try_count++;
     g_debug ("Try number: %i", self->try_count);
 
@@ -367,6 +421,15 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   GtuberFlow flow = GTUBER_FLOW_OK;
   JsonParser *parser;
+
+  /* If we do not have video ID here, then we are
+   * downloading website as HTML to get it now */
+  if (!self->video_id) {
+    if ((self->video_id = obtain_video_id (stream, error)))
+      return GTUBER_FLOW_RESTART;
+
+    return GTUBER_FLOW_ERROR;
+  }
 
   if (self->hls_uri) {
     if (gtuber_utils_youtube_parse_hls_input_stream (stream, info, error))
@@ -425,7 +488,7 @@ GtuberWebsite *
 plugin_query (GUri *uri)
 {
   gchar *id;
-  gboolean matched;
+  gboolean matched, is_video = FALSE;
 
   matched = gtuber_utils_common_uri_matches_hosts (uri, NULL,
       "youtu.be", NULL);
@@ -439,7 +502,16 @@ plugin_query (GUri *uri)
         "/v/", "/embed/", NULL);
   }
 
-  if (id) {
+  if (!id) {
+    gchar *suffix;
+
+    suffix = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/*/", NULL);
+    is_video = (!g_ascii_strncasecmp (suffix, "live", 4));
+
+    g_free (suffix);
+  }
+
+  if (id || is_video) {
     GtuberYoutube *youtube;
 
     youtube = gtuber_youtube_new ();
