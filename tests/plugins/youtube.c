@@ -44,4 +44,15 @@ GTUBER_TEST_CASE (3)
   g_object_unref (client);
 }
 
+GTUBER_TEST_CASE (4)
+{
+  GtuberClient *client = gtuber_client_new ();
+
+  /* Live channels may change ID, description, etc. This checks if media info
+   * can be successfully obtained from URI without video ID */
+  compare_fetch (client, "https://youtube.com/nasa/live", NULL, NULL);
+
+  g_object_unref (client);
+}
+
 GTUBER_TEST_MAIN_END ()
