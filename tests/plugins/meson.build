@@ -8,7 +8,7 @@ all_tests = {
   'peertube': [1, 2],
   'piped': [1, 2],
   'reddit': [1, 2, 3],
-  'twitch': [1, 2],
+  'twitch': [1, 2, 3],
   'youtube': [1, 2, 3, 4],
 }
 
