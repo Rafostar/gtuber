@@ -43,6 +43,7 @@ typedef enum
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "twitch.tv",
+  "clips.twitch.tv",
   NULL
 )
 GTUBER_WEBSITE_PLUGIN_DECLARE (Twitch, twitch, TWITCH)
@@ -565,34 +566,47 @@ gtuber_twitch_class_init (GtuberTwitchClass *klass)
 GtuberWebsite *
 plugin_query (GUri *uri)
 {
+  GtuberTwitch *twitch;
+  TwitchMediaType media_type = TWITCH_MEDIA_NONE;
+  gchar *id = NULL;
   gint match;
-  gchar *id;
+
+  if ((gtuber_utils_common_uri_matches_hosts (uri, NULL,
+      "clips.twitch.tv", NULL))) {
+    media_type = TWITCH_MEDIA_CLIP;
+    id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/", NULL);
+
+    goto finish;
+  }
 
   if ((id = gtuber_utils_common_obtain_uri_id_from_paths (uri, &match,
       "/*/clip/",
       "/videos/",
       "/",
       NULL))) {
-    GtuberTwitch *twitch = gtuber_twitch_new ();
-    twitch->video_id = id;
-
     switch (match) {
       case 0:
-        twitch->media_type = TWITCH_MEDIA_CLIP;
+        media_type = TWITCH_MEDIA_CLIP;
         break;
       case 1:
-        twitch->media_type = TWITCH_MEDIA_VIDEO;
+        media_type = TWITCH_MEDIA_VIDEO;
         break;
       default:
-        twitch->media_type = TWITCH_MEDIA_CHANNEL;
+        media_type = TWITCH_MEDIA_CHANNEL;
         break;
     }
-
-    g_debug ("Requested type: %i, video: %s",
-        twitch->media_type, twitch->video_id);
-
-    return GTUBER_WEBSITE (twitch);
   }
 
-  return NULL;
+finish:
+  if (!id)
+    return NULL;
+
+  twitch = gtuber_twitch_new ();
+  twitch->video_id = id;
+  twitch->media_type = media_type;
+
+  g_debug ("Requested type: %i, video: %s",
+      twitch->media_type, twitch->video_id);
+
+  return GTUBER_WEBSITE (twitch);
 }
