@@ -275,6 +275,23 @@ gtuber_utils_common_replace_uri_source (const gchar *uri_str, const gchar *src_u
 }
 
 gchar *
+gtuber_utils_common_obtain_domain (const gchar *host)
+{
+  gchar **parts, *domain = NULL;
+  guint n_parts;
+
+  parts = g_strsplit (host, ".", 0);
+  n_parts = g_strv_length (parts);
+
+  if (n_parts >= 3)
+    domain = g_strjoin (".", parts[n_parts - 2], parts[n_parts - 1], NULL);
+
+  g_strfreev (parts);
+
+  return domain;
+}
+
+gchar *
 gtuber_utils_common_input_stream_to_data (GInputStream *stream, GError **error)
 {
   GOutputStream *ostream;
