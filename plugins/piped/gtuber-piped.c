@@ -33,12 +33,10 @@ typedef enum
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "piped.kavin.rocks",
-  "piped.silkky.cloud",
   NULL
 )
 static const gchar *piped_apis[] = {
   "pipedapi.kavin.rocks",
-  "api.piped.silkky.cloud",
   NULL
 };
 
