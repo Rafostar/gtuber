@@ -24,6 +24,9 @@
 #include "utils/json/gtuber-utils-json.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
+#define PIPED_DEFAULT_HOST     "piped.kavin.rocks"
+#define PIPED_DEFAULT_API_HOST "pipedapi.kavin.rocks"
+
 typedef enum
 {
   PIPED_MEDIA_NONE,
@@ -31,14 +34,10 @@ typedef enum
   PIPED_MEDIA_AUDIO_STREAM,
 } PipedMediaType;
 
-GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
-  "piped.kavin.rocks",
+GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND (piped,
+  PIPED_DEFAULT_HOST,
   NULL
 )
-static const gchar *piped_apis[] = {
-  "pipedapi.kavin.rocks",
-  NULL
-};
 
 GTUBER_WEBSITE_PLUGIN_DECLARE (Piped, piped, PIPED)
 
@@ -49,8 +48,7 @@ struct _GtuberPiped
   gchar *video_id;
   gchar *hls_uri;
   gchar *proxy;
-
-  gint api_id;
+  gchar *api;
 };
 
 #define parent_class gtuber_piped_parent_class
@@ -71,6 +69,7 @@ gtuber_piped_finalize (GObject *object)
   g_free (self->video_id);
   g_free (self->hls_uri);
   g_free (self->proxy);
+  g_free (self->api);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -237,6 +236,45 @@ parse_response_data (GtuberPiped *self, JsonParser *parser,
   g_object_unref (reader);
 }
 
+/* Piped does not have a standardized API endpoint path. To support more hosts,
+ * user must put both site host and api host in config files. Hosts are matched
+ * together based on same domain. */
+static void
+gtuber_piped_prepare (GtuberWebsite *website)
+{
+  GtuberPiped *self = GTUBER_PIPED (website);
+  gchar **piped_apis;
+  const gchar *host;
+
+  host = g_uri_get_host (gtuber_website_get_uri (website));
+
+  if (!strcmp (host, PIPED_DEFAULT_HOST)) {
+    self->api = g_strdup (PIPED_DEFAULT_API_HOST);
+    g_debug ("Using default API endpoint");
+
+    return;
+  }
+
+  piped_apis = gtuber_config_read_plugin_hosts_file ("piped_api_hosts");
+
+  if (piped_apis) {
+    gchar *host_domain = gtuber_utils_common_obtain_domain (host);
+    guint i;
+
+    for (i = 0; piped_apis[i]; i++) {
+      if (g_str_has_suffix (piped_apis[i], host_domain)) {
+        self->api = g_strdup (piped_apis[i]);
+        g_debug ("Using API endpoint: %s", self->api);
+        break;
+      }
+    }
+
+    g_free (host_domain);
+  }
+
+  g_strfreev (piped_apis);
+}
+
 static GtuberFlow
 gtuber_piped_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error)
@@ -246,8 +284,17 @@ gtuber_piped_create_request (GtuberWebsite *website,
   if (!self->hls_uri) {
     gchar *uri;
 
+    if (G_UNLIKELY (!self->api)) {
+      const gchar *host = g_uri_get_host (gtuber_website_get_uri (website));
+
+      g_set_error (error, GTUBER_WEBSITE_ERROR,
+          GTUBER_WEBSITE_ERROR_REQUEST_CREATE_FAILED,
+          "No API endpoint known for host: %s", host);
+      return GTUBER_FLOW_ERROR;
+    }
+
     uri = g_strdup_printf ("https://%s/streams/%s",
-        piped_apis[self->api_id], self->video_id);
+        self->api, self->video_id);
     *msg = soup_message_new ("GET", uri);
 
     g_free (uri);
@@ -300,6 +347,7 @@ gtuber_piped_class_init (GtuberPipedClass *klass)
 
   gobject_class->finalize = gtuber_piped_finalize;
 
+  website_class->prepare = gtuber_piped_prepare;
   website_class->create_request = gtuber_piped_create_request;
   website_class->parse_input_stream = gtuber_piped_parse_input_stream;
 }
@@ -307,6 +355,7 @@ gtuber_piped_class_init (GtuberPipedClass *klass)
 GtuberWebsite *
 plugin_query (GUri *uri)
 {
+  GtuberPiped *piped = NULL;
   gchar *id;
 
   id = gtuber_utils_common_obtain_uri_query_value (uri, "v");
@@ -314,20 +363,11 @@ plugin_query (GUri *uri)
     id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/v/", NULL);
 
   if (id) {
-    GtuberPiped *piped;
-
     piped = gtuber_piped_new ();
     piped->video_id = id;
 
-    if (G_UNLIKELY (!gtuber_utils_common_uri_matches_hosts_array (uri,
-        &piped->api_id, _hosts_compat)))
-      g_critical ("Plugin query with unmatched host, this should not happen");
-
-    g_debug ("Requested video: %s, API instance: %s",
-        piped->video_id, piped_apis[piped->api_id]);
-
-    return GTUBER_WEBSITE (piped);
+    g_debug ("Requested video: %s", piped->video_id);
   }
 
-  return NULL;
+  return GTUBER_WEBSITE (piped);
 }
