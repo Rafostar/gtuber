@@ -95,7 +95,7 @@ _find_error_cb (JsonReader *reader, GtuberMediaInfo *info, const gchar **err_msg
     return;
 
   *err_msg = gtuber_utils_json_get_string (reader, "message", NULL);
-  if (!*err_msg)
+  if (*err_msg == NULL)
     *err_msg = gtuber_utils_json_get_string (reader, "error", NULL);
 }
 
@@ -288,12 +288,12 @@ _parse_metadata (GtuberTwitch *self, JsonParser *parser,
 
     g_set_error (error, GTUBER_WEBSITE_ERROR,
         GTUBER_WEBSITE_ERROR_PARSE_FAILED,
-    "%s", err_msg);
+        "%s", err_msg);
 
     gtuber_utils_json_go_back (reader, 1);
   }
 
-  if (!*error) {
+  if (*error == NULL) {
     switch (self->media_type) {
       case TWITCH_MEDIA_CHANNEL:
         _read_channel_metadata (reader, info, error);
