@@ -220,7 +220,11 @@ GType           gtuber_website_get_type              (void);
 
 GUri *          gtuber_website_get_uri               (GtuberWebsite *website);
 
+void            gtuber_website_set_uri               (GtuberWebsite *website, GUri *uri);
+
 const gchar *   gtuber_website_get_uri_string        (GtuberWebsite *website);
+
+gboolean        gtuber_website_set_uri_from_string   (GtuberWebsite *website, const gchar *uri_str, GError **error);
 
 gboolean        gtuber_website_get_use_http          (GtuberWebsite *website);
 

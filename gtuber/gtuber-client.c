@@ -156,16 +156,23 @@ gtuber_client_fetch_media_info (GtuberClient *self, const gchar *uri,
   if (!guri)
     goto error;
 
+reconfigure:
   website = gtuber_loader_get_website_for_uri (guri, &module);
-  g_uri_unref (guri);
-
   if (!website) {
-    g_debug ("No plugin for URI: %s", uri);
+    gchar *latest_uri;
+
+    latest_uri = g_uri_to_string (guri);
+    g_uri_unref (guri);
+
+    g_debug ("No plugin for URI: %s", latest_uri);
     g_set_error (error, GTUBER_CLIENT_ERROR, GTUBER_CLIENT_ERROR_NO_PLUGIN,
-        "None of the installed plugins could handle URI: %s", uri);
+        "None of the installed plugins could handle URI: %s", latest_uri);
+
+    g_free (latest_uri);
 
     return NULL;
   }
+  g_uri_unref (guri);
 
   website_class = GTUBER_WEBSITE_GET_CLASS (website);
   website_class->prepare (website);
@@ -278,11 +285,19 @@ no_message:
 decide_flow:
   switch (flow) {
     case GTUBER_FLOW_RESTART:
-      if (msg) {
-        g_object_unref (msg);
-        msg = NULL;
-      }
+      g_clear_object (&msg);
       goto beginning;
+    case GTUBER_FLOW_RECONFIGURE:
+      guri = g_uri_ref (gtuber_website_get_uri (website));
+      g_clear_object (&website);
+      g_clear_object (&info);
+      g_clear_object (&msg);
+      g_clear_object (&session);
+      if (module) {
+        gtuber_loader_close_module (module);
+        module = NULL;
+      }
+      goto reconfigure;
     case GTUBER_FLOW_ERROR:
       if (!my_error) {
         g_set_error (&my_error, GTUBER_WEBSITE_ERROR,
