@@ -64,12 +64,13 @@ gtuber_reddit_finalize (GObject *object)
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
-static void
+static GtuberFlow
 parse_response_data (GtuberReddit *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
   const gchar *id_uri;
+  GtuberFlow flow = GTUBER_FLOW_OK;
 
   /* Data is at: res[0].data.children[0].data */
   if (!gtuber_utils_json_go_to (reader,
@@ -81,16 +82,22 @@ parse_response_data (GtuberReddit *self, JsonParser *parser,
     goto finish;
   }
 
+  /* If not a reddit video, take new URI and do a reconfigure with it.
+   * Maybe some other plugin will be able to handle it. */
   if (!gtuber_utils_json_get_boolean (reader, "is_video", NULL)) {
-    g_set_error (error, GTUBER_WEBSITE_ERROR,
-        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
-        "Requested media is not a video");
-    goto finish;
+    g_debug ("Requested media is not a reddit video");
+    flow = GTUBER_FLOW_RECONFIGURE;
   }
 
   id_uri = gtuber_utils_json_get_string (reader, "url", NULL);
   if (!id_uri)
     id_uri = gtuber_utils_json_get_string (reader, "url_overridden_by_dest", NULL);
+
+  if (id_uri && (flow == GTUBER_FLOW_RECONFIGURE)) {
+    g_debug ("Reconfiguring with updated URI: %s", id_uri);
+    gtuber_website_set_uri_from_string (GTUBER_WEBSITE (self), id_uri, error);
+    goto finish;
+  }
 
   if (!id_uri || !g_str_has_prefix (id_uri, "https://v.redd.it/")) {
     g_set_error (error, GTUBER_WEBSITE_ERROR,
@@ -124,6 +131,10 @@ parse_response_data (GtuberReddit *self, JsonParser *parser,
 
 finish:
   g_object_unref (reader);
+
+  return (*error)
+      ? GTUBER_FLOW_ERROR
+      : flow;
 }
 
 static void
@@ -257,6 +268,7 @@ gtuber_reddit_parse_input_stream (GtuberWebsite *website,
 {
   GtuberReddit *self = GTUBER_REDDIT (website);
   JsonParser *parser;
+  GtuberFlow flow = GTUBER_FLOW_OK;
 
   if (self->dash_uri) {
     /* FIXME: Support parsing DASH files */
@@ -279,7 +291,7 @@ gtuber_reddit_parse_input_stream (GtuberWebsite *website,
   parser = json_parser_new ();
   if (json_parser_load_from_stream (parser, stream, NULL, error)) {
     gtuber_utils_json_parser_debug (parser);
-    parse_response_data (self, parser, info, error);
+    flow = parse_response_data (self, parser, info, error);
   }
   g_object_unref (parser);
 
@@ -289,7 +301,7 @@ finish:
   if (self->dash_uri || self->hls_uri)
     return GTUBER_FLOW_RESTART;
 
-  return GTUBER_FLOW_OK;
+  return flow;
 }
 
 static void
