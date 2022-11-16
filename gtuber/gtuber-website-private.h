@@ -25,7 +25,4 @@ G_BEGIN_DECLS
 
 typedef struct _GtuberWebsitePrivate GtuberWebsitePrivate;
 
-G_GNUC_INTERNAL
-void gtuber_website_set_uri (GtuberWebsite *website, GUri *uri);
-
 G_END_DECLS

@@ -136,13 +136,15 @@ typedef enum
  * GtuberFlow:
  * @GTUBER_FLOW_OK: continue parsing.
  * @GTUBER_FLOW_ERROR: give up.
- * @GTUBER_FLOW_RESTART: start from beginning.
+ * @GTUBER_FLOW_RESTART: start from first step again.
+ * @GTUBER_FLOW_RECONFIGURE: change URI and do a clean restart.
  */
 typedef enum
 {
   GTUBER_FLOW_OK = 0,
   GTUBER_FLOW_ERROR,
   GTUBER_FLOW_RESTART,
+  GTUBER_FLOW_RECONFIGURE,
 } GtuberFlow;
 
 G_END_DECLS

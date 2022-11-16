@@ -199,20 +199,6 @@ gtuber_website_set_user_req_headers (GtuberWebsite *self,
   return GTUBER_FLOW_OK;
 }
 
-void
-gtuber_website_set_uri (GtuberWebsite *self, GUri *uri)
-{
-  GtuberWebsitePrivate *priv = gtuber_website_get_instance_private (self);
-
-  if (priv->uri)
-    g_uri_unref (priv->uri);
-
-  priv->uri = g_uri_ref (uri);
-
-  g_free (priv->uri_str);
-  priv->uri_str = g_uri_to_string (priv->uri);
-}
-
 /**
  * gtuber_website_get_uri:
  * @website: a #GtuberWebsite
@@ -232,6 +218,34 @@ gtuber_website_get_uri (GtuberWebsite *self)
 }
 
 /**
+ * gtuber_website_set_uri:
+ * @website: a #GtuberWebsite
+ * @uri: a media source URI
+ *
+ * Sets new URI for handling. URI cannot be %NULL.
+ *
+ * This is mainly useful together with reconfigure flow event.
+ */
+void
+gtuber_website_set_uri (GtuberWebsite *self, GUri *uri)
+{
+  GtuberWebsitePrivate *priv;
+
+  g_return_if_fail (GTUBER_IS_WEBSITE (self));
+  g_return_if_fail (uri != NULL);
+
+  priv = gtuber_website_get_instance_private (self);
+
+  if (priv->uri)
+    g_uri_unref (priv->uri);
+
+  priv->uri = g_uri_ref (uri);
+
+  g_free (priv->uri_str);
+  priv->uri_str = g_uri_to_string (priv->uri);
+}
+
+/**
  * gtuber_website_get_uri_string:
  * @website: a #GtuberWebsite
  *
@@ -247,6 +261,36 @@ gtuber_website_get_uri_string (GtuberWebsite *self)
   priv = gtuber_website_get_instance_private (self);
 
   return priv->uri_str;
+}
+
+/**
+ * gtuber_website_set_uri_from_string:
+ * @website: a #GtuberWebsite
+ * @uri_str: a media source URI as string
+ * @error: (nullable): return location for a #GError, or %NULL
+ *
+ * Sets URI from string for handling.
+ *
+ * This is mainly useful together with reconfigure flow event.
+ */
+gboolean
+gtuber_website_set_uri_from_string (GtuberWebsite *self,
+    const gchar *uri_str, GError **error)
+{
+  GUri *uri;
+  gboolean success;
+
+  g_return_val_if_fail (GTUBER_IS_WEBSITE (self), FALSE);
+
+  uri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, error);
+  success = (uri && *error == NULL);
+
+  if (success) {
+    gtuber_website_set_uri (self, uri);
+    g_uri_unref (uri);
+  }
+
+  return success;
 }
 
 /**
