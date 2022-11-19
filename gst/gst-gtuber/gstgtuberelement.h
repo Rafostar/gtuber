@@ -21,7 +21,9 @@
 
 #include <gst/gst.h>
 
-#define GST_GTUBER_CONFIG "gtuber-config"
+#define GST_GTUBER_HEADERS     "http-headers"
+#define GST_GTUBER_REQ_HEADERS "request-headers"
+#define GST_GTUBER_HEADER_UA   "User-Agent"
 
 G_BEGIN_DECLS
 

@@ -69,7 +69,7 @@ gst_gtuber_bin_finalize (GObject *object)
 
   GST_TRACE ("Finalize");
 
-  gst_clear_structure (&self->gtuber_config);
+  gst_clear_structure (&self->http_headers);
 
   if (self->tag_event)
     gst_event_unref (self->tag_event);
@@ -82,23 +82,54 @@ gst_gtuber_bin_finalize (GObject *object)
   GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
 }
 
+static void
+_set_property (GstObject *obj, const gchar *prop_name, gpointer value)
+{
+  g_object_set (G_OBJECT (obj), prop_name, value, NULL);
+
+  if (gst_debug_category_get_threshold (GST_CAT_DEFAULT) >= GST_LEVEL_DEBUG) {
+    gchar *el_name;
+
+    el_name = gst_object_get_name (obj);
+    GST_DEBUG ("Set %s %s", el_name, prop_name);
+
+    g_free (el_name);
+  }
+}
+
 static gboolean
 configure_deep_element (GQuark field_id, const GValue *value, GstElement *child)
 {
-  GObjectClass *gobject_class = G_OBJECT_GET_CLASS (child);
-  const gchar *prop_name = g_quark_to_string (field_id);
+  GObjectClass *gobject_class;
+  const GstStructure *substructure;
 
-  if (g_object_class_find_property (gobject_class, prop_name)) {
-    g_object_set_property (G_OBJECT (child), prop_name, value);
+  if (!GST_VALUE_HOLDS_STRUCTURE (value))
+    return TRUE;
 
-    if (gst_debug_category_get_threshold (GST_CAT_DEFAULT) >= GST_LEVEL_DEBUG) {
-      gchar *el_name;
+  substructure = gst_value_get_structure (value);
 
-      el_name = gst_object_get_name (GST_OBJECT (child));
-      GST_DEBUG ("Set %s %s", el_name, prop_name);
+  if (!gst_structure_has_name (substructure, GST_GTUBER_REQ_HEADERS))
+    return TRUE;
 
-      g_free (el_name);
-    }
+  gobject_class = G_OBJECT_GET_CLASS (child);
+
+  if (g_object_class_find_property (gobject_class, "user-agent")) {
+    const gchar *ua;
+
+    if ((ua = gst_structure_get_string (substructure, GST_GTUBER_HEADER_UA)))
+      _set_property (GST_OBJECT_CAST (child), "user-agent", (gchar *) ua);
+  }
+
+  if (g_object_class_find_property (gobject_class, "extra-headers")) {
+    GstStructure *extra_headers;
+
+    extra_headers = gst_structure_copy (substructure);
+    gst_structure_set_name (extra_headers, "extra-headers");
+    gst_structure_remove_field (extra_headers, GST_GTUBER_HEADER_UA);
+
+    _set_property (GST_OBJECT_CAST (child), "extra-headers", extra_headers);
+
+    gst_structure_free (extra_headers);
   }
 
   return TRUE;
@@ -112,8 +143,8 @@ gst_gtuber_bin_deep_element_added (GstBin *bin, GstBin *sub_bin, GstElement *chi
 
     GST_GTUBER_BIN_LOCK (self);
 
-    if (self->gtuber_config) {
-      gst_structure_foreach (self->gtuber_config,
+    if (self->http_headers) {
+      gst_structure_foreach (self->http_headers,
           (GstStructureForeachFunc) configure_deep_element, child);
     }
 
@@ -125,7 +156,7 @@ static void
 gst_gtuber_bin_push_event (GstGtuberBin *self, GstEvent *event)
 {
   GstIterator *iter;
-  GValue value = { 0, };
+  GValue value = G_VALUE_INIT;
 
   iter = gst_element_iterate_src_pads (GST_ELEMENT (self));
 
@@ -237,12 +268,12 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
     case GST_EVENT_CUSTOM_DOWNSTREAM_STICKY:{
       const GstStructure *structure = gst_event_get_structure (event);
 
-      if (gst_structure_has_name (structure, GST_GTUBER_CONFIG)) {
-        GST_DEBUG_OBJECT (self, "Received " GST_GTUBER_CONFIG " event");
+      if (gst_structure_has_name (structure, GST_GTUBER_HEADERS)) {
+        GST_DEBUG_OBJECT (self, "Received " GST_GTUBER_HEADERS " event");
         GST_GTUBER_BIN_LOCK (self);
 
-        gst_clear_structure (&self->gtuber_config);
-        self->gtuber_config = gst_structure_copy (structure);
+        gst_clear_structure (&self->http_headers);
+        self->http_headers = gst_structure_copy (structure);
 
         GST_GTUBER_BIN_UNLOCK (self);
       }

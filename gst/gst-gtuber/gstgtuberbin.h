@@ -54,7 +54,7 @@ struct _GstGtuberBin
   GMutex bin_lock;
   GMutex prop_lock;
 
-  GstStructure *gtuber_config;
+  GstStructure *http_headers;
 
   GstEvent *tag_event;
   GstEvent *toc_event;

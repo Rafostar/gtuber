@@ -29,10 +29,6 @@
 #define GST_CAT_DEFAULT gst_gtuber_src_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
-#define GST_GTUBER_HEADER_UA           "User-Agent"
-#define GST_GTUBER_PROP_UA             "user-agent"
-#define GST_GTUBER_PROP_EXTRA_HEADERS  "extra-headers"
-
 #define DEFAULT_CODECS     GTUBER_CODEC_AVC | GTUBER_CODEC_MP4A
 #define DEFAULT_MAX_HEIGHT 0
 #define DEFAULT_MAX_FPS    0
@@ -451,8 +447,7 @@ gst_gtuber_src_unlock_stop (GstBaseSrc *base_src)
 static void
 insert_header_cb (const gchar *name, const gchar *value, GstStructure *structure)
 {
-  if (strcmp (name, GST_GTUBER_HEADER_UA))
-    gst_structure_set (structure, name, G_TYPE_STRING, value, NULL);
+  gst_structure_set (structure, name, G_TYPE_STRING, value, NULL);
 }
 
 static void
@@ -489,25 +484,22 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
   if (gtuber_headers && g_hash_table_size (gtuber_headers) > 0) {
     GstStructure *config, *req_headers;
     GstEvent *event;
-    const gchar *ua;
 
-    GST_DEBUG_OBJECT (self, "Creating " GST_GTUBER_CONFIG " event");
+    GST_DEBUG_OBJECT (self, "Creating " GST_GTUBER_HEADERS " event");
 
-    ua = g_hash_table_lookup (gtuber_headers, GST_GTUBER_HEADER_UA);
     req_headers = gst_structure_new_empty ("request-headers");
 
     g_hash_table_foreach (gtuber_headers,
         (GHFunc) insert_header_cb, req_headers);
 
-    config = gst_structure_new (GST_GTUBER_CONFIG,
-        GST_GTUBER_PROP_UA, G_TYPE_STRING, ua,
-        GST_GTUBER_PROP_EXTRA_HEADERS, GST_TYPE_STRUCTURE, req_headers,
+    config = gst_structure_new (GST_GTUBER_HEADERS,
+        GST_GTUBER_REQ_HEADERS, GST_TYPE_STRUCTURE, req_headers,
         NULL);
     gst_structure_free (req_headers);
 
     event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_STICKY, config);
 
-    GST_DEBUG_OBJECT (self, "Pushing " GST_GTUBER_CONFIG " event");
+    GST_DEBUG_OBJECT (self, "Pushing " GST_GTUBER_HEADERS " event");
     gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
   }
 
