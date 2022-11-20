@@ -226,8 +226,6 @@ const gchar *   gtuber_website_get_uri_string        (GtuberWebsite *website);
 
 gboolean        gtuber_website_set_uri_from_string   (GtuberWebsite *website, const gchar *uri_str, GError **error);
 
-gboolean        gtuber_website_get_use_http          (GtuberWebsite *website);
-
 SoupCookieJar * gtuber_website_get_cookies_jar       (GtuberWebsite *website);
 
 GQuark          gtuber_website_error_quark           (void);

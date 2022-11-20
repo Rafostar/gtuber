@@ -294,31 +294,6 @@ gtuber_website_set_uri_from_string (GtuberWebsite *self,
 }
 
 /**
- * gtuber_website_get_use_http:
- * @website: a #GtuberWebsite
- *
- * Check if user provided URI indicates that unsecure HTTP
- * connection should be used.
- *
- * Returns: %TRUE if user requested HTTP, %FALSE otherwise.
- */
-gboolean
-gtuber_website_get_use_http (GtuberWebsite *self)
-{
-  GtuberWebsitePrivate *priv;
-
-  g_return_val_if_fail (GTUBER_IS_WEBSITE (self), FALSE);
-
-  priv = gtuber_website_get_instance_private (self);
-
-  if (!priv->uri)
-    return FALSE;
-
-  return (g_uri_get_port (priv->uri) == 80
-      || strcmp (g_uri_get_scheme (priv->uri), "http") == 0);
-}
-
-/**
  * gtuber_website_get_cookies_jar:
  * @website: a #GtuberWebsite
  *

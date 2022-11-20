@@ -146,7 +146,8 @@ gtuber_peertube_create_request (GtuberWebsite *website,
     gboolean use_http;
 
     website_uri = gtuber_website_get_uri (website);
-    use_http = gtuber_website_get_use_http (website);
+    use_http = (g_uri_get_port (website_uri) == 80
+        || strcmp (g_uri_get_scheme (website_uri), "http") == 0);
 
     g_debug ("Using secure HTTP: %s", use_http ? "no" : "yes");
 
