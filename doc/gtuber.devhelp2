@@ -123,8 +123,10 @@
     <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_FALLBACK()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-FALLBACK:CAPS"/>
     <keyword type="macro" name="GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND()" link="GtuberWebsite.html#GTUBER-WEBSITE-PLUGIN-EXPORT-HOSTS-FROM-FILE-WITH-PREPEND:CAPS"/>
     <keyword type="function" name="gtuber_website_get_uri ()" link="GtuberWebsite.html#gtuber-website-get-uri"/>
+    <keyword type="function" name="gtuber_website_set_uri ()" link="GtuberWebsite.html#gtuber-website-set-uri"/>
     <keyword type="function" name="gtuber_website_get_uri_string ()" link="GtuberWebsite.html#gtuber-website-get-uri-string"/>
-    <keyword type="function" name="gtuber_website_get_use_http ()" link="GtuberWebsite.html#gtuber-website-get-use-http"/>
+    <keyword type="function" name="gtuber_website_set_uri_from_string ()" link="GtuberWebsite.html#gtuber-website-set-uri-from-string"/>
+    <keyword type="function" name="gtuber_website_get_cookies_jar ()" link="GtuberWebsite.html#gtuber-website-get-cookies-jar"/>
     <keyword type="function" name="gtuber_website_error_quark ()" link="GtuberWebsite.html#gtuber-website-error-quark"/>
     <keyword type="macro" name="GTUBER_WEBSITE_ERROR" link="GtuberWebsite.html#GTUBER-WEBSITE-ERROR:CAPS"/>
     <keyword type="struct" name="struct GtuberWebsite" link="GtuberWebsite.html#GtuberWebsite-struct"/>
@@ -194,11 +196,10 @@
     <keyword type="constant" name="GTUBER_FLOW_OK" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-OK:CAPS"/>
     <keyword type="constant" name="GTUBER_FLOW_ERROR" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-ERROR:CAPS"/>
     <keyword type="constant" name="GTUBER_FLOW_RESTART" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-RESTART:CAPS"/>
-    <keyword type="member" name="GtuberWebsiteClass.handles-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.handles-input-stream"/>
+    <keyword type="constant" name="GTUBER_FLOW_RECONFIGURE" link="gtuber-Enumeration-Types.html#GTUBER-FLOW-RECONFIGURE:CAPS"/>
     <keyword type="member" name="GtuberWebsiteClass.prepare" link="GtuberWebsite.html#GtuberWebsiteClass.prepare"/>
     <keyword type="member" name="GtuberWebsiteClass.create-request" link="GtuberWebsite.html#GtuberWebsiteClass.create-request"/>
     <keyword type="member" name="GtuberWebsiteClass.read-response" link="GtuberWebsite.html#GtuberWebsiteClass.read-response"/>
-    <keyword type="member" name="GtuberWebsiteClass.parse-data" link="GtuberWebsite.html#GtuberWebsiteClass.parse-data"/>
     <keyword type="member" name="GtuberWebsiteClass.parse-input-stream" link="GtuberWebsite.html#GtuberWebsiteClass.parse-input-stream"/>
     <keyword type="member" name="GtuberWebsiteClass.set-user-req-headers" link="GtuberWebsite.html#GtuberWebsiteClass.set-user-req-headers"/>
     <keyword type="member" name="GtuberHeartbeatClass.ping" link="GtuberHeartbeat.html#GtuberHeartbeatClass.ping"/>
