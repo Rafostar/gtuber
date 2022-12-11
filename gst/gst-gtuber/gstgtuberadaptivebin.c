@@ -44,47 +44,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 G_DEFINE_TYPE_WITH_CODE (GstGtuberAdaptiveBin,
     gst_gtuber_adaptive_bin, GST_TYPE_GTUBER_BIN, NULL);
 
-/* GObject */
-static void gst_gtuber_adaptive_bin_constructed (GObject* object);
-static void gst_gtuber_adaptive_bin_set_property (GObject *object,
-    guint prop_id, const GValue *value, GParamSpec *pspec);
-static void gst_gtuber_adaptive_bin_get_property (GObject *object,
-    guint prop_id, GValue *value, GParamSpec *pspec);
-
-/* GstElement */
-static GstStateChangeReturn gst_gtuber_adaptive_bin_change_state (
-    GstElement *element, GstStateChange transition);
-static void demuxer_no_more_pads_cb (GstElement *element,
-    GstGtuberAdaptiveBin *self);
-
-static void
-gst_gtuber_adaptive_bin_class_init (GstGtuberAdaptiveBinClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GstElementClass *gstelement_class = (GstElementClass *) klass;
-
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_adaptive_bin_debug, "gtuberadaptivebin", 0,
-      "Gtuber Adaptive Bin");
-
-  gobject_class->constructed = gst_gtuber_adaptive_bin_constructed;
-  gobject_class->set_property = gst_gtuber_adaptive_bin_set_property;
-  gobject_class->get_property = gst_gtuber_adaptive_bin_get_property;
-
-  param_specs[PROP_INITIAL_BITRATE] = g_param_spec_uint ("initial-bitrate",
-      "Initial Bitrate", "Initial startup bitrate in kbps (0 = same as target-bitrate)",
-       0, G_MAXUINT, DEFAULT_INITIAL_BITRATE,
-       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-  param_specs[PROP_TARGET_BITRATE] = g_param_spec_uint ("target-bitrate",
-      "Target Bitrate", "Target playback bitrate in kbps (0 = auto, based on download speed)",
-       0, G_MAXUINT, DEFAULT_TARGET_BITRATE,
-       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
-
-  gstelement_class->change_state = gst_gtuber_adaptive_bin_change_state;
-}
-
 static void
 gst_gtuber_adaptive_bin_init (GstGtuberAdaptiveBin *self)
 {
@@ -351,4 +310,32 @@ gst_gtuber_adaptive_bin_change_state (GstElement *element, GstStateChange transi
   }
 
   return ret;
+}
+
+static void
+gst_gtuber_adaptive_bin_class_init (GstGtuberAdaptiveBinClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_adaptive_bin_debug, "gtuberadaptivebin", 0,
+      "Gtuber Adaptive Bin");
+
+  gobject_class->constructed = gst_gtuber_adaptive_bin_constructed;
+  gobject_class->set_property = gst_gtuber_adaptive_bin_set_property;
+  gobject_class->get_property = gst_gtuber_adaptive_bin_get_property;
+
+  param_specs[PROP_INITIAL_BITRATE] = g_param_spec_uint ("initial-bitrate",
+      "Initial Bitrate", "Initial startup bitrate in kbps (0 = same as target-bitrate)",
+       0, G_MAXUINT, DEFAULT_INITIAL_BITRATE,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_TARGET_BITRATE] = g_param_spec_uint ("target-bitrate",
+      "Target Bitrate", "Target playback bitrate in kbps (0 = auto, based on download speed)",
+       0, G_MAXUINT, DEFAULT_TARGET_BITRATE,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+
+  gstelement_class->change_state = gst_gtuber_adaptive_bin_change_state;
 }

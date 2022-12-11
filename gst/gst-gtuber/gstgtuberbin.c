@@ -30,31 +30,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define parent_class gst_gtuber_bin_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberBin, gst_gtuber_bin, GST_TYPE_BIN, NULL);
 
-/* GObject */
-static void gst_gtuber_bin_finalize (GObject *object);
-
-/* GstElement */
-static GstStateChangeReturn gst_gtuber_bin_change_state (
-    GstElement *element, GstStateChange transition);
-
-/* GstBin */
-static void gst_gtuber_bin_deep_element_added (GstBin *bin,
-    GstBin *sub_bin, GstElement *child);
-
-static void
-gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GstBinClass *gstbin_class = (GstBinClass *) klass;
-  GstElementClass *gstelement_class = (GstElementClass *) klass;
-
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_bin_debug, "gtuberbin", 0, "Gtuber Bin");
-
-  gobject_class->finalize = gst_gtuber_bin_finalize;
-  gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
-  gstelement_class->change_state = gst_gtuber_bin_change_state;
-}
-
 static void
 gst_gtuber_bin_init (GstGtuberBin *self)
 {
@@ -284,4 +259,18 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
   }
 
   return gst_pad_event_default (pad, parent, event);
+}
+
+static void
+gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstBinClass *gstbin_class = (GstBinClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_bin_debug, "gtuberbin", 0, "Gtuber Bin");
+
+  gobject_class->finalize = gst_gtuber_bin_finalize;
+  gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
+  gstelement_class->change_state = gst_gtuber_bin_change_state;
 }

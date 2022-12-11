@@ -51,8 +51,20 @@ G_DEFINE_TYPE_WITH_CODE (GstGtuberDashDemux, gst_gtuber_dash_demux,
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtuberdashdemux, "gtuberdashdemux",
     GST_RANK_PRIMARY + 10, GST_TYPE_GTUBER_DASH_DEMUX, gst_gtuber_element_init (plugin));
 
-/* GObject */
-static void gst_gtuber_dash_demux_constructed (GObject* object);
+static void
+gst_gtuber_dash_demux_init (GstGtuberDashDemux *self)
+{
+}
+
+static void
+gst_gtuber_dash_demux_constructed (GObject* object)
+{
+  GstGtuberAdaptiveBin *adaptive_bin = GST_GTUBER_ADAPTIVE_BIN_CAST (object);
+
+  adaptive_bin->demuxer = gst_element_factory_make ("dashdemux", NULL);
+
+  GST_CALL_PARENT (G_OBJECT_CLASS, constructed, (object));
+}
 
 static void
 gst_gtuber_dash_demux_class_init (GstGtuberDashDemuxClass *klass)
@@ -74,19 +86,4 @@ gst_gtuber_dash_demux_class_init (GstGtuberDashDemuxClass *klass)
       "Codec/Demuxer/Adaptive",
       "Demuxer for Gtuber DASH data",
       "Rafał Dzięgiel <rafostar.github@gmail.com>");
-}
-
-static void
-gst_gtuber_dash_demux_init (GstGtuberDashDemux *self)
-{
-}
-
-static void
-gst_gtuber_dash_demux_constructed (GObject* object)
-{
-  GstGtuberAdaptiveBin *adaptive_bin = GST_GTUBER_ADAPTIVE_BIN_CAST (object);
-
-  adaptive_bin->demuxer = gst_element_factory_make ("dashdemux", NULL);
-
-  GST_CALL_PARENT (G_OBJECT_CLASS, constructed, (object));
 }
