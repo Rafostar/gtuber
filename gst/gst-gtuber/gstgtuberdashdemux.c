@@ -57,25 +57,12 @@ gst_gtuber_dash_demux_init (GstGtuberDashDemux *self)
 }
 
 static void
-gst_gtuber_dash_demux_constructed (GObject* object)
-{
-  GstGtuberAdaptiveBin *adaptive_bin = GST_GTUBER_ADAPTIVE_BIN_CAST (object);
-
-  adaptive_bin->demuxer = gst_element_factory_make ("dashdemux", NULL);
-
-  GST_CALL_PARENT (G_OBJECT_CLASS, constructed, (object));
-}
-
-static void
 gst_gtuber_dash_demux_class_init (GstGtuberDashDemuxClass *klass)
 {
-  GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
   GST_DEBUG_CATEGORY_INIT (gst_gtuber_dash_demux_debug, "gtuberdashdemux", 0,
       "Gtuber DASH demux");
-
-  gobject_class->constructed = gst_gtuber_dash_demux_constructed;
 
   gst_element_class_add_static_pad_template (gstelement_class, &sink_template);
   gst_element_class_add_static_pad_template (gstelement_class, &videosrc_template);

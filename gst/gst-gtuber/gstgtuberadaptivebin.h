@@ -42,11 +42,15 @@ struct _GstGtuberAdaptiveBin
 {
   GstGtuberBin parent;
 
+  GstPad *sink_ghostpad;
+
   guint initial_bitrate;
   guint target_bitrate;
 
+  gboolean prepared;
   gboolean needs_playback_config;
 
+  const gchar *demuxer_name;
   GstElement *demuxer;
 };
 

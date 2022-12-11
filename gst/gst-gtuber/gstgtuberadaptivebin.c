@@ -49,33 +49,24 @@ gst_gtuber_adaptive_bin_init (GstGtuberAdaptiveBin *self)
 {
   self->initial_bitrate = DEFAULT_INITIAL_BITRATE;
   self->target_bitrate = DEFAULT_TARGET_BITRATE;
+
+  GST_OBJECT_FLAG_SET (self, GST_BIN_FLAG_STREAMS_AWARE);
 }
 
 static void
 gst_gtuber_adaptive_bin_constructed (GObject* object)
 {
   GstGtuberAdaptiveBin *self = GST_GTUBER_ADAPTIVE_BIN (object);
-  GstPad *pad, *ghostpad;
 
-  gst_bin_add (GST_BIN (self), self->demuxer);
-
-  g_object_set (self->demuxer, "bitrate-limit", 1.0f, NULL);
-
-  /* Create sink ghost pad */
-  pad = gst_element_get_static_pad (self->demuxer, "sink");
-  ghostpad = gst_ghost_pad_new_from_template ("sink", pad,
+  self->sink_ghostpad = gst_ghost_pad_new_no_target_from_template ("sink",
       gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (self), "sink"));
-  gst_object_unref (pad);
-  gst_pad_set_event_function (ghostpad,
+  gst_pad_set_event_function (self->sink_ghostpad,
       GST_DEBUG_FUNCPTR (gst_gtuber_bin_sink_event));
 
-  gst_pad_set_active (ghostpad, TRUE);
-
-  if (!gst_element_add_pad (GST_ELEMENT (self), ghostpad))
+  if (G_UNLIKELY (!gst_element_add_pad (GST_ELEMENT (self), self->sink_ghostpad)))
     g_critical ("Failed to add sink pad to bin");
 
-  g_signal_connect (self->demuxer, "no-more-pads",
-      (GCallback) demuxer_no_more_pads_cb, self);
+  GST_CALL_PARENT (G_OBJECT_CLASS, constructed, (object));
 }
 
 static void
@@ -131,7 +122,7 @@ has_ghostpad_for_pad (GstGtuberAdaptiveBin *self, GstPad *src_pad,
     const gchar *pad_name, GstPad **ghostpad)
 {
   GstIterator *iter;
-  GValue value = { 0, };
+  GValue value = G_VALUE_INIT;
   gboolean has_ghostpad = FALSE;
 
   iter = gst_element_iterate_src_pads (GST_ELEMENT (self));
@@ -203,7 +194,7 @@ demuxer_pad_link_with_ghostpad (GstPad *pad, GstGtuberAdaptiveBin *self)
 
     gst_pad_set_active (ghostpad, TRUE);
 
-    if (!gst_element_add_pad (GST_ELEMENT (self), ghostpad))
+    if (G_UNLIKELY (!gst_element_add_pad (GST_ELEMENT (self), ghostpad)))
       g_critical ("Failed to add source pad to bin");
   }
 
@@ -211,12 +202,12 @@ demuxer_pad_link_with_ghostpad (GstPad *pad, GstGtuberAdaptiveBin *self)
 }
 
 static void
-demuxer_no_more_pads_cb (GstElement *element, GstGtuberAdaptiveBin *self)
+link_demuxer_pads (GstGtuberAdaptiveBin *self)
 {
   GstIterator *iter;
-  GValue value = { 0, };
+  GValue value = G_VALUE_INIT;
 
-  iter = gst_element_iterate_src_pads (element);
+  iter = gst_element_iterate_src_pads (self->demuxer);
   GST_DEBUG_OBJECT (self, "Linking demuxer pads with ghostpads");
 
   while (gst_iterator_next (iter, &value) == GST_ITERATOR_OK) {
@@ -229,9 +220,121 @@ demuxer_no_more_pads_cb (GstElement *element, GstGtuberAdaptiveBin *self)
     g_value_unset (&value);
   }
   gst_iterator_free (iter);
+}
+
+static void
+demuxer_no_more_pads_cb (GstElement *element, GstGtuberAdaptiveBin *self)
+{
+  link_demuxer_pads (self);
 
   GST_DEBUG_OBJECT (self, "Signalling \"no more pads\"");
   gst_element_no_more_pads (GST_ELEMENT (self));
+}
+
+static gboolean
+is_parent_streams_aware (GstGtuberAdaptiveBin *self)
+{
+  gboolean ret = FALSE;
+  GstObject *parent = gst_object_get_parent (GST_OBJECT_CAST (self));
+
+  if (parent) {
+    ret = GST_OBJECT_FLAG_IS_SET (parent, GST_BIN_FLAG_STREAMS_AWARE);
+    gst_object_unref (parent);
+  }
+
+  return ret;
+}
+
+static gboolean
+caps_handle_media_type (GstCaps *pad_caps, const gchar *media_type)
+{
+  GstCaps *search_caps = gst_caps_new_empty_simple (media_type);
+  gboolean ret = gst_caps_is_always_compatible (pad_caps, search_caps);
+
+  gst_caps_unref (search_caps);
+
+  return ret;
+}
+
+static GstElement *
+make_compatible_demuxer (GstGtuberAdaptiveBin *self)
+{
+  GstPad *pad;
+  GstCaps *pad_caps;
+  GstElement *demuxer = NULL;
+  const gchar *demuxer_name;
+
+  pad = gst_element_get_static_pad (GST_ELEMENT (self), "sink");
+  pad_caps = gst_pad_get_allowed_caps (pad);
+  gst_object_unref (pad);
+
+  if (G_UNLIKELY (!pad_caps))
+    return NULL;
+
+  demuxer_name = (caps_handle_media_type (pad_caps, "application/dash+xml"))
+      ? "dashdemux"
+      : (caps_handle_media_type (pad_caps, "application/x-hls"))
+      ? "hlsdemux"
+      : NULL;
+
+  gst_caps_unref (pad_caps);
+
+  if (G_UNLIKELY (!demuxer_name))
+    return NULL;
+
+  if (is_parent_streams_aware (self)) {
+    gchar *ad2_name;
+
+    ad2_name = g_strjoin (NULL, demuxer_name, "2", NULL);
+    demuxer = gst_element_factory_make (ad2_name, NULL);
+
+    g_free (ad2_name);
+  }
+
+  if (!demuxer) {
+    demuxer = gst_element_factory_make (demuxer_name, NULL);
+    GST_OBJECT_FLAG_UNSET (self, GST_BIN_FLAG_STREAMS_AWARE);
+  }
+
+  if (demuxer)
+    GST_INFO_OBJECT (self, "Made internal demuxer: %s", GST_ELEMENT_NAME (demuxer));
+
+  return demuxer;
+}
+
+static gboolean
+gst_gtuber_adaptive_bin_prepare (GstGtuberAdaptiveBin *self)
+{
+  GST_GTUBER_BIN_LOCK (self);
+
+  if (self->prepared) {
+    GST_GTUBER_BIN_UNLOCK (self);
+    return TRUE;
+  }
+
+  self->prepared = TRUE;
+  GST_GTUBER_BIN_UNLOCK (self);
+
+  if ((self->demuxer = make_compatible_demuxer (self))) {
+    GstPad *pad;
+
+    gst_bin_add (GST_BIN (self), self->demuxer);
+
+    if (!is_parent_streams_aware (self)) {
+      g_signal_connect (self->demuxer, "no-more-pads",
+          (GCallback) demuxer_no_more_pads_cb, self);
+    }
+
+    /* Link with sink ghost pad */
+    pad = gst_element_get_static_pad (self->demuxer, "sink");
+    if (!gst_ghost_pad_set_target (GST_GHOST_PAD (self->sink_ghostpad), pad))
+      GST_ERROR_OBJECT (self, "Could not set sink ghostpad target");
+    gst_object_unref (pad);
+
+    gst_pad_set_active (self->sink_ghostpad, TRUE);
+  }
+
+  return (self->demuxer != NULL);
 }
 
 static void
@@ -286,6 +389,20 @@ gst_gtuber_adaptive_bin_playback_configure (GstGtuberAdaptiveBin *self)
   GST_DEBUG ("Configured playback");
 }
 
+static void
+gst_gtuber_adaptive_bin_handle_message (GstBin *bin, GstMessage *message)
+{
+  switch (message->type) {
+    case GST_MESSAGE_STREAMS_SELECTED:
+      link_demuxer_pads (GST_GTUBER_ADAPTIVE_BIN_CAST (bin));
+      break;
+    default:
+      break;
+  }
+
+  GST_CALL_PARENT (GST_BIN_CLASS, handle_message, (bin, message));
+}
+
 static GstStateChangeReturn
 gst_gtuber_adaptive_bin_change_state (GstElement *element, GstStateChange transition)
 {
@@ -299,6 +416,10 @@ gst_gtuber_adaptive_bin_change_state (GstElement *element, GstStateChange transi
   self = GST_GTUBER_ADAPTIVE_BIN_CAST (element);
 
   switch (transition) {
+    case GST_STATE_CHANGE_NULL_TO_READY:
+      if (!gst_gtuber_adaptive_bin_prepare (self))
+        ret = GST_STATE_CHANGE_FAILURE;
+      break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       gst_gtuber_adaptive_bin_configure (self);
       break;
@@ -316,6 +437,7 @@ static void
 gst_gtuber_adaptive_bin_class_init (GstGtuberAdaptiveBinClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstBinClass *gstbin_class = (GstBinClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
   GST_DEBUG_CATEGORY_INIT (gst_gtuber_adaptive_bin_debug, "gtuberadaptivebin", 0,
@@ -336,6 +458,8 @@ gst_gtuber_adaptive_bin_class_init (GstGtuberAdaptiveBinClass *klass)
        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+
+  gstbin_class->handle_message = gst_gtuber_adaptive_bin_handle_message;
 
   gstelement_class->change_state = gst_gtuber_adaptive_bin_change_state;
 }
