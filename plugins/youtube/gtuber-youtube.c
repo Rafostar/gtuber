@@ -382,6 +382,7 @@ gtuber_youtube_create_request (GtuberWebsite *website,
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   SoupMessageHeaders *headers;
+  SoupCookieJar *jar;
   gchar *req_body, *ua;
 
   if (!self->video_id) {
@@ -410,6 +411,16 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   soup_message_headers_append (headers, "X-Goog-Api-Format-Version", "2");
   soup_message_headers_append (headers, "X-Goog-Visitor-Id", self->visitor_data);
   g_free (ua);
+
+  if ((jar = gtuber_website_get_cookies_jar (website))) {
+    gchar *cookies_str;
+
+    cookies_str = soup_cookie_jar_get_cookies (jar, soup_message_get_uri (*msg), TRUE);
+    g_debug ("Request cookies: %s", cookies_str);
+
+    soup_message_headers_replace (headers, "Cookie", cookies_str);
+    g_free (cookies_str);
+  }
 
   return GTUBER_FLOW_OK;
 }
