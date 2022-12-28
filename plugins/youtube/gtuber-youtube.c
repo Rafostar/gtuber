@@ -28,6 +28,7 @@
 #define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
 #define GTUBER_YOUTUBE_ANDROID_MAJOR 11
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
+#define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "youtube.com",
@@ -341,6 +342,8 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("hl", parts[0]);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("gl", parts[1]);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("visitorData", self->visitor_data);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("timeZone", "UTC"); // the same time as in "SAPISID"
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("utcOffsetMinutes", 0);
       });
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("thirdParty", {
         gchar *embed_url;
@@ -362,6 +365,62 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
   g_strfreev (parts);
 
   return req_body;
+}
+
+static gchar *
+obtain_auth_header_value (GtuberYoutube *self)
+{
+  GtuberWebsite *website = GTUBER_WEBSITE (self);
+  SoupCookieJar *jar;
+  gchar *auth_header = NULL;
+
+  if ((jar = gtuber_website_get_cookies_jar (website))) {
+    GUri *website_uri;
+    GSList *cookies_list, *list;
+    const gchar *sapisid = NULL;
+
+    website_uri = gtuber_website_get_uri (website);
+    cookies_list = soup_cookie_jar_get_cookie_list (jar, website_uri, TRUE);
+
+    for (list = cookies_list; list != NULL; list = g_slist_next (list)) {
+      SoupCookie *cookie = list->data;
+      const gchar *cookie_name;
+
+      cookie_name = soup_cookie_get_name (cookie);
+
+      /* Value stored in either "SAPISID" or "__Secure-3PAPISID" */
+      if (!strcmp (cookie_name, "SAPISID") || !strcmp (cookie_name, "__Secure-3PAPISID")) {
+        sapisid = soup_cookie_get_value (cookie);
+        break;
+      }
+    }
+
+    if (sapisid) {
+      GChecksum *checksum;
+      GDateTime *date_time;
+      gchar *sapisid_full;
+      gint64 curr_time;
+
+      date_time = g_date_time_new_now_utc ();
+      curr_time = g_date_time_to_unix (date_time);
+      g_date_time_unref (date_time);
+
+      sapisid_full = g_strdup_printf ("%" G_GINT64_FORMAT " %s %s",
+          curr_time, sapisid, GTUBER_YOUTUBE_X_ORIGIN);
+
+      checksum = g_checksum_new (G_CHECKSUM_SHA1);
+      g_checksum_update (checksum, (guchar *) sapisid_full, strlen (sapisid_full));
+      g_free (sapisid_full);
+
+      auth_header = g_strdup_printf ("SAPISIDHASH %" G_GINT64_FORMAT "_%s",
+          curr_time, g_checksum_get_string (checksum));
+      g_checksum_free (checksum);
+    }
+
+    g_slist_free_full (cookies_list, (GDestroyNotify) soup_cookie_free);
+  }
+
+  return auth_header;
 }
 
 static void
@@ -420,11 +479,25 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   headers = soup_message_get_request_headers (*msg);
 
   soup_message_headers_replace (headers, "User-Agent", self->ua);
+  soup_message_headers_replace (headers, "Origin", GTUBER_YOUTUBE_X_ORIGIN);
+
   soup_message_headers_append (headers, "X-Goog-Api-Format-Version", "2");
   soup_message_headers_append (headers, "X-Goog-Visitor-Id", self->visitor_data);
+  soup_message_headers_append (headers, "X-YouTube-Client-Name", "3"); // 3 = ANDROID
+  soup_message_headers_append (headers, "X-YouTube-Client-Version", GTUBER_YOUTUBE_CLI_VERSION);
 
   if ((jar = gtuber_website_get_cookies_jar (website))) {
-    gchar *cookies_str;
+    gchar *auth_str, *cookies_str;
+
+    if ((auth_str = obtain_auth_header_value (self))) {
+      soup_message_headers_replace (headers, "Authorization", auth_str);
+
+      /* Must be the same origin as used to create "Authorization" header value */
+      soup_message_headers_append (headers, "X-Origin", GTUBER_YOUTUBE_X_ORIGIN);
+      soup_message_headers_append (headers, "X-Goog-AuthUser", "0");
+
+      g_free (auth_str);
+    }
 
     cookies_str = soup_cookie_jar_get_cookies (jar, soup_message_get_uri (*msg), TRUE);
     g_debug ("Request cookies: %s", cookies_str);
