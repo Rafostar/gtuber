@@ -37,6 +37,14 @@ GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
 )
 GTUBER_WEBSITE_PLUGIN_DECLARE (Youtube, youtube, YOUTUBE)
 
+typedef enum
+{
+  YOUTUBE_GET_VIDEO_ID = 1,
+  YOUTUBE_GET_API_DATA,
+  YOUTUBE_GET_HLS,
+  YOUTUBE_EXTRACTION_FINISH,
+} YoutubeStep;
+
 struct _GtuberYoutube
 {
   GtuberWebsite parent;
@@ -48,6 +56,7 @@ struct _GtuberYoutube
   gchar *locale;
   gchar *ua;
 
+  YoutubeStep step;
   guint try_count;
 };
 
@@ -57,6 +66,7 @@ GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
 static void
 gtuber_youtube_init (GtuberYoutube *self)
 {
+  self->step = YOUTUBE_GET_VIDEO_ID;
 }
 
 static void
@@ -186,12 +196,21 @@ _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer us
 }
 
 static GtuberFlow
-parse_response_data (GtuberYoutube *self, JsonParser *parser,
+parse_api_data (GtuberYoutube *self, GInputStream *stream,
     GtuberMediaInfo *info, GError **error)
 {
-  JsonReader *reader = json_reader_new (json_parser_get_root (parser));
+  JsonParser *parser;
+  JsonReader *reader = NULL;
   const gchar *status, *visitor_data;
   GtuberFlow flow = GTUBER_FLOW_OK;
+
+  parser = json_parser_new ();
+  json_parser_load_from_stream (parser, stream, NULL, error);
+  if (*error)
+    goto finish;
+
+  gtuber_utils_json_parser_debug (parser);
+  reader = json_reader_new (json_parser_get_root (parser));
 
   /* Check if video is playable */
   status = gtuber_utils_json_get_string (reader, "playabilityStatus", "status", NULL);
@@ -262,7 +281,8 @@ finish:
   if (*error)
     flow = GTUBER_FLOW_ERROR;
 
-  g_object_unref (reader);
+  g_clear_object (&reader);
+  g_clear_object (&parser);
 
   return flow;
 }
@@ -477,6 +497,9 @@ gtuber_youtube_prepare (GtuberWebsite *website)
   const gchar *const *langs;
   guint i;
 
+  if (G_LIKELY (self->video_id != NULL))
+    self->step++;
+
   self->visitor_data = gtuber_youtube_cache_read ("visitor_data");
   if (!self->visitor_data)
     self->visitor_data = g_strdup ("");
@@ -504,14 +527,23 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   SoupMessageHeaders *headers;
 
-  if (!self->video_id) {
-    g_debug ("Unknown video ID, downloading HTML");
-    *msg = soup_message_new_from_uri ("GET", gtuber_website_get_uri (website));
-  } else if (!self->hls_uri) {
-    *msg = obtain_api_msg (self);
-  } else {
-    *msg = soup_message_new ("GET", self->hls_uri);
+  g_debug ("Create request step: %u", self->step);
+
+  switch (self->step) {
+    case YOUTUBE_GET_VIDEO_ID:
+      *msg = soup_message_new_from_uri ("GET", gtuber_website_get_uri (website));
+      break;
+    case YOUTUBE_GET_API_DATA:
+      *msg = obtain_api_msg (self);
+      break;
+    case YOUTUBE_GET_HLS:
+      *msg = soup_message_new ("GET", self->hls_uri);
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
   }
+
   headers = soup_message_get_request_headers (*msg);
 
   soup_message_headers_replace (headers, "User-Agent", self->ua);
@@ -529,41 +561,36 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   GtuberFlow flow = GTUBER_FLOW_OK;
-  JsonParser *parser;
 
-  /* If we do not have video ID here, then we are
-   * downloading website as HTML to get it now */
-  if (!self->video_id) {
-    if ((self->video_id = obtain_video_id (stream, error)))
-      return GTUBER_FLOW_RESTART;
+  g_debug ("Parse step: %u", self->step);
 
-    return GTUBER_FLOW_ERROR;
+  switch (self->step) {
+    case YOUTUBE_GET_VIDEO_ID:
+      self->video_id = obtain_video_id (stream, error);
+      break;
+    case YOUTUBE_GET_API_DATA:
+      flow = parse_api_data (self, stream, info, error);
+      break;
+    case YOUTUBE_GET_HLS:
+      gtuber_utils_youtube_parse_hls_input_stream (stream, info, error);
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
   }
-
-  if (self->hls_uri) {
-    if (gtuber_utils_youtube_parse_hls_input_stream (stream, info, error))
-      return GTUBER_FLOW_OK;
-
-    return GTUBER_FLOW_ERROR;
-  }
-
-  parser = json_parser_new ();
-  json_parser_load_from_stream (parser, stream, NULL, error);
-  if (*error)
-    goto finish;
-
-  gtuber_utils_json_parser_debug (parser);
-  flow = parse_response_data (self, parser, info, error);
-
-finish:
-  g_object_unref (parser);
 
   if (*error)
     return GTUBER_FLOW_ERROR;
-  if (self->hls_uri)
-    return GTUBER_FLOW_RESTART;
+  if (flow == GTUBER_FLOW_OK)
+    self->step++;
 
-  return flow;
+  /* Check if next step should be skipped */
+  if (self->step == YOUTUBE_GET_HLS && !self->hls_uri)
+    self->step++;
+
+  return (self->step >= YOUTUBE_EXTRACTION_FINISH)
+      ? GTUBER_FLOW_OK
+      : GTUBER_FLOW_RESTART;
 }
 
 static GtuberFlow
