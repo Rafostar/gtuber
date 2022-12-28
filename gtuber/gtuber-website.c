@@ -179,7 +179,9 @@ insert_user_header (const gchar *name, const gchar *value, GHashTable *user_head
       || !strcmp (name, "Connection")
       || !strcmp (name, "Content-Length")
       || !strcmp (name, "Content-Type")
-      || !strcmp (name, "Host"))
+      || !strcmp (name, "Host")
+      || !strcmp (name, "Authorization")
+      || !strcmp (name, "Cookie"))
     return;
 
   addition = g_hash_table_insert (user_headers, g_strdup (name), g_strdup (value));
