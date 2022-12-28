@@ -561,6 +561,10 @@ gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
   /* Update visitor ID header */
   soup_message_headers_replace (req_headers, "X-Goog-Visitor-Id", self->visitor_data);
 
+  /* Remove "Authorization" specific headers */
+  soup_message_headers_remove (req_headers, "X-Origin");
+  soup_message_headers_remove (req_headers, "X-Goog-AuthUser");
+
   return GTUBER_WEBSITE_CLASS (parent_class)->set_user_req_headers (website,
       req_headers, user_headers, error);
 }
