@@ -26,6 +26,8 @@
 #include "utils/youtube/gtuber-utils-youtube.h"
 
 #define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
+#define GTUBER_YOUTUBE_ANDROID_MAJOR 11
+#define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "youtube.com",
@@ -43,6 +45,7 @@ struct _GtuberYoutube
 
   gchar *visitor_data;
   gchar *locale;
+  gchar *ua;
 
   guint try_count;
 };
@@ -67,6 +70,7 @@ gtuber_youtube_finalize (GObject *object)
 
   g_free (self->visitor_data);
   g_free (self->locale);
+  g_free (self->ua);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -331,6 +335,8 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("client", {
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID");
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", GTUBER_YOUTUBE_CLI_VERSION);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("androidSdkVersion", GTUBER_YOUTUBE_ANDROID_SDK_MAJOR);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("userAgent", self->ua);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientScreen", cliScreen);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("hl", parts[0]);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("gl", parts[1]);
@@ -349,6 +355,8 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
       });
     });
     GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("video_id", self->video_id);
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
   });
 
   g_strfreev (parts);
@@ -378,6 +386,9 @@ gtuber_youtube_prepare (GtuberWebsite *website)
     self->locale = g_strdup ("en_US");
 
   g_debug ("Using locale: %s", self->locale);
+
+  self->ua = g_strdup_printf ("com.google.android.youtube/%s(Linux; U; Android %i; %s) gzip",
+      GTUBER_YOUTUBE_CLI_VERSION, GTUBER_YOUTUBE_ANDROID_MAJOR, self->locale);
 }
 
 static GtuberFlow
@@ -387,7 +398,7 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   SoupMessageHeaders *headers;
   SoupCookieJar *jar;
-  gchar *req_body, *ua;
+  gchar *req_body;
 
   if (!self->video_id) {
     g_debug ("Unknown video ID, downloading HTML");
@@ -408,13 +419,9 @@ gtuber_youtube_create_request (GtuberWebsite *website,
   }
   headers = soup_message_get_request_headers (*msg);
 
-  ua = g_strdup_printf (
-      "com.google.android.youtube/%s(Linux; U; Android 11; en_US) gzip",
-      GTUBER_YOUTUBE_CLI_VERSION);
-  soup_message_headers_replace (headers, "User-Agent", ua);
+  soup_message_headers_replace (headers, "User-Agent", self->ua);
   soup_message_headers_append (headers, "X-Goog-Api-Format-Version", "2");
   soup_message_headers_append (headers, "X-Goog-Visitor-Id", self->visitor_data);
-  g_free (ua);
 
   if ((jar = gtuber_website_get_cookies_jar (website))) {
     gchar *cookies_str;
