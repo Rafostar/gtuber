@@ -321,31 +321,35 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
   /* Get EMBED video info on first try.
    * If it fails, try default one on next try */
   cliScreen = (self->try_count == 1)
-      ? "\"EMBED\""
-      : "null";
+      ? "EMBED"
+      : NULL;
 
   parts = g_strsplit (self->locale, "_", 0);
-  req_body = g_strdup_printf ("{\n"
-  "  \"context\": {\n"
-  "    \"client\": {\n"
-  "      \"clientName\": \"ANDROID\",\n"
-  "      \"clientVersion\": \"%s\",\n"
-  "      \"clientScreen\": %s,\n"
-  "      \"hl\": \"%s\",\n"
-  "      \"gl\": \"%s\",\n"
-  "      \"visitorData\": \"%s\"\n"
-  "    },\n"
-  "    \"thirdParty\": {\n"
-  "      \"embedUrl\": \"https://www.youtube.com/watch?v=%s\"\n"
-  "    },\n"
-  "    \"user\": {\n"
-  "      \"lockedSafetyMode\": false\n"
-  "    }\n"
-  "  },\n"
-  "  \"video_id\": \"%s\"\n"
-  "}",
-      GTUBER_YOUTUBE_CLI_VERSION, cliScreen, parts[0], parts[1],
-      self->visitor_data, self->video_id, self->video_id);
+
+  GTUBER_UTILS_JSON_BUILD_OBJECT (&req_body, {
+    GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("context", {
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("client", {
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID");
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", GTUBER_YOUTUBE_CLI_VERSION);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientScreen", cliScreen);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("hl", parts[0]);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("gl", parts[1]);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("visitorData", self->visitor_data);
+      });
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("thirdParty", {
+        gchar *embed_url;
+
+        embed_url = g_strdup_printf ("https://www.youtube.com/watch?v=%s", self->video_id);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("embedUrl", embed_url);
+
+        g_free (embed_url);
+      });
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("user", {
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("lockedSafetyMode", FALSE);
+      });
+    });
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("video_id", self->video_id);
+  });
 
   g_strfreev (parts);
 
