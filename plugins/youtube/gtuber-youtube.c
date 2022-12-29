@@ -26,6 +26,9 @@
 #include "utils/youtube/gtuber-utils-youtube.h"
 
 #define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
+#define GTUBER_YOUTUBE_ANDROID_MAJOR 11
+#define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
+#define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "youtube.com",
@@ -33,6 +36,14 @@ GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   NULL
 )
 GTUBER_WEBSITE_PLUGIN_DECLARE (Youtube, youtube, YOUTUBE)
+
+typedef enum
+{
+  YOUTUBE_GET_VIDEO_ID = 1,
+  YOUTUBE_GET_API_DATA,
+  YOUTUBE_GET_HLS,
+  YOUTUBE_EXTRACTION_FINISH,
+} YoutubeStep;
 
 struct _GtuberYoutube
 {
@@ -43,7 +54,9 @@ struct _GtuberYoutube
 
   gchar *visitor_data;
   gchar *locale;
+  gchar *ua;
 
+  YoutubeStep step;
   guint try_count;
 };
 
@@ -53,6 +66,7 @@ GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
 static void
 gtuber_youtube_init (GtuberYoutube *self)
 {
+  self->step = YOUTUBE_GET_VIDEO_ID;
 }
 
 static void
@@ -67,6 +81,7 @@ gtuber_youtube_finalize (GObject *object)
 
   g_free (self->visitor_data);
   g_free (self->locale);
+  g_free (self->ua);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -181,12 +196,21 @@ _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer us
 }
 
 static GtuberFlow
-parse_response_data (GtuberYoutube *self, JsonParser *parser,
+parse_api_data (GtuberYoutube *self, GInputStream *stream,
     GtuberMediaInfo *info, GError **error)
 {
-  JsonReader *reader = json_reader_new (json_parser_get_root (parser));
+  JsonParser *parser;
+  JsonReader *reader = NULL;
   const gchar *status, *visitor_data;
   GtuberFlow flow = GTUBER_FLOW_OK;
+
+  parser = json_parser_new ();
+  json_parser_load_from_stream (parser, stream, NULL, error);
+  if (*error)
+    goto finish;
+
+  gtuber_utils_json_parser_debug (parser);
+  reader = json_reader_new (json_parser_get_root (parser));
 
   /* Check if video is playable */
   status = gtuber_utils_json_get_string (reader, "playabilityStatus", "status", NULL);
@@ -257,7 +281,8 @@ finish:
   if (*error)
     flow = GTUBER_FLOW_ERROR;
 
-  g_object_unref (reader);
+  g_clear_object (&reader);
+  g_clear_object (&parser);
 
   return flow;
 }
@@ -313,7 +338,7 @@ finish:
 }
 
 static gchar *
-obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
+obtain_player_req_body (GtuberYoutube *self)
 {
   gchar *req_body, **parts;
   const gchar *cliScreen;
@@ -321,35 +346,148 @@ obtain_player_req_body (GtuberYoutube *self, GtuberMediaInfo *info)
   /* Get EMBED video info on first try.
    * If it fails, try default one on next try */
   cliScreen = (self->try_count == 1)
-      ? "\"EMBED\""
-      : "null";
+      ? "EMBED"
+      : NULL;
 
   parts = g_strsplit (self->locale, "_", 0);
-  req_body = g_strdup_printf ("{\n"
-  "  \"context\": {\n"
-  "    \"client\": {\n"
-  "      \"clientName\": \"ANDROID\",\n"
-  "      \"clientVersion\": \"%s\",\n"
-  "      \"clientScreen\": %s,\n"
-  "      \"hl\": \"%s\",\n"
-  "      \"gl\": \"%s\",\n"
-  "      \"visitorData\": \"%s\"\n"
-  "    },\n"
-  "    \"thirdParty\": {\n"
-  "      \"embedUrl\": \"https://www.youtube.com/watch?v=%s\"\n"
-  "    },\n"
-  "    \"user\": {\n"
-  "      \"lockedSafetyMode\": false\n"
-  "    }\n"
-  "  },\n"
-  "  \"video_id\": \"%s\"\n"
-  "}",
-      GTUBER_YOUTUBE_CLI_VERSION, cliScreen, parts[0], parts[1],
-      self->visitor_data, self->video_id, self->video_id);
+
+  GTUBER_UTILS_JSON_BUILD_OBJECT (&req_body, {
+    GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("context", {
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("client", {
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID");
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", GTUBER_YOUTUBE_CLI_VERSION);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("androidSdkVersion", GTUBER_YOUTUBE_ANDROID_SDK_MAJOR);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("userAgent", self->ua);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientScreen", cliScreen);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("hl", parts[0]);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("gl", parts[1]);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("visitorData", self->visitor_data);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("timeZone", "UTC"); // the same time as in "SAPISID"
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("utcOffsetMinutes", 0);
+      });
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("thirdParty", {
+        gchar *embed_url;
+
+        embed_url = g_strdup_printf ("https://www.youtube.com/watch?v=%s", self->video_id);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("embedUrl", embed_url);
+
+        g_free (embed_url);
+      });
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("user", {
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("lockedSafetyMode", FALSE);
+      });
+    });
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("video_id", self->video_id);
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
+  });
 
   g_strfreev (parts);
 
   return req_body;
+}
+
+static gchar *
+obtain_auth_header_value (GtuberYoutube *self)
+{
+  GtuberWebsite *website = GTUBER_WEBSITE (self);
+  SoupCookieJar *jar;
+  gchar *auth_header = NULL;
+
+  if ((jar = gtuber_website_get_cookies_jar (website))) {
+    GUri *website_uri;
+    GSList *cookies_list, *list;
+    const gchar *sapisid = NULL;
+
+    website_uri = gtuber_website_get_uri (website);
+    cookies_list = soup_cookie_jar_get_cookie_list (jar, website_uri, TRUE);
+
+    for (list = cookies_list; list != NULL; list = g_slist_next (list)) {
+      SoupCookie *cookie = list->data;
+      const gchar *cookie_name;
+
+      cookie_name = soup_cookie_get_name (cookie);
+
+      /* Value stored in either "SAPISID" or "__Secure-3PAPISID" */
+      if (!strcmp (cookie_name, "SAPISID") || !strcmp (cookie_name, "__Secure-3PAPISID")) {
+        sapisid = soup_cookie_get_value (cookie);
+        break;
+      }
+    }
+
+    if (sapisid) {
+      GChecksum *checksum;
+      GDateTime *date_time;
+      gchar *sapisid_full;
+      gint64 curr_time;
+
+      date_time = g_date_time_new_now_utc ();
+      curr_time = g_date_time_to_unix (date_time);
+      g_date_time_unref (date_time);
+
+      sapisid_full = g_strdup_printf ("%" G_GINT64_FORMAT " %s %s",
+          curr_time, sapisid, GTUBER_YOUTUBE_X_ORIGIN);
+
+      checksum = g_checksum_new (G_CHECKSUM_SHA1);
+      g_checksum_update (checksum, (guchar *) sapisid_full, strlen (sapisid_full));
+      g_free (sapisid_full);
+
+      auth_header = g_strdup_printf ("SAPISIDHASH %" G_GINT64_FORMAT "_%s",
+          curr_time, g_checksum_get_string (checksum));
+      g_checksum_free (checksum);
+    }
+
+    g_slist_free_full (cookies_list, (GDestroyNotify) soup_cookie_free);
+  }
+
+  return auth_header;
+}
+
+static SoupMessage *
+obtain_api_msg (GtuberYoutube *self)
+{
+  SoupMessage *msg;
+  SoupMessageHeaders *headers;
+  SoupCookieJar *jar;
+  gchar *req_body;
+
+  self->try_count++;
+  g_debug ("Try number: %i", self->try_count);
+
+  msg = soup_message_new ("POST",
+      "https://www.youtube.com/youtubei/v1/player?"
+      "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
+  headers = soup_message_get_request_headers (msg);
+
+  soup_message_headers_append (headers, "X-YouTube-Client-Name", "3"); // 3 = ANDROID
+  soup_message_headers_append (headers, "X-YouTube-Client-Version", GTUBER_YOUTUBE_CLI_VERSION);
+
+  if ((jar = gtuber_website_get_cookies_jar (GTUBER_WEBSITE (self)))) {
+    gchar *auth_str, *cookies_str;
+
+    if ((auth_str = obtain_auth_header_value (self))) {
+      soup_message_headers_replace (headers, "Authorization", auth_str);
+
+      /* Must be the same origin as used to create "Authorization" header value */
+      soup_message_headers_append (headers, "X-Origin", GTUBER_YOUTUBE_X_ORIGIN);
+      soup_message_headers_append (headers, "X-Goog-AuthUser", "0");
+
+      g_free (auth_str);
+    }
+
+    cookies_str = soup_cookie_jar_get_cookies (jar, soup_message_get_uri (msg), TRUE);
+    g_debug ("Request cookies: %s", cookies_str);
+
+    soup_message_headers_replace (headers, "Cookie", cookies_str);
+    g_free (cookies_str);
+  }
+
+  req_body = obtain_player_req_body (self);
+  g_debug ("Request body: %s", req_body);
+
+  gtuber_utils_common_msg_take_request (msg, "application/json", req_body);
+
+  return msg;
 }
 
 static void
@@ -358,6 +496,9 @@ gtuber_youtube_prepare (GtuberWebsite *website)
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   const gchar *const *langs;
   guint i;
+
+  if (G_LIKELY (self->video_id != NULL))
+    self->step++;
 
   self->visitor_data = gtuber_youtube_cache_read ("visitor_data");
   if (!self->visitor_data)
@@ -374,6 +515,9 @@ gtuber_youtube_prepare (GtuberWebsite *website)
     self->locale = g_strdup ("en_US");
 
   g_debug ("Using locale: %s", self->locale);
+
+  self->ua = g_strdup_printf ("com.google.android.youtube/%s(Linux; U; Android %i; %s) gzip",
+      GTUBER_YOUTUBE_CLI_VERSION, GTUBER_YOUTUBE_ANDROID_MAJOR, self->locale);
 }
 
 static GtuberFlow
@@ -382,34 +526,31 @@ gtuber_youtube_create_request (GtuberWebsite *website,
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   SoupMessageHeaders *headers;
-  gchar *req_body, *ua;
 
-  if (!self->video_id) {
-    g_debug ("Unknown video ID, downloading HTML");
-    *msg = soup_message_new_from_uri ("GET", gtuber_website_get_uri (website));
-  } else if (!self->hls_uri) {
-    self->try_count++;
-    g_debug ("Try number: %i", self->try_count);
+  g_debug ("Create request step: %u", self->step);
 
-    *msg = soup_message_new ("POST",
-        "https://www.youtube.com/youtubei/v1/player?"
-        "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
-    req_body = obtain_player_req_body (self, info);
-    g_debug ("Request body: %s", req_body);
-
-    gtuber_utils_common_msg_take_request (*msg, "application/json", req_body);
-  } else {
-    *msg = soup_message_new ("GET", self->hls_uri);
+  switch (self->step) {
+    case YOUTUBE_GET_VIDEO_ID:
+      *msg = soup_message_new_from_uri ("GET", gtuber_website_get_uri (website));
+      break;
+    case YOUTUBE_GET_API_DATA:
+      *msg = obtain_api_msg (self);
+      break;
+    case YOUTUBE_GET_HLS:
+      *msg = soup_message_new ("GET", self->hls_uri);
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
   }
+
   headers = soup_message_get_request_headers (*msg);
 
-  ua = g_strdup_printf (
-      "com.google.android.youtube/%s(Linux; U; Android 11; en_US) gzip",
-      GTUBER_YOUTUBE_CLI_VERSION);
-  soup_message_headers_replace (headers, "User-Agent", ua);
+  soup_message_headers_replace (headers, "User-Agent", self->ua);
+  soup_message_headers_replace (headers, "Origin", GTUBER_YOUTUBE_X_ORIGIN);
+
   soup_message_headers_append (headers, "X-Goog-Api-Format-Version", "2");
   soup_message_headers_append (headers, "X-Goog-Visitor-Id", self->visitor_data);
-  g_free (ua);
 
   return GTUBER_FLOW_OK;
 }
@@ -420,41 +561,36 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   GtuberFlow flow = GTUBER_FLOW_OK;
-  JsonParser *parser;
 
-  /* If we do not have video ID here, then we are
-   * downloading website as HTML to get it now */
-  if (!self->video_id) {
-    if ((self->video_id = obtain_video_id (stream, error)))
-      return GTUBER_FLOW_RESTART;
+  g_debug ("Parse step: %u", self->step);
 
-    return GTUBER_FLOW_ERROR;
+  switch (self->step) {
+    case YOUTUBE_GET_VIDEO_ID:
+      self->video_id = obtain_video_id (stream, error);
+      break;
+    case YOUTUBE_GET_API_DATA:
+      flow = parse_api_data (self, stream, info, error);
+      break;
+    case YOUTUBE_GET_HLS:
+      gtuber_utils_youtube_parse_hls_input_stream (stream, info, error);
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
   }
-
-  if (self->hls_uri) {
-    if (gtuber_utils_youtube_parse_hls_input_stream (stream, info, error))
-      return GTUBER_FLOW_OK;
-
-    return GTUBER_FLOW_ERROR;
-  }
-
-  parser = json_parser_new ();
-  json_parser_load_from_stream (parser, stream, NULL, error);
-  if (*error)
-    goto finish;
-
-  gtuber_utils_json_parser_debug (parser);
-  flow = parse_response_data (self, parser, info, error);
-
-finish:
-  g_object_unref (parser);
 
   if (*error)
     return GTUBER_FLOW_ERROR;
-  if (self->hls_uri)
-    return GTUBER_FLOW_RESTART;
+  if (flow == GTUBER_FLOW_OK)
+    self->step++;
 
-  return flow;
+  /* Check if next step should be skipped */
+  if (self->step == YOUTUBE_GET_HLS && !self->hls_uri)
+    self->step++;
+
+  return (self->step >= YOUTUBE_EXTRACTION_FINISH)
+      ? GTUBER_FLOW_OK
+      : GTUBER_FLOW_RESTART;
 }
 
 static GtuberFlow
@@ -465,6 +601,10 @@ gtuber_youtube_set_user_req_headers (GtuberWebsite *website,
 
   /* Update visitor ID header */
   soup_message_headers_replace (req_headers, "X-Goog-Visitor-Id", self->visitor_data);
+
+  /* Remove "Authorization" specific headers */
+  soup_message_headers_remove (req_headers, "X-Origin");
+  soup_message_headers_remove (req_headers, "X-Goog-AuthUser");
 
   return GTUBER_WEBSITE_CLASS (parent_class)->set_user_req_headers (website,
       req_headers, user_headers, error);
