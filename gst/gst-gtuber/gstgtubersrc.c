@@ -299,9 +299,10 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
   GST_DEBUG_OBJECT (self, "Creating TAG event");
   tags = gst_tag_list_new_empty ();
 
-  if ((tag = gtuber_media_info_get_title (info)))
+  /* GStreamer does not allow empty strings in the tag list */
+  if ((tag = gtuber_media_info_get_title (info)) && strlen (tag) > 0)
     gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, tag, NULL);
-  if ((tag = gtuber_media_info_get_description (info)))
+  if ((tag = gtuber_media_info_get_description (info)) && strlen (tag) > 0)
     gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_DESCRIPTION, tag, NULL);
 
   if (gst_tag_list_is_empty (tags)) {
