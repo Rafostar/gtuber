@@ -9,11 +9,11 @@ GTUBER_TEST_CASE (1)
 
   info = g_object_new (GTUBER_TYPE_MEDIA_INFO, NULL);
 
-  gtuber_media_info_set_id (info, "GY2P1Q98Y");
-  gtuber_media_info_set_title (info, "World Trigger S01E73 - To the Future");
-  gtuber_media_info_set_duration (info, 1380);
+  gtuber_media_info_set_id (info, "G6J0JJ2VR");
+  gtuber_media_info_set_title (info, "KONOSUBA -God's blessing on this wonderful world! S01E01 - This Self-Proclaimed Goddess and Reincarnation in Another World!");
+  gtuber_media_info_set_duration (info, 1510);
 
-  compare_fetch (client, "https://beta.crunchyroll.com/watch/GY2P1Q98Y/to-the-future", info, &out_info);
+  compare_fetch (client, "https://www.crunchyroll.com/watch/G6J0JJ2VR/this-self-proclaimed-goddess-and-reincarnation-in-another-world", info, &out_info);
 
   g_assert_true (gtuber_media_info_get_description (out_info) != NULL);
 
@@ -36,7 +36,7 @@ GTUBER_TEST_CASE (2)
   gtuber_media_info_set_title (info, "KONOSUBA -God's blessing on this wonderful world! S01E01 - ¡La diosa autoproclamada y la reencarnación en otro mundo!");
   gtuber_media_info_set_duration (info, 1510);
 
-  compare_fetch (client, "https://beta.crunchyroll.com/es-es/watch/GRG5XX4PR", info, &out_info);
+  compare_fetch (client, "https://www.crunchyroll.com/es-es/watch/GRG5XX4PR", info, &out_info);
 
   g_assert_true (gtuber_media_info_get_description (out_info) != NULL);
 
