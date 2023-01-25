@@ -19,6 +19,12 @@
 
 #include "gtuber-utils-json.h"
 
+static inline GQuark
+_json_parser_get_quark (void)
+{
+  return g_quark_from_static_string ("gtuber-utils-json-parser-quark");
+}
+
 static gboolean
 _json_reader_va_iter (JsonReader *reader, va_list args, guint *depth)
 {
@@ -54,6 +60,61 @@ _json_reader_va_iter (JsonReader *reader, va_list args, guint *depth)
   }
 
   return success;
+}
+
+static JsonReader *
+_make_reader_from_parser (JsonParser *parser)
+{
+  JsonReader *reader;
+
+  gtuber_utils_json_parser_debug (parser);
+  reader = json_reader_new (json_parser_get_root (parser));
+  g_object_set_qdata_full ((GObject *) reader, _json_parser_get_quark (),
+      g_object_ref (parser), (GDestroyNotify) g_object_unref);
+
+  return reader;
+}
+
+static void
+_ensure_parser_load_error (GError **error)
+{
+  if (G_UNLIKELY (error && *error == NULL)) {
+    g_set_error (error, G_IO_ERROR,
+        G_IO_ERROR_FAILED,
+        "Could not load JSON data");
+  }
+}
+
+JsonReader *
+gtuber_utils_json_read_stream (GInputStream *stream, GError **error)
+{
+  JsonParser *parser = json_parser_new ();
+  JsonReader *reader = NULL;
+
+  if (json_parser_load_from_stream (parser, stream, NULL, error))
+    reader = _make_reader_from_parser (parser);
+  else
+    _ensure_parser_load_error (error);
+
+  g_object_unref (parser);
+
+  return reader;
+}
+
+JsonReader *
+gtuber_utils_json_read_data (const gchar *data, GError **error)
+{
+  JsonParser *parser = json_parser_new ();
+  JsonReader *reader = NULL;
+
+  if (json_parser_load_from_data (parser, data, -1, error))
+    reader = _make_reader_from_parser (parser);
+  else
+    _ensure_parser_load_error (error);
+
+  g_object_unref (parser);
+
+  return reader;
 }
 
 const gchar *
@@ -200,14 +261,17 @@ gtuber_utils_json_array_foreach (JsonReader *reader, GtuberMediaInfo *info, Gtub
 }
 
 static gchar *
-_json_parser_to_string_internal (JsonParser *parser, gboolean pretty)
+_json_node_to_string_internal (JsonNode *node, gboolean pretty)
 {
   JsonGenerator *gen;
   gchar *data;
 
+  if (G_UNLIKELY (node == NULL))
+    return NULL;
+
   gen = json_generator_new ();
   json_generator_set_pretty (gen, pretty);
-  json_generator_set_root (gen, json_parser_get_root (parser));
+  json_generator_set_root (gen, node);
   data = json_generator_to_data (gen, NULL);
 
   g_object_unref (gen);
@@ -218,7 +282,23 @@ _json_parser_to_string_internal (JsonParser *parser, gboolean pretty)
 gchar *
 gtuber_utils_json_parser_to_string (JsonParser *parser)
 {
-  return _json_parser_to_string_internal (parser, FALSE);
+  return _json_node_to_string_internal (json_parser_get_root (parser), FALSE);
+}
+
+gchar *
+gtuber_utils_json_reader_to_string (JsonReader *reader)
+{
+  JsonNode *root = NULL;
+  gchar *data = NULL;
+
+  g_object_get (reader, "root", &root, NULL);
+
+  if (root) {
+    data = _json_node_to_string_internal (root, FALSE);
+    json_node_unref (root);
+  }
+
+  return data;
 }
 
 void
@@ -229,8 +309,8 @@ gtuber_utils_json_parser_debug (JsonParser *parser)
   if (g_log_writer_default_would_drop (G_LOG_LEVEL_DEBUG, G_LOG_DOMAIN))
     return;
 
-  data = _json_parser_to_string_internal (parser, TRUE);
+  data = _json_node_to_string_internal (json_parser_get_root (parser), TRUE);
 
-  g_debug ("Parser data: %s", data);
+  g_debug ("Parser data:\n%s", data);
   g_free (data);
 }

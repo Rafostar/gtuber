@@ -105,6 +105,10 @@ G_BEGIN_DECLS
 #define GTUBER_UTILS_JSON_ARRAY_INDEX(index)                           \
     GUINT_TO_POINTER (index + 1)
 
+JsonReader *         gtuber_utils_json_read_stream          (GInputStream *stream, GError **error);
+
+JsonReader *         gtuber_utils_json_read_data            (const gchar *data, GError **error);
+
 const gchar *        gtuber_utils_json_get_string           (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
 
 gint64               gtuber_utils_json_get_int              (JsonReader *reader, ...) G_GNUC_NULL_TERMINATED;
@@ -120,6 +124,8 @@ void                 gtuber_utils_json_go_back              (JsonReader *reader,
 gboolean             gtuber_utils_json_array_foreach        (JsonReader *reader, GtuberMediaInfo *info, GtuberFunc func, gpointer user_data);
 
 gchar *              gtuber_utils_json_parser_to_string     (JsonParser *parser);
+
+gchar *              gtuber_utils_json_reader_to_string     (JsonReader *reader);
 
 void                 gtuber_utils_json_parser_debug         (JsonParser *parser);
 
