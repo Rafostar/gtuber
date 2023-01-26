@@ -15,7 +15,7 @@ option('utils-youtube', type: 'feature', value: 'auto')
 
 # Plugins
 option('bilibili', type: 'feature', value: 'auto')
-option('crunchyroll-beta', type: 'feature', value: 'auto')
+option('crunchyroll', type: 'feature', value: 'auto')
 option('invidious', type: 'feature', value: 'auto')
 option('lbry', type: 'feature', value: 'auto')
 option('niconico', type: 'feature', value: 'auto')
