@@ -316,7 +316,11 @@ gst_gtuber_adaptive_bin_prepare (GstGtuberAdaptiveBin *self)
   GST_GTUBER_BIN_UNLOCK (self);
 
   if ((self->demuxer = make_compatible_demuxer (self))) {
+    GObjectClass *gobject_class = G_OBJECT_GET_CLASS (self->demuxer);
     GstPad *pad;
+
+    if (g_object_class_find_property (gobject_class, "low-watermark-time"))
+      g_object_set (self->demuxer, "low-watermark-time", 3 * GST_SECOND, NULL);
 
     gst_bin_add (GST_BIN (self), self->demuxer);
 
