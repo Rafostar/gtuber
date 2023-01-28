@@ -174,9 +174,36 @@ gst_gtuber_bin_push_all_events (GstGtuberBin *self)
   GST_GTUBER_BIN_UNLOCK (self);
 }
 
-static void
-gst_gtuber_bin_clear_all_events (GstGtuberBin *self)
+static gboolean
+remove_sometimes_pad_cb (GstElement *element, GstPad *pad, gpointer user_data)
 {
+  GstPadTemplate *template = gst_pad_get_pad_template (pad);
+  GstPadPresence presence = GST_PAD_TEMPLATE_PRESENCE (template);
+
+  gst_object_unref (template);
+
+  if (presence == GST_PAD_SOMETIMES) {
+    if (gst_debug_category_get_threshold (GST_CAT_DEFAULT) >= GST_LEVEL_DEBUG) {
+      gchar *pad_name = gst_object_get_name (GST_OBJECT (pad));
+
+      GST_DEBUG ("Removing pad \"%s\"", pad_name);
+      g_free (pad_name);
+    }
+
+    gst_pad_set_active (pad, FALSE);
+
+    if (G_UNLIKELY (!gst_element_remove_pad (element, pad)))
+      g_critical ("Failed to remove pad from bin");
+  }
+
+  return TRUE;
+}
+
+static void
+gst_gtuber_bin_reset (GstGtuberBin *self)
+{
+  GstElement *element = GST_ELEMENT_CAST (self);
+
   GST_GTUBER_BIN_LOCK (self);
 
   if (self->tag_event) {
@@ -189,6 +216,8 @@ gst_gtuber_bin_clear_all_events (GstGtuberBin *self)
   }
 
   GST_GTUBER_BIN_UNLOCK (self);
+
+  gst_element_foreach_pad (element, remove_sometimes_pad_cb, NULL);
 }
 
 static GstStateChangeReturn
@@ -205,7 +234,7 @@ gst_gtuber_bin_change_state (GstElement *element, GstStateChange transition)
       gst_gtuber_bin_push_all_events (GST_GTUBER_BIN_CAST (element));
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
-      gst_gtuber_bin_clear_all_events (GST_GTUBER_BIN_CAST (element));
+      gst_gtuber_bin_reset (GST_GTUBER_BIN_CAST (element));
       break;
     default:
       break;
