@@ -35,6 +35,19 @@ enum
   PROP_LAST
 };
 
+static GstStaticPadTemplate videosrc_template = GST_STATIC_PAD_TEMPLATE ("video_%02u",
+    GST_PAD_SRC,
+    GST_PAD_SOMETIMES,
+    GST_STATIC_CAPS_ANY);
+static GstStaticPadTemplate audiosrc_template = GST_STATIC_PAD_TEMPLATE ("audio_%02u",
+    GST_PAD_SRC,
+    GST_PAD_SOMETIMES,
+    GST_STATIC_CAPS_ANY);
+static GstStaticPadTemplate subtitlesrc_template = GST_STATIC_PAD_TEMPLATE ("subtitle_%02u",
+    GST_PAD_SRC,
+    GST_PAD_SOMETIMES,
+    GST_STATIC_CAPS_ANY);
+
 static GParamSpec *param_specs[PROP_LAST] = { NULL, };
 
 #define GST_CAT_DEFAULT gst_gtuber_adaptive_bin_debug
@@ -446,6 +459,10 @@ gst_gtuber_adaptive_bin_class_init (GstGtuberAdaptiveBinClass *klass)
 
   GST_DEBUG_CATEGORY_INIT (gst_gtuber_adaptive_bin_debug, "gtuberadaptivebin", 0,
       "Gtuber Adaptive Bin");
+
+  gst_element_class_add_static_pad_template (gstelement_class, &videosrc_template);
+  gst_element_class_add_static_pad_template (gstelement_class, &audiosrc_template);
+  gst_element_class_add_static_pad_template (gstelement_class, &subtitlesrc_template);
 
   gobject_class->constructed = gst_gtuber_adaptive_bin_constructed;
   gobject_class->set_property = gst_gtuber_adaptive_bin_set_property;

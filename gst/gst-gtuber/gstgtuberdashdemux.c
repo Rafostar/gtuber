@@ -32,19 +32,6 @@ static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("application/dash+xml, source=(string)gtuber"));
 
-static GstStaticPadTemplate videosrc_template = GST_STATIC_PAD_TEMPLATE ("video_%02u",
-    GST_PAD_SRC,
-    GST_PAD_SOMETIMES,
-    GST_STATIC_CAPS_ANY);
-static GstStaticPadTemplate audiosrc_template = GST_STATIC_PAD_TEMPLATE ("audio_%02u",
-    GST_PAD_SRC,
-    GST_PAD_SOMETIMES,
-    GST_STATIC_CAPS_ANY);
-static GstStaticPadTemplate subtitlesrc_template = GST_STATIC_PAD_TEMPLATE ("subtitle_%02u",
-    GST_PAD_SRC,
-    GST_PAD_SOMETIMES,
-    GST_STATIC_CAPS_ANY);
-
 #define parent_class gst_gtuber_dash_demux_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberDashDemux, gst_gtuber_dash_demux,
     GST_TYPE_GTUBER_ADAPTIVE_BIN, NULL);
@@ -65,9 +52,6 @@ gst_gtuber_dash_demux_class_init (GstGtuberDashDemuxClass *klass)
       "Gtuber DASH demux");
 
   gst_element_class_add_static_pad_template (gstelement_class, &sink_template);
-  gst_element_class_add_static_pad_template (gstelement_class, &videosrc_template);
-  gst_element_class_add_static_pad_template (gstelement_class, &audiosrc_template);
-  gst_element_class_add_static_pad_template (gstelement_class, &subtitlesrc_template);
 
   gst_element_class_set_static_metadata (gstelement_class, "Gtuber DASH demuxer",
       "Codec/Demuxer/Adaptive",
