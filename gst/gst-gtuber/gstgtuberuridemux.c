@@ -43,68 +43,6 @@ G_DEFINE_TYPE_WITH_CODE (GstGtuberUriDemux, gst_gtuber_uri_demux,
 GST_ELEMENT_REGISTER_DEFINE_WITH_CODE (gtuberuridemux, "gtuberuridemux",
     GST_RANK_PRIMARY + 10, GST_TYPE_GTUBER_URI_DEMUX, gst_gtuber_element_init (plugin));
 
-/* GObject */
-static void gst_gtuber_uri_demux_finalize (GObject *object);
-
-/* GstPad */
-static gboolean gst_gtuber_uri_demux_sink_event (GstPad *pad,
-    GstObject *parent, GstEvent *event);
-static GstFlowReturn gst_gtuber_uri_demux_sink_chain (GstPad *pad,
-    GstObject *parent, GstBuffer *buffer);
-
-static void
-gst_gtuber_uri_demux_class_init (GstGtuberUriDemuxClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GstElementClass *gstelement_class = (GstElementClass *) klass;
-
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_uri_demux_debug, "gtuberuridemux", 0,
-      "Gtuber URI demux");
-
-  gobject_class->finalize = gst_gtuber_uri_demux_finalize;
-
-  gst_element_class_add_static_pad_template (gstelement_class, &sink_template);
-  gst_element_class_add_static_pad_template (gstelement_class, &src_template);
-
-  gst_element_class_set_static_metadata (gstelement_class, "Gtuber URI demuxer",
-      "Codec/Demuxer",
-      "Demuxer for Gtuber stream URI",
-      "Rafał Dzięgiel <rafostar.github@gmail.com>");
-}
-
-static void
-gst_gtuber_uri_demux_init (GstGtuberUriDemux *self)
-{
-  GstPad *sink_pad;
-
-  self->input_adapter = gst_adapter_new ();
-
-  sink_pad = gst_pad_new_from_template (gst_element_class_get_pad_template (
-      GST_ELEMENT_GET_CLASS (self), "sink"), "sink");
-  gst_pad_set_event_function (sink_pad,
-      GST_DEBUG_FUNCPTR (gst_gtuber_uri_demux_sink_event));
-  gst_pad_set_chain_function (sink_pad,
-      GST_DEBUG_FUNCPTR (gst_gtuber_uri_demux_sink_chain));
-
-  gst_pad_set_active (sink_pad, TRUE);
-
-  if (!gst_element_add_pad (GST_ELEMENT (self), sink_pad))
-    g_critical ("Failed to add sink pad to bin");
-}
-
-static void
-gst_gtuber_uri_demux_finalize (GObject *object)
-{
-  GstGtuberUriDemux *self = GST_GTUBER_URI_DEMUX (object);
-
-  g_object_unref (self->input_adapter);
-
-  if (self->typefind_src)
-    g_object_unref (self->typefind_src);
-
-  GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
-}
-
 static gboolean
 gst_gtuber_uri_demux_process_buffer (GstGtuberUriDemux *self, GstBuffer *buffer)
 {
@@ -245,4 +183,57 @@ gst_gtuber_uri_demux_sink_chain (GstPad *pad, GstObject *parent, GstBuffer *buff
       (gint) gst_adapter_available (self->input_adapter));
 
   return GST_FLOW_OK;
+}
+
+static void
+gst_gtuber_uri_demux_init (GstGtuberUriDemux *self)
+{
+  GstPad *sink_pad;
+
+  self->input_adapter = gst_adapter_new ();
+
+  sink_pad = gst_pad_new_from_template (gst_element_class_get_pad_template (
+      GST_ELEMENT_GET_CLASS (self), "sink"), "sink");
+  gst_pad_set_event_function (sink_pad,
+      GST_DEBUG_FUNCPTR (gst_gtuber_uri_demux_sink_event));
+  gst_pad_set_chain_function (sink_pad,
+      GST_DEBUG_FUNCPTR (gst_gtuber_uri_demux_sink_chain));
+
+  gst_pad_set_active (sink_pad, TRUE);
+
+  if (!gst_element_add_pad (GST_ELEMENT (self), sink_pad))
+    g_critical ("Failed to add sink pad to bin");
+}
+
+static void
+gst_gtuber_uri_demux_finalize (GObject *object)
+{
+  GstGtuberUriDemux *self = GST_GTUBER_URI_DEMUX (object);
+
+  g_object_unref (self->input_adapter);
+
+  if (self->typefind_src)
+    g_object_unref (self->typefind_src);
+
+  GST_CALL_PARENT (G_OBJECT_CLASS, finalize, (object));
+}
+
+static void
+gst_gtuber_uri_demux_class_init (GstGtuberUriDemuxClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_uri_demux_debug, "gtuberuridemux", 0,
+      "Gtuber URI demux");
+
+  gobject_class->finalize = gst_gtuber_uri_demux_finalize;
+
+  gst_element_class_add_static_pad_template (gstelement_class, &sink_template);
+  gst_element_class_add_static_pad_template (gstelement_class, &src_template);
+
+  gst_element_class_set_static_metadata (gstelement_class, "Gtuber URI demuxer",
+      "Codec/Demuxer",
+      "Demuxer for Gtuber stream URI",
+      "Rafał Dzięgiel <rafostar.github@gmail.com>");
 }

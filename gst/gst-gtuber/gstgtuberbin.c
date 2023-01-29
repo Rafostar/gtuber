@@ -30,31 +30,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define parent_class gst_gtuber_bin_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGtuberBin, gst_gtuber_bin, GST_TYPE_BIN, NULL);
 
-/* GObject */
-static void gst_gtuber_bin_finalize (GObject *object);
-
-/* GstElement */
-static GstStateChangeReturn gst_gtuber_bin_change_state (
-    GstElement *element, GstStateChange transition);
-
-/* GstBin */
-static void gst_gtuber_bin_deep_element_added (GstBin *bin,
-    GstBin *sub_bin, GstElement *child);
-
-static void
-gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GstBinClass *gstbin_class = (GstBinClass *) klass;
-  GstElementClass *gstelement_class = (GstElementClass *) klass;
-
-  GST_DEBUG_CATEGORY_INIT (gst_gtuber_bin_debug, "gtuberbin", 0, "Gtuber Bin");
-
-  gobject_class->finalize = gst_gtuber_bin_finalize;
-  gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
-  gstelement_class->change_state = gst_gtuber_bin_change_state;
-}
-
 static void
 gst_gtuber_bin_init (GstGtuberBin *self)
 {
@@ -199,9 +174,36 @@ gst_gtuber_bin_push_all_events (GstGtuberBin *self)
   GST_GTUBER_BIN_UNLOCK (self);
 }
 
-static void
-gst_gtuber_bin_clear_all_events (GstGtuberBin *self)
+static gboolean
+remove_sometimes_pad_cb (GstElement *element, GstPad *pad, gpointer user_data)
 {
+  GstPadTemplate *template = gst_pad_get_pad_template (pad);
+  GstPadPresence presence = GST_PAD_TEMPLATE_PRESENCE (template);
+
+  gst_object_unref (template);
+
+  if (presence == GST_PAD_SOMETIMES) {
+    if (gst_debug_category_get_threshold (GST_CAT_DEFAULT) >= GST_LEVEL_DEBUG) {
+      gchar *pad_name = gst_object_get_name (GST_OBJECT (pad));
+
+      GST_DEBUG ("Removing pad \"%s\"", pad_name);
+      g_free (pad_name);
+    }
+
+    gst_pad_set_active (pad, FALSE);
+
+    if (G_UNLIKELY (!gst_element_remove_pad (element, pad)))
+      g_critical ("Failed to remove pad from bin");
+  }
+
+  return TRUE;
+}
+
+static void
+gst_gtuber_bin_reset (GstGtuberBin *self)
+{
+  GstElement *element = GST_ELEMENT_CAST (self);
+
   GST_GTUBER_BIN_LOCK (self);
 
   if (self->tag_event) {
@@ -214,6 +216,8 @@ gst_gtuber_bin_clear_all_events (GstGtuberBin *self)
   }
 
   GST_GTUBER_BIN_UNLOCK (self);
+
+  gst_element_foreach_pad (element, remove_sometimes_pad_cb, NULL);
 }
 
 static GstStateChangeReturn
@@ -230,7 +234,7 @@ gst_gtuber_bin_change_state (GstElement *element, GstStateChange transition)
       gst_gtuber_bin_push_all_events (GST_GTUBER_BIN_CAST (element));
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
-      gst_gtuber_bin_clear_all_events (GST_GTUBER_BIN_CAST (element));
+      gst_gtuber_bin_reset (GST_GTUBER_BIN_CAST (element));
       break;
     default:
       break;
@@ -284,4 +288,18 @@ gst_gtuber_bin_sink_event (GstPad *pad, GstObject *parent, GstEvent *event)
   }
 
   return gst_pad_event_default (pad, parent, event);
+}
+
+static void
+gst_gtuber_bin_class_init (GstGtuberBinClass *klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstBinClass *gstbin_class = (GstBinClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+
+  GST_DEBUG_CATEGORY_INIT (gst_gtuber_bin_debug, "gtuberbin", 0, "Gtuber Bin");
+
+  gobject_class->finalize = gst_gtuber_bin_finalize;
+  gstbin_class->deep_element_added = gst_gtuber_bin_deep_element_added;
+  gstelement_class->change_state = gst_gtuber_bin_change_state;
 }
