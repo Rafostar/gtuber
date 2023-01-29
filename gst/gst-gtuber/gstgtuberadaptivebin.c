@@ -96,8 +96,8 @@ gst_gtuber_adaptive_bin_set_property (GObject *object, guint prop_id,
       break;
     case PROP_TARGET_BITRATE:
       self->target_bitrate = g_value_get_uint (value);
-      g_object_set (self->demuxer,
-          "connection-speed", self->target_bitrate, NULL);
+      if (self->demuxer)
+        g_object_set (self->demuxer, "connection-speed", self->target_bitrate, NULL);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
