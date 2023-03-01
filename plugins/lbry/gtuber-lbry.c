@@ -247,6 +247,7 @@ gtuber_lbry_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error)
 {
   GtuberLbry *self = GTUBER_LBRY (website);
+  SoupMessageHeaders *headers;
   gchar *req_body;
 
   if (self->streaming_url && !self->resolve) {
@@ -254,7 +255,7 @@ gtuber_lbry_create_request (GtuberWebsite *website,
         ? soup_message_new ("HEAD", self->streaming_url)
         : soup_message_new ("GET", self->streaming_url);
 
-    return GTUBER_FLOW_OK;
+    goto set_headers;
   }
 
   req_body = g_strdup_printf (
@@ -270,6 +271,11 @@ gtuber_lbry_create_request (GtuberWebsite *website,
 
   *msg = soup_message_new ("POST", "https://api.na-backend.odysee.com/api/v1/proxy");
   gtuber_utils_common_msg_take_request (*msg, "application/json-rpc", req_body);
+
+set_headers:
+  headers = soup_message_get_request_headers (*msg);
+  soup_message_headers_replace (headers, "Origin", "https://odysee.com");
+  soup_message_headers_replace (headers, "Referer", "https://odysee.com/");
 
   return GTUBER_FLOW_OK;
 }
