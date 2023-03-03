@@ -33,6 +33,7 @@
 #include "gtuber-media-info-private.h"
 #include "gtuber-stream-private.h"
 #include "gtuber-adaptive-stream-private.h"
+#include "gtuber-proxy-private.h"
 #include "gtuber-heartbeat-private.h"
 
 enum
@@ -62,6 +63,7 @@ struct _GtuberMediaInfo
   GHashTable *chapters;
   GHashTable *req_headers;
 
+  GtuberProxy *proxy;
   GtuberHeartbeat *heartbeat;
 };
 
@@ -176,6 +178,7 @@ gtuber_media_info_dispose (GObject *object)
 {
   GtuberMediaInfo *self = GTUBER_MEDIA_INFO (object);
 
+  g_clear_object (&self->proxy);
   g_clear_object (&self->heartbeat);
 
   G_OBJECT_CLASS (parent_class)->dispose (object);
@@ -488,6 +491,25 @@ gtuber_media_info_get_request_headers (GtuberMediaInfo *self)
 }
 
 /**
+ * gtuber_media_info_take_proxy:
+ * @info: a #GtuberMediaInfo
+ * @proxy: (transfer full): a #GtuberProxy
+ *
+ * Transfers a #GtuberProxy into #GtuberMediaInfo, do not free it afterwards.
+ *
+ * This is mainly useful for plugin development.
+ */
+void
+gtuber_media_info_take_proxy (GtuberMediaInfo *self, GtuberProxy *proxy)
+{
+  g_return_if_fail (GTUBER_IS_MEDIA_INFO (self));
+  g_return_if_fail (GTUBER_IS_PROXY (proxy));
+
+  g_clear_object (&self->proxy);
+  self->proxy = proxy;
+}
+
+/**
  * gtuber_media_info_take_heartbeat:
  * @info: a #GtuberMediaInfo
  * @heartbeat: (transfer full): a #GtuberHeartbeat
@@ -509,6 +531,10 @@ gtuber_media_info_take_heartbeat (GtuberMediaInfo *self, GtuberHeartbeat *heartb
 void
 gtuber_media_info_init_extra_objects (GtuberMediaInfo *self)
 {
+  if (self->proxy) {
+    gtuber_proxy_configure (self->proxy, self->id, self->streams,
+        self->adaptive_streams, self->req_headers);
+  }
   if (self->heartbeat)
     gtuber_heartbeat_start_with_headers (self->heartbeat, self->req_headers);
 }
