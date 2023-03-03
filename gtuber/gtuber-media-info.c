@@ -507,11 +507,8 @@ gtuber_media_info_take_heartbeat (GtuberMediaInfo *self, GtuberHeartbeat *heartb
 }
 
 void
-gtuber_media_info_init_heartbeat (GtuberMediaInfo *self)
+gtuber_media_info_init_extra_objects (GtuberMediaInfo *self)
 {
-  if (!self->heartbeat)
-    return;
-
-  gtuber_heartbeat_set_request_headers (self->heartbeat, self->req_headers);
-  gtuber_heartbeat_start (self->heartbeat);
+  if (self->heartbeat)
+    gtuber_heartbeat_start_with_headers (self->heartbeat, self->req_headers);
 }

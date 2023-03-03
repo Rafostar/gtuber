@@ -269,7 +269,7 @@ invalid_info:
     if (my_error)
       goto invalid_info;
 
-    gtuber_media_info_init_heartbeat (info);
+    gtuber_media_info_init_extra_objects (info);
   }
 
   return info;

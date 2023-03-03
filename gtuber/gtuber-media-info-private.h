@@ -25,6 +25,6 @@
 G_BEGIN_DECLS
 
 G_GNUC_INTERNAL
-void gtuber_media_info_init_heartbeat (GtuberMediaInfo *info);
+void gtuber_media_info_init_extra_objects (GtuberMediaInfo *info);
 
 G_END_DECLS

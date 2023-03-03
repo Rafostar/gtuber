@@ -28,6 +28,7 @@
 #include <libsoup/soup.h>
 
 #include <gtuber/gtuber-enums.h>
+#include <gtuber/gtuber-threaded-object.h>
 
 G_BEGIN_DECLS
 
@@ -54,7 +55,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtuberHeartbeat, g_object_unref)
 
 struct _GtuberHeartbeat
 {
-  GObject parent;
+  GtuberThreadedObject parent;
 };
 
 /**
@@ -65,7 +66,7 @@ struct _GtuberHeartbeat
  */
 struct _GtuberHeartbeatClass
 {
-  GObjectClass parent_class;
+  GtuberThreadedObjectClass parent_class;
 
   GtuberFlow (* ping) (GtuberHeartbeat *heartbeat,
                        SoupMessage    **msg,

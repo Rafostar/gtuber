@@ -26,9 +26,6 @@ G_BEGIN_DECLS
 typedef struct _GtuberHeartbeatPrivate GtuberHeartbeatPrivate;
 
 G_GNUC_INTERNAL
-void gtuber_heartbeat_start (GtuberHeartbeat *heartbeat);
-
-G_GNUC_INTERNAL
-void gtuber_heartbeat_set_request_headers (GtuberHeartbeat *heartbeat, GHashTable *req_headers);
+void gtuber_heartbeat_start_with_headers (GtuberHeartbeat *heartbeat, GHashTable *req_headers);
 
 G_END_DECLS
