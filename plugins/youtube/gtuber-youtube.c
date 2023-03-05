@@ -25,6 +25,8 @@
 #include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
+#include "gtuber-youtube-proxy.h"
+
 #define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
 #define GTUBER_YOUTUBE_ANDROID_MAJOR 11
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
@@ -588,9 +590,12 @@ gtuber_youtube_parse_input_stream (GtuberWebsite *website,
   if (self->step == YOUTUBE_GET_HLS && !self->hls_uri)
     self->step++;
 
-  return (self->step >= YOUTUBE_EXTRACTION_FINISH)
-      ? GTUBER_FLOW_OK
-      : GTUBER_FLOW_RESTART;
+  if (self->step < YOUTUBE_EXTRACTION_FINISH)
+    return GTUBER_FLOW_RESTART;
+
+  gtuber_media_info_take_proxy (info, gtuber_youtube_proxy_new ());
+
+  return GTUBER_FLOW_OK;
 }
 
 static GtuberFlow
