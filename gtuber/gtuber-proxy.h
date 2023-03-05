@@ -62,20 +62,23 @@ struct _GtuberProxy
 /**
  * GtuberProxyClass:
  * @parent_class: The object class structure.
- * @fetch_stream: Proxy request to download data for #GtuberStream.
+ * @proxy_request: Create proxy #SoupMessage to download data.
  */
 struct _GtuberProxyClass
 {
   GtuberThreadedObjectClass parent_class;
 
-  GtuberFlow (* fetch_stream) (GtuberProxy       *proxy,
-                               SoupServerMessage *msg,
-                               GtuberStream      *stream,
-                               GError           **error);
+  GtuberFlow (* forward_request) (GtuberProxy       *proxy,
+                                  SoupServerMessage *srv_msg,
+                                  const gchar       *org_uri,
+                                  SoupMessage      **msg,
+                                  GError           **error);
 };
 
-GType         gtuber_proxy_get_type              (void);
+GType          gtuber_proxy_get_type              (void);
 
-GQuark        gtuber_proxy_error_quark           (void);
+GtuberStream * gtuber_proxy_get_requested_stream  (GtuberProxy *proxy, SoupServerMessage *srv_msg);
+
+GQuark         gtuber_proxy_error_quark           (void);
 
 G_END_DECLS

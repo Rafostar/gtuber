@@ -26,7 +26,7 @@ G_BEGIN_DECLS
 typedef struct _GtuberProxyPrivate GtuberProxyPrivate;
 
 G_GNUC_INTERNAL
-void gtuber_proxy_configure (GtuberProxy *proxy, const gchar *id, GPtrArray *streams,
+void gtuber_proxy_configure (GtuberProxy *proxy, const gchar *media_id, GPtrArray *streams,
     GPtrArray *adaptive_streams, GHashTable *req_headers);
 
 G_END_DECLS
