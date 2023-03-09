@@ -74,23 +74,26 @@ import_streams_unlocked (GtuberProxyPrivate *priv, GPtrArray *streams)
 
     /* Move original URIs from stream to proxy */
     g_hash_table_insert (priv->org_uris, itag_str, stream->uri);
-    stream->uri = g_strdup_printf ("%s/%s?itag=%u", priv->proxy_uri, priv->media_path, stream->itag);
+    stream->uri = g_strdup_printf ("%s%s?itag=%u", priv->proxy_uri, priv->media_path + 1, stream->itag);
 
     g_ptr_array_add (priv->streams, g_object_ref (stream));
   }
 }
 
 static void
-finished_cb (SoupServerMessage *msg, GCancellable *cancellable)
+finished_cb (SoupServerMessage *srv_msg, GCancellable *cancellable)
 {
+  g_debug ("FIN");
+
   /* When message finished too early (failed) */
   g_cancellable_cancel (cancellable);
+  g_signal_handlers_disconnect_by_func (srv_msg, finished_cb, cancellable);
 }
 
 static void
 stream_read_async_cb (GInputStream *istream, GAsyncResult *result, SoupServerMessage *srv_msg)
 {
-  //GInputStream *istream = (GInputStream *) source;
+  GCancellable *cancellable = g_object_get_data (G_OBJECT (srv_msg), "cancellable");
   SoupMessageBody *msg_body;
   GBytes *bytes;
   GError *error = NULL;
@@ -99,9 +102,9 @@ stream_read_async_cb (GInputStream *istream, GAsyncResult *result, SoupServerMes
   bytes = g_input_stream_read_bytes_finish (istream, result, &error);
 
   if (error) {
-    soup_server_message_set_status (srv_msg, SOUP_STATUS_INTERNAL_SERVER_ERROR,
-        (error) ? error->message : NULL);
-    soup_server_message_unpause (srv_msg);
+    soup_server_message_set_status (srv_msg,
+        SOUP_STATUS_INTERNAL_SERVER_ERROR, error->message);
+
     goto finish;
   }
 
@@ -110,11 +113,6 @@ stream_read_async_cb (GInputStream *istream, GAsyncResult *result, SoupServerMes
 
   /* No more data (download done) */
   if (size == 0) {
-    GCancellable *cancellable;
-
-    cancellable = g_object_get_data (G_OBJECT (srv_msg), "cancellable");
-    g_signal_handlers_disconnect_by_func (srv_msg, finished_cb, cancellable);
-
     soup_message_body_complete (msg_body);
     soup_server_message_unpause (srv_msg);
 
@@ -122,11 +120,11 @@ stream_read_async_cb (GInputStream *istream, GAsyncResult *result, SoupServerMes
   }
 
   soup_message_body_append_bytes (msg_body, bytes);
-  //soup_server_message_unpause (srv_msg);
+  soup_server_message_unpause (srv_msg);
 
   /* All is fine, continue to read next chunk */
-  g_input_stream_read_bytes_async (istream, CHUNK_SIZE, G_PRIORITY_DEFAULT, NULL,
-      (GAsyncReadyCallback) stream_read_async_cb, g_object_ref (srv_msg));
+  g_input_stream_read_bytes_async (istream, CHUNK_SIZE, G_PRIORITY_DEFAULT,
+      cancellable, (GAsyncReadyCallback) stream_read_async_cb, g_object_ref (srv_msg));
 
 finish:
   if (bytes)
@@ -144,18 +142,23 @@ send_msg_async_cb (SoupSession *session, GAsyncResult *result, SoupServerMessage
 
   istream = soup_session_send_finish (session, result, &error);
 
-  if (error) {
-    soup_server_message_set_status (srv_msg, SOUP_STATUS_INTERNAL_SERVER_ERROR,
-        (error) ? error->message : NULL);
-    soup_server_message_unpause (srv_msg);
-    g_error_free (error);
+  /* Message sent, start reading response */
+  if (!error) {
+    GCancellable *cancellable = g_object_get_data (G_OBJECT (srv_msg), "cancellable");
 
-    return;
+    g_input_stream_read_bytes_async (istream, CHUNK_SIZE, G_PRIORITY_DEFAULT,
+        cancellable, (GAsyncReadyCallback) stream_read_async_cb, srv_msg);
+  } else {
+    soup_server_message_set_status (srv_msg,
+        SOUP_STATUS_INTERNAL_SERVER_ERROR, error->message);
+    soup_server_message_unpause (srv_msg);
+
+    /* Free earlier reffed message */
+    g_object_unref (srv_msg);
+    g_error_free (error);
   }
 
-  /* Message sent, start reading response */
-  g_input_stream_read_bytes_async (istream, CHUNK_SIZE, G_PRIORITY_DEFAULT, NULL,
-      (GAsyncReadyCallback) stream_read_async_cb, srv_msg);
+  g_object_unref (istream);
 }
 
 static void
@@ -167,14 +170,16 @@ forward_response_headers (SoupMessage *cli_msg, SoupServerMessage *srv_msg)
   const char *cli_phrase = soup_message_get_reason_phrase (cli_msg);
 
   soup_server_message_set_status (srv_msg, cli_status, cli_phrase);
-  soup_message_headers_foreach (cli_resp_headers, (SoupMessageHeadersForeachFunc) insert_header_cb, srv_resp_headers);
-  soup_message_headers_remove (srv_resp_headers, "Content-Length");
+  soup_message_headers_foreach (cli_resp_headers,
+      (SoupMessageHeadersForeachFunc) insert_header_cb, srv_resp_headers);
+  //soup_message_headers_remove (srv_resp_headers, "Content-Length");
 
-  //soup_server_message_unpause (srv_msg);
+  soup_server_message_unpause (srv_msg);
 }
 
 static GtuberFlow
-fetch_stream (GtuberProxy *self, SoupServerMessage *srv_msg, const char *org_uri, GError **error)
+fetch_stream (GtuberProxy *self, SoupServerMessage *srv_msg,
+    const char *org_uri, GError **error)
 {
   GtuberProxyClass *proxy_class = GTUBER_PROXY_GET_CLASS (self);
   GtuberProxyPrivate *priv = gtuber_proxy_get_instance_private (self);
@@ -215,7 +220,8 @@ forward:
   cli_req_headers = soup_message_get_request_headers (cli_msg);
 
   /* Copy headers from proxy request to actual destination */
-  soup_message_headers_foreach (srv_req_headers, (SoupMessageHeadersForeachFunc) insert_header_cb, cli_req_headers);
+  soup_message_headers_foreach (srv_req_headers,
+      (SoupMessageHeadersForeachFunc) insert_header_cb, cli_req_headers);
 
   /* Remove headers that we should not forward */
   soup_message_headers_remove (cli_req_headers, "Host");
@@ -422,8 +428,8 @@ gtuber_proxy_get_requested_stream (GtuberProxy *self, SoupServerMessage *srv_msg
 }
 
 void
-gtuber_proxy_configure (GtuberProxy *self, const gchar *media_id, GPtrArray *streams,
-    GPtrArray *adaptive_streams, GHashTable *req_headers)
+gtuber_proxy_configure (GtuberProxy *self, const gchar *media_id,
+    GPtrArray *streams, GPtrArray *adaptive_streams, GHashTable *req_headers)
 {
   GtuberProxyPrivate *priv = gtuber_proxy_get_instance_private (self);
 

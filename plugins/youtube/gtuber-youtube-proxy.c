@@ -45,10 +45,17 @@ gtuber_youtube_proxy_forward_request (GtuberProxy *proxy, SoupServerMessage *srv
 
   /* Append "range" param to URI */
   if (soup_message_headers_get_ranges (headers, 0, &ranges, &length)) {
-    gchar *mod_uri;
+    gchar *mod_uri, *tmp;
 
-    mod_uri = g_strdup_printf ("%s/range/%li-%li", org_uri, ranges->start, ranges->end);
+    tmp = g_strdup_printf ("/range/%li-%li", ranges->start, ranges->end);
+    mod_uri = g_build_path ("/", org_uri, tmp, NULL);
+
+    g_free (tmp);
+
+    //mod_uri = g_strdup_printf ("%s/range/%li-%li", org_uri, ranges->start, ranges->end);
     soup_message_headers_free_ranges (headers, ranges);
+
+    //soup_message_headers_remove (headers, "Range");
 
     g_debug ("Redirect to: %s", mod_uri);
 
@@ -56,6 +63,7 @@ gtuber_youtube_proxy_forward_request (GtuberProxy *proxy, SoupServerMessage *srv
     g_free (mod_uri);
   } else {
     *msg = soup_message_new (soup_server_message_get_method (srv_msg), org_uri);
+    g_debug ("Redirect to: %s", org_uri);
   }
 
   return GTUBER_FLOW_OK;

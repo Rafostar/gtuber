@@ -1,4 +1,5 @@
 #include <gtuber/gtuber.h>
+#include <glib-unix.h>
 
 static void
 print_stream_info (GtuberStream *stream, gpointer user_data)
@@ -18,17 +19,29 @@ print_adaptive_stream_info (GtuberAdaptiveStream *adaptive_stream, gpointer user
   print_stream_info (GTUBER_STREAM (adaptive_stream), user_data);
 }
 
+gboolean
+exit_sighandler (GMainLoop *mainloop)
+{
+  g_main_loop_quit (mainloop);
+	return TRUE;
+}
+
 int
 main (int argc, char **argv)
 {
   GtuberClient *client;
   GtuberMediaInfo *info;
   GError *error = NULL;
+  GMainLoop *mainloop;
 
   if (!argv[1]) {
     g_printerr ("No URI provided as argument!\n");
     return 1;
   }
+
+  mainloop = g_main_loop_new (NULL, FALSE);
+  g_unix_signal_add (SIGINT, (GSourceFunc) exit_sighandler, mainloop);
+  g_unix_signal_add (SIGTERM, (GSourceFunc) exit_sighandler, mainloop);
 
   client = gtuber_client_new ();
   info = gtuber_client_fetch_media_info (client, argv[1], NULL, &error);
@@ -51,6 +64,8 @@ main (int argc, char **argv)
 
     g_ptr_array_foreach (streams, (GFunc) print_stream_info, NULL);
     g_ptr_array_foreach (adaptive_streams, (GFunc) print_adaptive_stream_info, NULL);
+
+    g_main_loop_run (mainloop);
 
     g_object_unref (info);
   }
