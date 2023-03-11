@@ -133,9 +133,6 @@ gst_gtuber_src_set_location (GstGtuberSrc *self, const gchar *location,
 static void
 gst_gtuber_src_set_itags (GstGtuberSrc *self, const gchar *itags_str)
 {
-  gchar **itags;
-  guint index = 0;
-
   g_mutex_lock (&self->prop_lock);
 
   g_free (self->itags_str);
@@ -143,21 +140,26 @@ gst_gtuber_src_set_itags (GstGtuberSrc *self, const gchar *itags_str)
 
   g_array_remove_range (self->itags, 0, self->itags->len);
 
-  itags = g_strsplit (itags_str, ",", 0);
-  while (itags[index]) {
-    guint itag;
+  if (self->itags_str) {
+    gchar **itags = g_strsplit (self->itags_str, ",", 0);
+    guint index = 0;
 
-    g_strstrip (itags[index]);
-    itag = g_ascii_strtoull (itags[index], NULL, 10);
-    if (itag > 0) {
-      g_array_append_val (self->itags, itag);
-      GST_DEBUG_OBJECT (self, "Added allowed itag: %u", itag);
+    while (itags[index]) {
+      guint itag;
+
+      g_strstrip (itags[index]);
+      itag = g_ascii_strtoull (itags[index], NULL, 10);
+      if (itag > 0) {
+        g_array_append_val (self->itags, itag);
+        GST_DEBUG_OBJECT (self, "Added allowed itag: %u", itag);
+      }
+      index++;
     }
-    index++;
+
+    g_strfreev (itags);
   }
 
   g_mutex_unlock (&self->prop_lock);
-  g_strfreev (itags);
 }
 
 static gboolean
