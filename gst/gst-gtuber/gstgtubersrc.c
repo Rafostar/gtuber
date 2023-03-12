@@ -41,6 +41,7 @@ enum
   PROP_MAX_HEIGHT,
   PROP_MAX_FPS,
   PROP_ITAGS,
+  PROP_MEDIA_INFO,
   PROP_LAST
 };
 
@@ -171,7 +172,7 @@ gst_gtuber_src_start (GstBaseSrc *base_src)
   GST_DEBUG_OBJECT (self, "Start");
 
   g_mutex_lock (&self->prop_lock);
-  can_start = (self->location != NULL);
+  can_start = (self->location || self->info);
   g_mutex_unlock (&self->prop_lock);
 
   if (G_UNLIKELY (!can_start)) {
@@ -190,7 +191,10 @@ gst_gtuber_src_stop (GstBaseSrc *base_src)
 
   GST_DEBUG_OBJECT (self, "Stop");
 
+  g_mutex_lock (&self->prop_lock);
   g_clear_object (&self->info);
+  g_mutex_unlock (&self->prop_lock);
+
   self->buf_size = 0;
 
   return TRUE;
@@ -622,10 +626,10 @@ client_thread_func (GstGtuberThreadData *data)
   return NULL;
 }
 
-static gboolean
-gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
-    GError **error)
+static GtuberMediaInfo *
+gst_gtuber_fetch_media_info (GstGtuberSrc *self, GError **error)
 {
+  GtuberMediaInfo *info;
   GstGtuberThreadData *data;
 
   GST_DEBUG_OBJECT (self, "Fetching media info");
@@ -652,36 +656,49 @@ gst_gtuber_fetch_into_buffer (GstGtuberSrc *self, GstBuffer **outbuf,
   }
 
   GST_DEBUG_OBJECT (self, "Fetched media info");
+  info = g_object_ref (data->info);
 
-  *outbuf = gst_gtuber_media_info_to_buffer (self, data->info, error);
-
-  if (*outbuf)
-    gst_gtuber_src_push_events (self, data->info);
-
-  /* Hold media info in order for data in it to stay valid */
-  self->info = g_object_ref (data->info);
   gst_gtuber_thread_data_free (data);
 
-  return (*outbuf) ? TRUE : FALSE;
+  return info;
 }
 
 static GstFlowReturn
 gst_gtuber_src_create (GstPushSrc *push_src, GstBuffer **outbuf)
 {
   GstGtuberSrc *self = GST_GTUBER_SRC (push_src);
+  GtuberMediaInfo *info = NULL;
   GError *error = NULL;
 
   /* When non-zero, we already returned complete data */
   if (self->buf_size > 0)
     return GST_FLOW_EOS;
 
-  if (!gst_gtuber_fetch_into_buffer (self, outbuf, &error)) {
-    GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
-        ("%s", error->message), (NULL));
-    g_clear_error (&error);
-
-    return GST_FLOW_ERROR;
+  g_mutex_lock (&self->prop_lock);
+  if (self->info) {
+    GST_DEBUG_OBJECT (self, "Using media info set by user");
+    info = g_object_ref (self->info);
   }
+  g_mutex_unlock (&self->prop_lock);
+
+  if (!info) {
+    if (!(info = gst_gtuber_fetch_media_info (self, &error))) {
+      GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
+          ("%s", error->message), (NULL));
+      g_clear_error (&error);
+
+      return GST_FLOW_ERROR;
+    }
+  }
+
+  if ((*outbuf = gst_gtuber_media_info_to_buffer (self, info, &error)))
+    gst_gtuber_src_push_events (self, info);
+
+  /* Hold media info in order for data in it to stay valid */
+  g_mutex_lock (&self->prop_lock);
+  g_clear_object (&self->info);
+  self->info = info;
+  g_mutex_unlock (&self->prop_lock);
 
   return GST_FLOW_OK;
 }
@@ -799,6 +816,12 @@ gst_gtuber_src_set_property (GObject *object, guint prop_id,
     case PROP_ITAGS:
       gst_gtuber_src_set_itags (self, g_value_get_string (value));
       break;
+    case PROP_MEDIA_INFO:
+      g_mutex_lock (&self->prop_lock);
+      g_clear_object (&self->info);
+      self->info = g_value_dup_object (value);
+      g_mutex_unlock (&self->prop_lock);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -828,6 +851,9 @@ gst_gtuber_src_get_property (GObject *object, guint prop_id,
       break;
     case PROP_ITAGS:
       g_value_set_string (value, self->itags_str);
+      break;
+    case PROP_MEDIA_INFO:
+      g_value_set_object (value, self->info);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -874,6 +900,11 @@ gst_gtuber_src_class_init (GstGtuberSrcClass *klass)
   param_specs[PROP_ITAGS] = g_param_spec_string ("itags",
       "Itags", "A comma separated list of allowed itags", NULL,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_MEDIA_INFO] = g_param_spec_object ("media-info",
+      "Media Info", "Media info to be used as source instead of \"location\" "
+      "or for reading fetched one after start",
+      GTUBER_TYPE_MEDIA_INFO, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
 
