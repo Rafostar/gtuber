@@ -99,6 +99,8 @@ summary('doc', build_doc, section: 'Build')
 subdir('utils')
 subdir('gst')
 
+subdir('bin')
+
 subdir('plugins')
 
 subdir('tests')

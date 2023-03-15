@@ -4,6 +4,9 @@ option('vapi', type: 'feature', value: 'auto', description: 'Build Vala bindings
 option('doc', type: 'boolean', value: false, description: 'Build documentation')
 option('tests', type: 'boolean', value: false, description: 'Build tests')
 
+# Bin
+option('gtuber-dl', type: 'feature', value: 'auto', description: 'Build gtuber-dl binary')
+
 # GStreamer
 option('gst-gtuber', type: 'feature', value: 'auto', description: 'GStreamer plugin')
 
