@@ -25,7 +25,7 @@
 #include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
-#define GTUBER_YOUTUBE_CLI_VERSION "16.37.36"
+#define GTUBER_YOUTUBE_CLI_VERSION "18.15.37"
 #define GTUBER_YOUTUBE_ANDROID_MAJOR 11
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
 #define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
