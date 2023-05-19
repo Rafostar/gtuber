@@ -648,7 +648,7 @@ gtuber_dl_main (gint argc, gchar **argv)
 finish:
   if (error) {
     gst_printerrln ("Error: %s",
-        (error->message) ? error->message : "Unkown error occurred");
+        (error->message) ? error->message : "Unknown error occurred");
     ret = 1;
 
     g_error_free (error);
