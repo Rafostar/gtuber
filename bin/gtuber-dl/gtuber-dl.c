@@ -559,7 +559,7 @@ download (GstElement *pipeline, GtuberDlArgs *dl_args, GError **error)
     return FALSE;
 
   if (!dl_args->quiet)
-    gst_println ("\33[2KDownloaded");
+    gst_println ("\33[2KDownloaded: \"%s\"", dl_args->output);
 
   return TRUE;
 }
