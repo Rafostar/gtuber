@@ -289,18 +289,5 @@ gtuber_dl_terminal_read_itags (void)
   if ((getline (&itags, &len, stdin) == -1) || len == 0)
     g_clear_pointer (&itags, g_free);
 
-  if (itags) {
-    GString *string;
-
-    g_strstrip (itags);
-
-    string = g_string_new (itags);
-    g_string_replace (string, "+", ",", 0);
-    g_string_replace (string, " ", ",", 0);
-
-    g_free (itags);
-    itags = g_string_free (string, FALSE);
-  }
-
   return itags;
 }

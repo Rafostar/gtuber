@@ -335,6 +335,38 @@ _determine_itags (GtuberDlArgs *dl_args, GtuberMediaInfo *info)
       : NULL;
 }
 
+static gboolean
+validate_itags (GtuberDlArgs *dl_args)
+{
+  GString *string;
+  guint i;
+
+  g_strstrip (dl_args->itags);
+
+  if (strlen (dl_args->itags) == 0) {
+    gst_printerrln ("No itags to download");
+    return FALSE;
+  }
+
+  string = g_string_new (dl_args->itags);
+  g_string_replace (string, "+", ",", 0);
+  g_string_replace (string, " ", ",", 0);
+
+  g_free (dl_args->itags);
+  dl_args->itags = g_string_free (string, FALSE);
+
+  for (i = 0; dl_args->itags[i]; ++i) {
+    if (!g_ascii_isdigit (dl_args->itags[i])
+        && dl_args->itags[i] != ',') {
+      gst_printerrln ("Invalid character on itags list: \"%c\"",
+          dl_args->itags[i]);
+      return FALSE;
+    }
+  }
+
+  return TRUE;
+}
+
 static void
 parsebin_pad_added_cb (GstElement *parsebin, GstPad *pad, GstElement *pipeline)
 {
@@ -573,7 +605,7 @@ gtuber_dl_main (gint argc, gchar **argv)
 
   GOptionEntry options[] = {
     { "info", 'I', 0, G_OPTION_ARG_NONE, &dl_args->print_info, "Print media info and exit", NULL },
-    { "itags", 'i', 0, G_OPTION_ARG_STRING, &dl_args->itags, "A comma separated list of itags to download", NULL },
+    { "itags", 'i', 0, G_OPTION_ARG_STRING, &dl_args->itags, "A list of itags to download (separated by \",\" or \"+\")", NULL },
     { "non-interactive", 'n', 0, G_OPTION_ARG_NONE, &dl_args->non_interactive, "Auto select itags for download without user prompt", NULL },
     { "output", 'o', 0, G_OPTION_ARG_FILENAME, &dl_args->output, "Download location", NULL },
     { "quiet", 'q', 0, G_OPTION_ARG_NONE, &dl_args->quiet, "Disable terminal printing", NULL },
@@ -635,6 +667,12 @@ gtuber_dl_main (gint argc, gchar **argv)
       goto finish;
     }
   }
+
+  if (!validate_itags (dl_args)) {
+    gst_printerrln ("Itags should be a list of \",\" or \"+\" separated numbers");
+    goto finish;
+  }
+
   GST_INFO ("Using itags: %s", dl_args->itags);
 
   if (!dl_args->using_stdout)
