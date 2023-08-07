@@ -378,7 +378,7 @@ obtain_player_req_body (GtuberYoutube *self)
       });
     });
     GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("video_id", self->video_id);
-    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "8AEB");
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "CgIQBg");
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
   });
