@@ -409,7 +409,7 @@ gst_gtuber_adaptive_bin_playback_configure (GstGtuberAdaptiveBin *self)
 static void
 gst_gtuber_adaptive_bin_handle_message (GstBin *bin, GstMessage *message)
 {
-  switch (message->type) {
+  switch (GST_MESSAGE_TYPE (message)) {
     case GST_MESSAGE_STREAMS_SELECTED:
       link_demuxer_pads (GST_GTUBER_ADAPTIVE_BIN_CAST (bin));
       break;
