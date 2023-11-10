@@ -323,8 +323,11 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
     GST_DEBUG_OBJECT (self, "Pushing TAG event: %p", event);
 
     gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
+
+    /* FIXME: We should be posting event only to make it reach app
+     * after stream start, but currently event is lost that way */
     gst_element_post_message (GST_ELEMENT (self),
-        gst_message_new_tag (GST_OBJECT (self), tags));
+        gst_message_new_tag (NULL, tags));
   }
 
   gtuber_chapters = gtuber_media_info_get_chapters (info);
@@ -349,8 +352,11 @@ gst_gtuber_src_push_events (GstGtuberSrc *self, GtuberMediaInfo *info)
     GST_DEBUG_OBJECT (self, "Pushing TOC event: %p", event);
 
     gst_pad_push_event (GST_BASE_SRC_PAD (self), event);
+
+    /* FIXME: We should be posting event only to make it reach app
+     * after stream start, but currently event is lost that way */
     gst_element_post_message (GST_ELEMENT (self),
-        gst_message_new_toc (GST_OBJECT (self), toc, FALSE));
+        gst_message_new_toc (NULL, toc, FALSE));
 
     gst_toc_unref (toc);
   }
