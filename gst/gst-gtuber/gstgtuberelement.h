@@ -25,6 +25,9 @@
 #define GST_GTUBER_REQ_HEADERS "request-headers"
 #define GST_GTUBER_HEADER_UA   "User-Agent"
 
+#define GST_GTUBER_TAGS        "gtuber-tags"
+#define GST_GTUBER_TOC         "gtuber-toc"
+
 G_BEGIN_DECLS
 
 GST_ELEMENT_REGISTER_DECLARE (gtubersrc);

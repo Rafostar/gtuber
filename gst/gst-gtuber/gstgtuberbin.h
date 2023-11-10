@@ -58,6 +58,8 @@ struct _GstGtuberBin
 
   GstEvent *tag_event;
   GstEvent *toc_event;
+
+  gboolean started;
 };
 
 struct _GstGtuberBinClass
