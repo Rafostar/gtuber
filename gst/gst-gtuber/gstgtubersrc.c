@@ -709,6 +709,16 @@ gst_gtuber_src_create (GstPushSrc *push_src, GstBuffer **outbuf)
   return GST_FLOW_OK;
 }
 
+static inline gboolean
+_handle_uri_query (GstGtuberSrc *self, GstQuery *query)
+{
+  /* Since our URI doesn't actually lead to manifest data, we answer
+   * with "nodata" equivalent, so upstream will not try to fetch it */
+  gst_query_set_uri (query, "data:,");
+
+  return TRUE;
+}
+
 static gboolean
 gst_gtuber_src_query (GstBaseSrc *base_src, GstQuery *query)
 {
@@ -717,18 +727,9 @@ gst_gtuber_src_query (GstBaseSrc *base_src, GstQuery *query)
 
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_URI:
-      if (GST_IS_URI_HANDLER (self)) {
-        gchar *uri;
-
-        uri = gst_uri_handler_get_uri (GST_URI_HANDLER (self));
-        gst_query_set_uri (query, uri);
-
-        g_free (uri);
-        ret = TRUE;
-      }
+      ret = _handle_uri_query (self, query);
       break;
     default:
-      ret = FALSE;
       break;
   }
 
