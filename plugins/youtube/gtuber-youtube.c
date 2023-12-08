@@ -86,6 +86,72 @@ gtuber_youtube_finalize (GObject *object)
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
+static gchar *
+_modify_uri (const gchar *uri_str)
+{
+  GUri *parsed_uri;
+  gchar *tmp_uri = NULL, *mod_uri;
+
+  g_debug ("Parsing URI: %s", uri_str);
+
+  if ((parsed_uri = g_uri_parse (uri_str, G_URI_FLAGS_ENCODED, NULL))) {
+    const gchar *query = g_uri_get_query (parsed_uri);
+    gchar *mod_host = NULL;
+
+    if (G_LIKELY (query != NULL)) {
+      GHashTable *params;
+      const gchar *mn, *fvip;
+
+      params = g_uri_parse_params (query, -1,
+          "&", G_URI_PARAMS_NONE, NULL);
+
+      mn = g_hash_table_lookup (params, "mn");
+      fvip = g_hash_table_lookup (params, "fvip");
+
+      if (mn && fvip) {
+        gchar **mnstrv = g_strsplit (mn, ",", 0);
+
+        if (g_strv_length (mnstrv) == 2)
+          mod_host = g_strdup_printf ("rr%s---%s.googlevideo.com", fvip, mnstrv[1]);
+
+        g_strfreev (mnstrv);
+      }
+
+      g_hash_table_unref (params);
+    }
+
+    if (mod_host) {
+      tmp_uri = g_uri_join (G_URI_FLAGS_ENCODED,
+          g_uri_get_scheme (parsed_uri),
+          NULL,
+          mod_host,
+          -1,
+          g_uri_get_path (parsed_uri),
+          query,
+          NULL);
+
+      g_debug ("Host change: %s -> %s",
+          g_uri_get_host (parsed_uri), mod_host);
+
+      g_free (mod_host);
+    }
+
+    g_uri_unref (parsed_uri);
+  }
+
+  if (G_LIKELY (tmp_uri != NULL)) {
+    mod_uri = gtuber_utils_common_obtain_uri_with_query_as_path (tmp_uri);
+    g_free (tmp_uri);
+  } else {
+    /* If we failed parsing, just use original URI */
+    mod_uri = gtuber_utils_common_obtain_uri_with_query_as_path (uri_str);
+  }
+
+  g_debug ("Final URI: %s", mod_uri);
+
+  return mod_uri;
+}
+
 static void
 _read_stream_info (JsonReader *reader, GtuberStream *stream)
 {
@@ -98,7 +164,7 @@ _read_stream_info (JsonReader *reader, GtuberStream *stream)
   if (!uri_str)
     return;
 
-  mod_uri = gtuber_utils_common_obtain_uri_with_query_as_path (uri_str);
+  mod_uri = _modify_uri (uri_str);
   gtuber_stream_set_uri (stream, mod_uri);
   g_free (mod_uri);
 
