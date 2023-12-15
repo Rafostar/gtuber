@@ -30,6 +30,12 @@ GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND (invidious,
   "vid.puffyan.us",
   NULL
 )
+GTUBER_WEBSITE_PLUGIN_EXPORT_SCHEMES (
+  "http",
+  "https",
+  "invidious",
+  NULL
+)
 GTUBER_WEBSITE_PLUGIN_DECLARE (Invidious, invidious, INVIDIOUS)
 
 struct _GtuberInvidious
@@ -242,6 +248,28 @@ parse_response_data (GtuberInvidious *self, JsonParser *parser,
   g_object_unref (reader);
 }
 
+static void
+gtuber_invidious_prepare (GtuberWebsite *website)
+{
+  GtuberInvidious *self = GTUBER_INVIDIOUS (website);
+  GUri *website_uri;
+  gboolean use_http;
+
+  website_uri = gtuber_website_get_uri (website);
+  use_http = (g_uri_get_port (website_uri) == 80);
+
+  self->source = g_uri_join (G_URI_FLAGS_ENCODED,
+      (use_http) ? "http" : "https",
+      g_uri_get_userinfo (website_uri),
+      g_uri_get_host (website_uri),
+      g_uri_get_port (website_uri),
+      "/",
+      NULL,
+      NULL);
+
+  g_debug ("Requested source: %s", self->source);
+}
+
 static GtuberFlow
 gtuber_invidious_create_request (GtuberWebsite *website,
     GtuberMediaInfo *info, SoupMessage **msg, GError **error)
@@ -249,21 +277,12 @@ gtuber_invidious_create_request (GtuberWebsite *website,
   GtuberInvidious *self = GTUBER_INVIDIOUS (website);
 
   if (!self->hls_uri) {
-    gchar *api_uri, *msg_uri;
+    gchar *msg_uri;
 
-    api_uri = g_uri_resolve_relative (
-        gtuber_website_get_uri_string (website),
-        "/api/v1/videos",
-        G_URI_FLAGS_ENCODED,
-        error);
-
-    if (*error)
-      return GTUBER_FLOW_ERROR;
-
-    msg_uri = g_strjoin ("/", api_uri, self->video_id, NULL);
+    msg_uri = g_strjoin ("/", self->source,
+        "/api/v1/videos", self->video_id, NULL);
     *msg = soup_message_new ("GET", msg_uri);
 
-    g_free (api_uri);
     g_free (msg_uri);
   } else {
     *msg = soup_message_new ("GET", self->hls_uri);
@@ -314,6 +333,7 @@ gtuber_invidious_class_init (GtuberInvidiousClass *klass)
 
   gobject_class->finalize = gtuber_invidious_finalize;
 
+  website_class->prepare = gtuber_invidious_prepare;
   website_class->create_request = gtuber_invidious_create_request;
   website_class->parse_input_stream = gtuber_invidious_parse_input_stream;
 }
@@ -321,6 +341,7 @@ gtuber_invidious_class_init (GtuberInvidiousClass *klass)
 GtuberWebsite *
 plugin_query (GUri *uri)
 {
+  GtuberInvidious *invidious = NULL;
   gchar *id;
 
   id = gtuber_utils_common_obtain_uri_query_value (uri, "v");
@@ -328,17 +349,11 @@ plugin_query (GUri *uri)
     id = gtuber_utils_common_obtain_uri_id_from_paths (uri, NULL, "/v/", NULL);
 
   if (id) {
-    GtuberInvidious *invidious;
-
     invidious = gtuber_invidious_new ();
     invidious->video_id = id;
-    invidious->source = gtuber_utils_common_obtain_uri_source (uri);
 
-    g_debug ("Requested source: %s, video: %s",
-        invidious->source, invidious->video_id);
-
-    return GTUBER_WEBSITE (invidious);
+    g_debug ("Requested video: %s", invidious->video_id);
   }
 
-  return NULL;
+  return GTUBER_WEBSITE (invidious);
 }
