@@ -203,7 +203,16 @@ parse_response_data (GtuberInvidious *self, JsonParser *parser,
     GtuberMediaInfo *info, GError **error)
 {
   JsonReader *reader = json_reader_new (json_parser_get_root (parser));
-  const gchar *desc;
+  const gchar *desc, *error_str;
+
+  if ((error_str = gtuber_utils_json_get_string (reader, "error", NULL))) {
+    g_set_error (error, GTUBER_WEBSITE_ERROR,
+        GTUBER_WEBSITE_ERROR_PARSE_FAILED,
+        "%s", error_str);
+    g_object_unref (reader);
+
+    return;
+  }
 
   gtuber_media_info_set_id (info,
       gtuber_utils_json_get_string (reader, "videoId", NULL));
