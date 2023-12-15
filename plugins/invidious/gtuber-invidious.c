@@ -238,7 +238,8 @@ parse_response_data (GtuberInvidious *self, JsonParser *parser,
           (GtuberFunc) _add_adaptive_stream_cb, self);
       gtuber_utils_json_go_back (reader, 1);
     }
-    gtuber_utils_youtube_insert_chapters_from_description (info, desc);
+    if (desc)
+      gtuber_utils_youtube_insert_chapters_from_description (info, desc);
   }
 
   g_object_unref (reader);
