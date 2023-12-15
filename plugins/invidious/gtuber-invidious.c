@@ -28,9 +28,6 @@
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS_FROM_FILE_WITH_PREPEND (invidious,
   "invidious.snopyta.org",
   "vid.puffyan.us",
-  "inv.riverside.rocks",
-  "invidio.xamh.de",
-  "invidious.hub.ne.kr",
   NULL
 )
 GTUBER_WEBSITE_PLUGIN_DECLARE (Invidious, invidious, INVIDIOUS)
