@@ -56,6 +56,8 @@ struct _GtuberYoutube
   gchar *locale;
   gchar *ua;
 
+  gboolean use_mod_uri;
+
   YoutubeStep step;
   guint try_count;
 };
@@ -153,10 +155,10 @@ _modify_uri (const gchar *uri_str)
 }
 
 static void
-_read_stream_info (JsonReader *reader, GtuberStream *stream)
+_read_stream_info (GtuberYoutube *self, JsonReader *reader, GtuberStream *stream)
 {
   const gchar *uri_str, *yt_mime;
-  gchar *mod_uri;
+  gchar *final_uri;
 
   uri_str = gtuber_utils_json_get_string (reader, "url", NULL);
 
@@ -164,9 +166,12 @@ _read_stream_info (JsonReader *reader, GtuberStream *stream)
   if (!uri_str)
     return;
 
-  mod_uri = _modify_uri (uri_str);
-  gtuber_stream_set_uri (stream, mod_uri);
-  g_free (mod_uri);
+  final_uri = (!self->use_mod_uri)
+      ? gtuber_utils_common_obtain_uri_with_query_as_path (uri_str)
+      : _modify_uri (uri_str);
+
+  gtuber_stream_set_uri (stream, final_uri);
+  g_free (final_uri);
 
   gtuber_stream_set_itag (stream, gtuber_utils_json_get_int (reader, "itag", NULL));
   gtuber_stream_set_bitrate (stream, gtuber_utils_json_get_int (reader, "bitrate", NULL));
@@ -192,6 +197,7 @@ _read_stream_info (JsonReader *reader, GtuberStream *stream)
 static void
 _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer user_data)
 {
+  GtuberYoutube *self = GTUBER_YOUTUBE (user_data);
   GtuberStream *stream;
   guint itag;
 
@@ -206,7 +212,7 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer user_data)
   }
 
   stream = gtuber_stream_new ();
-  _read_stream_info (reader, stream);
+  _read_stream_info (self, reader, stream);
 
   gtuber_media_info_add_stream (info, stream);
 }
@@ -214,6 +220,7 @@ _read_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer user_data)
 static void
 _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer user_data)
 {
+  GtuberYoutube *self = GTUBER_YOUTUBE (user_data);
   GtuberAdaptiveStream *astream;
   const gchar *stream_type;
 
@@ -226,7 +233,7 @@ _read_adaptive_stream_cb (JsonReader *reader, GtuberMediaInfo *info, gpointer us
   }
 
   astream = gtuber_adaptive_stream_new ();
-  _read_stream_info (reader, GTUBER_STREAM (astream));
+  _read_stream_info (self, reader, GTUBER_STREAM (astream));
 
   if (gtuber_utils_json_go_to (reader, "initRange", NULL)) {
     const gchar *start, *end;
@@ -322,12 +329,12 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
     if (!self->hls_uri) {
       if (gtuber_utils_json_go_to (reader, "formats", NULL)) {
         gtuber_utils_json_array_foreach (reader, info,
-            (GtuberFunc) _read_stream_cb, NULL);
+            (GtuberFunc) _read_stream_cb, self);
         gtuber_utils_json_go_back (reader, 1);
       }
       if (gtuber_utils_json_go_to (reader, "adaptiveFormats", NULL)) {
         gtuber_utils_json_array_foreach (reader, info,
-            (GtuberFunc) _read_adaptive_stream_cb, NULL);
+            (GtuberFunc) _read_adaptive_stream_cb, self);
         gtuber_utils_json_go_back (reader, 1);
       }
     }
@@ -567,7 +574,11 @@ gtuber_youtube_prepare (GtuberWebsite *website)
 {
   GtuberYoutube *self = GTUBER_YOUTUBE (website);
   const gchar *const *langs;
+  const gchar *env_str;
   guint i;
+
+  env_str = g_getenv ("GTUBER_YOUTUBE_MOD_URI");
+  self->use_mod_uri = (env_str && g_str_has_prefix (env_str, "1"));
 
   if (G_LIKELY (self->video_id != NULL))
     self->step++;
