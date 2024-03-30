@@ -1,6 +1,6 @@
 project('gtuber', 'c',
   version: '0.4.0',
-  meson_version: '>=0.53.0',
+  meson_version: '>=0.56.0',
   license: 'LGPL-2.1-or-later',
   default_options: [
     'warning_level=1',
