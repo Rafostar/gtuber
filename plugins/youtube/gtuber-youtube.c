@@ -25,7 +25,7 @@
 #include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
-#define GTUBER_YOUTUBE_CLI_VERSION "18.15.37"
+#define GTUBER_YOUTUBE_CLI_VERSION "19.09.37"
 #define GTUBER_YOUTUBE_ANDROID_MAJOR 11
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
 #define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
@@ -420,7 +420,7 @@ obtain_player_req_body (GtuberYoutube *self)
   GTUBER_UTILS_JSON_BUILD_OBJECT (&req_body, {
     GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("context", {
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("client", {
-        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID");
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID_EMBEDDED_PLAYER");
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", GTUBER_YOUTUBE_CLI_VERSION);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("androidSdkVersion", GTUBER_YOUTUBE_ANDROID_SDK_MAJOR);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("userAgent", self->ua);
@@ -443,8 +443,13 @@ obtain_player_req_body (GtuberYoutube *self)
         GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("lockedSafetyMode", FALSE);
       });
     });
-    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("video_id", self->video_id);
-    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "CgIQBg");
+    GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("playbackContext", {
+      GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("contentPlaybackContext", {
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("html5Preference", "HTML5_PREF_WANTS");
+      });
+    });
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("videoId", self->video_id);
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "2AMBCgIQBg");
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
   });
@@ -523,7 +528,7 @@ obtain_api_msg (GtuberYoutube *self)
 
   msg = soup_message_new ("POST",
       "https://www.youtube.com/youtubei/v1/player?"
-      "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
+      "key=AIzaSyCjc_pVEDi4qsv5MtC2dMXzpIaDoRFLsxw");
   headers = soup_message_get_request_headers (msg);
 
   soup_message_headers_append (headers, "X-YouTube-Client-Name", "3"); // 3 = ANDROID
@@ -583,7 +588,7 @@ gtuber_youtube_prepare (GtuberWebsite *website)
 
   g_debug ("Using locale: %s", self->locale);
 
-  self->ua = g_strdup_printf ("com.google.android.youtube/%s(Linux; U; Android %i; %s) gzip",
+  self->ua = g_strdup_printf ("com.google.android.youtube/%s (Linux; U; Android %i; %s) gzip",
       GTUBER_YOUTUBE_CLI_VERSION, GTUBER_YOUTUBE_ANDROID_MAJOR, self->locale);
 }
 
