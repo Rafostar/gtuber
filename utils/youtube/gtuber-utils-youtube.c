@@ -90,13 +90,15 @@ decs_line_is_chapter (const gchar *line, gboolean *has_hours)
       if (line[i] == ':'
           && g_ascii_isdigit (line[i + 1])
           && g_ascii_isdigit (line[i + 2])) {
-        if (line[i + 3] == ' ') {
+        if (line[i + 3] == ' '
+            || g_unichar_iszerowidth (g_utf8_get_char_validated (line + i + 3, -1))) {
           *has_hours = FALSE;
           return TRUE;
         } else if (line[i + 3] == ':'
             && g_ascii_isdigit (line[i + 4])
             && g_ascii_isdigit (line[i + 5])
-            && line[i + 6] == ' ') {
+            && (line[i + 6] == ' '
+            || g_unichar_iszerowidth (g_utf8_get_char_validated (line + i + 6, -1)))) {
           *has_hours = TRUE;
           return TRUE;
         }
