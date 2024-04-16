@@ -25,7 +25,7 @@
 #include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
-#define GTUBER_YOUTUBE_CLI_VERSION "19.09.37"
+#define GTUBER_YOUTUBE_CLI_VERSION "18.15.37"
 #define GTUBER_YOUTUBE_ANDROID_MAJOR 11
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
 #define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
@@ -427,7 +427,7 @@ obtain_player_req_body (GtuberYoutube *self)
   GTUBER_UTILS_JSON_BUILD_OBJECT (&req_body, {
     GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("context", {
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("client", {
-        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID_EMBEDDED_PLAYER");
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID");
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", GTUBER_YOUTUBE_CLI_VERSION);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("androidSdkVersion", GTUBER_YOUTUBE_ANDROID_SDK_MAJOR);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("userAgent", self->ua);
@@ -456,7 +456,7 @@ obtain_player_req_body (GtuberYoutube *self)
       });
     });
     GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("videoId", self->video_id);
-    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "2AMBCgIQBg");
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "CgIIAQ==");
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
   });
@@ -535,7 +535,7 @@ obtain_api_msg (GtuberYoutube *self)
 
   msg = soup_message_new ("POST",
       "https://www.youtube.com/youtubei/v1/player?"
-      "key=AIzaSyCjc_pVEDi4qsv5MtC2dMXzpIaDoRFLsxw");
+      "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
   headers = soup_message_get_request_headers (msg);
 
   soup_message_headers_append (headers, "X-YouTube-Client-Name", "3"); // 3 = ANDROID
@@ -578,7 +578,7 @@ gtuber_youtube_prepare (GtuberWebsite *website)
   guint i;
 
   env_str = g_getenv ("GTUBER_YOUTUBE_MOD_URI");
-  self->use_mod_uri = (env_str && g_str_has_prefix (env_str, "1"));
+  self->use_mod_uri = (!env_str || g_str_has_prefix (env_str, "1"));
 
   if (G_LIKELY (self->video_id != NULL))
     self->step++;
