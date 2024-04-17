@@ -334,6 +334,8 @@ gst_gtuber_adaptive_bin_prepare (GstGtuberAdaptiveBin *self)
 
     if (g_object_class_find_property (gobject_class, "low-watermark-time"))
       g_object_set (self->demuxer, "low-watermark-time", 3 * GST_SECOND, NULL);
+    if (g_object_class_find_property (gobject_class, "high-watermark-time"))
+      g_object_set (self->demuxer, "high-watermark-time", 10 * GST_SECOND, NULL);
 
     gst_bin_add (GST_BIN (self), self->demuxer);
 
