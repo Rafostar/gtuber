@@ -25,9 +25,9 @@
 #include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
-#define GTUBER_YOUTUBE_CLI_VERSION "18.15.37"
-#define GTUBER_YOUTUBE_ANDROID_MAJOR 11
-#define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 30
+#define GTUBER_YOUTUBE_CLI_VERSION "18.22.37"
+#define GTUBER_YOUTUBE_ANDROID_MAJOR 13
+#define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 33
 #define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
@@ -456,7 +456,7 @@ obtain_player_req_body (GtuberYoutube *self)
       });
     });
     GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("videoId", self->video_id);
-    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "CgIIAQ==");
+    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "CgIIAdgDAQ%3D%3D");
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
   });
@@ -599,7 +599,8 @@ gtuber_youtube_prepare (GtuberWebsite *website)
 
   g_debug ("Using locale: %s", self->locale);
 
-  self->ua = g_strdup_printf ("com.google.android.youtube/%s (Linux; U; Android %i; %s) gzip",
+  self->ua = g_strdup_printf ("com.google.android.youtube/%s (Linux; U; Android %i; %s;"
+      " sdk_gphone64_x86_64 Build/UPB4.230623.005) gzip",
       GTUBER_YOUTUBE_CLI_VERSION, GTUBER_YOUTUBE_ANDROID_MAJOR, self->locale);
 }
 
