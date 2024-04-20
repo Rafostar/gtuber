@@ -29,11 +29,19 @@
 #define GTUBER_YOUTUBE_ANDROID_PARAMS "CgIIAdgDAQ%3D%3D"
 #define GTUBER_YOUTUBE_ANDROID_MAJOR "13"
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 33
+
+#define GTUBER_YOUTUBE_IOS_CLI_VER "18.20.3"
+#define GTUBER_YOUTUBE_IOS_DEVICE "iPhone14,3"
+#define GTUBER_YOUTUBE_IOS_SYS_VER "15_6"
+
 #define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
 
 #define ANDROID_UA_FORMAT \
     "%s/%s (Linux; U; Android " GTUBER_YOUTUBE_ANDROID_MAJOR "; %s;" \
     " sdk_gphone64_x86_64 Build/UPB4.230623.005) gzip"
+
+#define IOS_UA_FORMAT \
+    "%s/%s (" GTUBER_YOUTUBE_IOS_DEVICE "; U; CPU iOS " GTUBER_YOUTUBE_IOS_SYS_VER " like Mac OS X; %s)"
 
 /* XXX: Must be updated when client params are added */
 #define MAX_ROOT_PARAMS 1
@@ -88,6 +96,28 @@ struct GtuberYoutubeClient
 struct GtuberYoutubeClient clients[] =
 {
   {
+    .name = "IOS",
+    .id = "5",
+    .app = "com.google.ios.youtube",
+    .version = GTUBER_YOUTUBE_IOS_CLI_VER,
+    .api_key = "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+    .root_params = { NULL },
+    .client_params = {
+      "deviceModel", GTUBER_YOUTUBE_IOS_DEVICE, NULL
+    }
+  },
+  {
+    .name = "IOS_MESSAGES_EXTENSION", // iOS Embedded
+    .id = "66",
+    .app = "com.google.ios.youtube",
+    .version = GTUBER_YOUTUBE_IOS_CLI_VER,
+    .api_key = "AIzaSyDCU8hByM-4DrUqRUYnGn-3llEO78bcxq8",
+    .root_params = { NULL },
+    .client_params = {
+      "deviceModel", GTUBER_YOUTUBE_IOS_DEVICE, NULL
+    }
+  },
+  {
     .name = "ANDROID", // ANDROID with EMBED clientScreen
     .id = "3",
     .app = "com.google.android.youtube",
@@ -131,6 +161,8 @@ gtuber_youtube_update_user_agent (GtuberYoutube *self)
 
   if (g_str_has_prefix (clients[self->client].name, "ANDROID"))
     format_str = ANDROID_UA_FORMAT;
+  else if (g_str_has_prefix (clients[self->client].name, "IOS"))
+    format_str = IOS_UA_FORMAT;
   else
     g_assert_not_reached ();
 
