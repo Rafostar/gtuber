@@ -705,7 +705,7 @@ gtuber_youtube_prepare (GtuberWebsite *website)
   guint i;
 
   env_str = g_getenv ("GTUBER_YOUTUBE_MOD_URI");
-  self->use_mod_uri = (!env_str || g_str_has_prefix (env_str, "1"));
+  self->use_mod_uri = (env_str && g_str_has_prefix (env_str, "1"));
 
   if (G_LIKELY (self->video_id != NULL))
     self->step++;
