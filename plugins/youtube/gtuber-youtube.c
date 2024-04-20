@@ -350,7 +350,7 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
 {
   JsonParser *parser;
   JsonReader *reader = NULL;
-  const gchar *status, *visitor_data;
+  const gchar *status, *video_id, *visitor_data;
   GtuberFlow flow = GTUBER_FLOW_OK;
 
   parser = json_parser_new ();
@@ -363,7 +363,9 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
 
   /* Check if video is playable */
   status = gtuber_utils_json_get_string (reader, "playabilityStatus", "status", NULL);
-  if (g_strcmp0 (status, "OK") != 0) {
+  video_id = gtuber_utils_json_get_string (reader, "videoDetails", "videoId", NULL);
+  if (g_strcmp0 (status, "OK") != 0
+      || g_strcmp0 (video_id, self->video_id) != 0) {
     if (G_N_ELEMENTS (clients) > self->client + 1) {
       g_debug ("Video is not playable, trying again with a different client...");
 
@@ -383,11 +385,10 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
     goto finish;
   }
 
-  if (gtuber_utils_json_go_to (reader, "videoDetails", NULL)) {
-    const gchar *id, *title, *desc, *duration;
+  gtuber_media_info_set_id (info, video_id);
 
-    id = gtuber_utils_json_get_string (reader, "videoId", NULL);
-    gtuber_media_info_set_id (info, id);
+  if (gtuber_utils_json_go_to (reader, "videoDetails", NULL)) {
+    const gchar *title, *desc, *duration;
 
     title = gtuber_utils_json_get_string (reader, "title", NULL);
     gtuber_media_info_set_title (info, title);
