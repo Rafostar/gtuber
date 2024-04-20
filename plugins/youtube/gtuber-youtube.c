@@ -25,10 +25,19 @@
 #include "utils/xml/gtuber-utils-xml.h"
 #include "utils/youtube/gtuber-utils-youtube.h"
 
-#define GTUBER_YOUTUBE_CLI_VERSION "18.22.37"
-#define GTUBER_YOUTUBE_ANDROID_MAJOR 13
+#define GTUBER_YOUTUBE_ANDROID_CLI_VER "18.22.37"
+#define GTUBER_YOUTUBE_ANDROID_PARAMS "CgIIAdgDAQ%3D%3D"
+#define GTUBER_YOUTUBE_ANDROID_MAJOR "13"
 #define GTUBER_YOUTUBE_ANDROID_SDK_MAJOR 33
 #define GTUBER_YOUTUBE_X_ORIGIN "https://www.youtube.com"
+
+#define ANDROID_UA_FORMAT \
+    "%s/%s (Linux; U; Android " GTUBER_YOUTUBE_ANDROID_MAJOR "; %s;" \
+    " sdk_gphone64_x86_64 Build/UPB4.230623.005) gzip"
+
+/* XXX: Must be updated when client params are added */
+#define MAX_ROOT_PARAMS 1
+#define MAX_CLIENT_PARAMS 1
 
 GTUBER_WEBSITE_PLUGIN_EXPORT_HOSTS (
   "youtube.com",
@@ -59,11 +68,78 @@ struct _GtuberYoutube
   gboolean use_mod_uri;
 
   YoutubeStep step;
-  guint try_count;
+  guint client;
 };
 
 #define parent_class gtuber_youtube_parent_class
 GTUBER_WEBSITE_PLUGIN_DEFINE (Youtube, youtube)
+
+struct GtuberYoutubeClient
+{
+  const gchar *name;
+  const gchar *id;
+  const gchar *app;
+  const gchar *version;
+  const gchar *api_key;
+  const gchar *root_params[2 * MAX_ROOT_PARAMS + 1];
+  const gchar *client_params[2 * MAX_CLIENT_PARAMS + 1];
+};
+
+struct GtuberYoutubeClient clients[] =
+{
+  {
+    .name = "ANDROID", // ANDROID with EMBED clientScreen
+    .id = "3",
+    .app = "com.google.android.youtube",
+    .version = GTUBER_YOUTUBE_ANDROID_CLI_VER,
+    .api_key = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+    .root_params = {
+      "params", GTUBER_YOUTUBE_ANDROID_PARAMS, NULL
+    },
+    .client_params = {
+      "clientScreen", "EMBED", NULL
+    }
+  },
+  {
+    .name = "ANDROID",
+    .id = "3",
+    .app = "com.google.android.youtube",
+    .version = GTUBER_YOUTUBE_ANDROID_CLI_VER,
+    .api_key = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+    .root_params = {
+      "params", GTUBER_YOUTUBE_ANDROID_PARAMS, NULL
+    },
+    .client_params = { NULL }
+  },
+  {
+    .name = "ANDROID_EMBEDDED_PLAYER",
+    .id = "55",
+    .app = "com.google.android.youtube",
+    .version = GTUBER_YOUTUBE_ANDROID_CLI_VER,
+    .api_key = "AIzaSyCjc_pVEDi4qsv5MtC2dMXzpIaDoRFLsxw",
+    .root_params = {
+      "params", GTUBER_YOUTUBE_ANDROID_PARAMS, NULL
+    },
+    .client_params = { NULL }
+  }
+};
+
+static void
+gtuber_youtube_update_user_agent (GtuberYoutube *self)
+{
+  const gchar *format_str = NULL;
+
+  if (g_str_has_prefix (clients[self->client].name, "ANDROID"))
+    format_str = ANDROID_UA_FORMAT;
+  else
+    g_assert_not_reached ();
+
+  g_free (self->ua);
+  self->ua = g_strdup_printf (format_str,
+      clients[self->client].app, clients[self->client].version, self->locale);
+
+  g_debug ("Using User-Agent: %s", self->ua);
+}
 
 static void
 gtuber_youtube_init (GtuberYoutube *self)
@@ -287,10 +363,14 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
 
   /* Check if video is playable */
   status = gtuber_utils_json_get_string (reader, "playabilityStatus", "status", NULL);
-  if (g_strcmp0 (status, "OK")) {
-    if (self->try_count < 2) {
+  if (g_strcmp0 (status, "OK") != 0) {
+    if (G_N_ELEMENTS (clients) > self->client + 1) {
+      g_debug ("Video is not playable, trying again with a different client...");
+
+      self->client++;
+      gtuber_youtube_update_user_agent (self);
+
       flow = GTUBER_FLOW_RESTART;
-      g_debug ("Video is not playable, trying again...");
     } else {
       const gchar *reason;
 
@@ -414,29 +494,30 @@ static gchar *
 obtain_player_req_body (GtuberYoutube *self)
 {
   gchar *req_body, **parts;
-  const gchar *cliScreen;
-
-  /* Get EMBED video info on first try.
-   * If it fails, try default one on next try */
-  cliScreen = (self->try_count == 1)
-      ? "EMBED"
-      : NULL;
+  guint i;
 
   parts = g_strsplit (self->locale, "_", 0);
 
   GTUBER_UTILS_JSON_BUILD_OBJECT (&req_body, {
     GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("context", {
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("client", {
-        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", "ANDROID");
-        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", GTUBER_YOUTUBE_CLI_VERSION);
-        GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("androidSdkVersion", GTUBER_YOUTUBE_ANDROID_SDK_MAJOR);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientName", clients[self->client].name);
+        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientVersion", clients[self->client].version);
+        if (g_str_has_prefix (clients[self->client].name, "ANDROID")) {
+          GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("androidSdkVersion", GTUBER_YOUTUBE_ANDROID_SDK_MAJOR);
+        }
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("userAgent", self->ua);
-        GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("clientScreen", cliScreen);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("hl", parts[0]);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("gl", parts[1]);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("visitorData", self->visitor_data);
         GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("timeZone", "UTC"); // the same time as in "SAPISID"
         GTUBER_UTILS_JSON_ADD_KEY_VAL_INT ("utcOffsetMinutes", 0);
+
+        for (i = 0; clients[self->client].client_params[i]; i += 2) {
+          GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING (
+              clients[self->client].client_params[i],
+              clients[self->client].client_params[i + 1]);
+        }
       });
       GTUBER_UTILS_JSON_ADD_NAMED_OBJECT ("thirdParty", {
         gchar *embed_url;
@@ -456,9 +537,14 @@ obtain_player_req_body (GtuberYoutube *self)
       });
     });
     GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("videoId", self->video_id);
-    GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING ("params", "CgIIAdgDAQ%3D%3D");
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("contentCheckOk", TRUE);
     GTUBER_UTILS_JSON_ADD_KEY_VAL_BOOLEAN ("racyCheckOk", TRUE);
+
+    for (i = 0; clients[self->client].root_params[i]; i += 2) {
+      GTUBER_UTILS_JSON_ADD_KEY_VAL_STRING (
+          clients[self->client].root_params[i],
+          clients[self->client].root_params[i + 1]);
+    }
   });
 
   g_strfreev (parts);
@@ -528,18 +614,22 @@ obtain_api_msg (GtuberYoutube *self)
   SoupMessage *msg;
   SoupMessageHeaders *headers;
   SoupCookieJar *jar;
-  gchar *req_body;
+  gchar *req_uri, *req_body;
 
-  self->try_count++;
-  g_debug ("Try number: %i", self->try_count);
+  g_debug ("Try with client: %i (%s)",
+      self->client, clients[self->client].name);
 
-  msg = soup_message_new ("POST",
-      "https://www.youtube.com/youtubei/v1/player?"
-      "key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w");
+  req_uri = g_strdup_printf (
+      "https://www.youtube.com/youtubei/v1/player?key=%s",
+      clients[self->client].api_key);
+
+  msg = soup_message_new ("POST", req_uri);
+  g_free (req_uri);
+
   headers = soup_message_get_request_headers (msg);
 
-  soup_message_headers_append (headers, "X-YouTube-Client-Name", "3"); // 3 = ANDROID
-  soup_message_headers_append (headers, "X-YouTube-Client-Version", GTUBER_YOUTUBE_CLI_VERSION);
+  soup_message_headers_append (headers, "X-YouTube-Client-Name", clients[self->client].id);
+  soup_message_headers_append (headers, "X-YouTube-Client-Version", clients[self->client].version);
 
   if ((jar = gtuber_website_get_cookies_jar (GTUBER_WEBSITE (self)))) {
     gchar *auth_str, *cookies_str;
@@ -599,9 +689,7 @@ gtuber_youtube_prepare (GtuberWebsite *website)
 
   g_debug ("Using locale: %s", self->locale);
 
-  self->ua = g_strdup_printf ("com.google.android.youtube/%s (Linux; U; Android %i; %s;"
-      " sdk_gphone64_x86_64 Build/UPB4.230623.005) gzip",
-      GTUBER_YOUTUBE_CLI_VERSION, GTUBER_YOUTUBE_ANDROID_MAJOR, self->locale);
+  gtuber_youtube_update_user_agent (self);
 }
 
 static GtuberFlow
