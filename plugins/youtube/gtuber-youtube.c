@@ -384,6 +384,7 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
   JsonReader *reader = NULL;
   const gchar *status, *video_id, *visitor_data;
   GtuberFlow flow = GTUBER_FLOW_OK;
+  gboolean is_live = FALSE;
 
   parser = json_parser_new ();
   json_parser_load_from_stream (parser, stream, NULL, error);
@@ -433,11 +434,14 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
     if (duration)
       gtuber_media_info_set_duration (info, g_ascii_strtoull (duration, NULL, 10));
 
+    is_live = gtuber_utils_json_get_boolean (reader, "isLiveContent", NULL);
+
     gtuber_utils_json_go_back (reader, 1);
   }
 
   if (gtuber_utils_json_go_to (reader, "streamingData", NULL)) {
-    self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hlsManifestUrl", NULL));
+    if (is_live)
+      self->hls_uri = g_strdup (gtuber_utils_json_get_string (reader, "hlsManifestUrl", NULL));
 
     if (!self->hls_uri) {
       if (gtuber_utils_json_go_to (reader, "formats", NULL)) {
