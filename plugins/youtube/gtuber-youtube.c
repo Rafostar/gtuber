@@ -155,9 +155,18 @@ struct GtuberYoutubeClient clients[] =
 };
 
 static void
-gtuber_youtube_update_user_agent (GtuberYoutube *self)
+gtuber_youtube_set_client (GtuberYoutube *self, guint client)
 {
   const gchar *format_str = NULL;
+  gchar cache_name[16];
+
+  self->client = client;
+
+  g_snprintf (cache_name, sizeof (cache_name), "visitor_data_%s", clients[self->client].id);
+  g_free (self->visitor_data);
+  self->visitor_data = gtuber_youtube_cache_read (cache_name);
+  if (!self->visitor_data)
+    self->visitor_data = g_strdup ("");
 
   if (g_str_has_prefix (clients[self->client].name, "ANDROID"))
     format_str = ANDROID_UA_FORMAT;
@@ -401,9 +410,7 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
       || g_strcmp0 (video_id, self->video_id) != 0) {
     if (G_N_ELEMENTS (clients) > self->client + 1) {
       g_debug ("Video is not playable, trying again with a different client...");
-
-      self->client++;
-      gtuber_youtube_update_user_agent (self);
+      gtuber_youtube_set_client (self, self->client + 1);
 
       flow = GTUBER_FLOW_RESTART;
     } else {
@@ -460,11 +467,14 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
 
   visitor_data = gtuber_utils_json_get_string (reader, "responseContext", "visitorData", NULL);
   if (visitor_data && strcmp (self->visitor_data, visitor_data)) {
+    gchar cache_name[16];
+
+    g_snprintf (cache_name, sizeof (cache_name), "visitor_data_%s", clients[self->client].id);
     g_free (self->visitor_data);
     self->visitor_data = g_strdup (visitor_data);
     g_debug ("Updated visitor_data: %s", self->visitor_data);
 
-    gtuber_youtube_cache_write ("visitor_data", self->visitor_data, 24 * 3600);
+    gtuber_youtube_cache_write (cache_name, self->visitor_data, 24 * 3600);
   }
 
 finish:
@@ -710,10 +720,6 @@ gtuber_youtube_prepare (GtuberWebsite *website)
   if (G_LIKELY (self->video_id != NULL))
     self->step++;
 
-  self->visitor_data = gtuber_youtube_cache_read ("visitor_data");
-  if (!self->visitor_data)
-    self->visitor_data = g_strdup ("");
-
   langs = g_get_language_names ();
   for (i = 0; langs[i]; i++) {
     if (strlen (langs[i]) == 5 && ((langs[i])[2] == '_')) {
@@ -726,7 +732,7 @@ gtuber_youtube_prepare (GtuberWebsite *website)
 
   g_debug ("Using locale: %s", self->locale);
 
-  gtuber_youtube_update_user_agent (self);
+  gtuber_youtube_set_client (self, 0);
 }
 
 static GtuberFlow
