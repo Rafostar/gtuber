@@ -474,7 +474,7 @@ parse_api_data (GtuberYoutube *self, GInputStream *stream,
     self->visitor_data = g_strdup (visitor_data);
     g_debug ("Updated visitor_data: %s", self->visitor_data);
 
-    gtuber_youtube_cache_write (cache_name, self->visitor_data, 24 * 3600);
+    gtuber_youtube_cache_write (cache_name, self->visitor_data, 3 * 3600);
   }
 
 finish:
