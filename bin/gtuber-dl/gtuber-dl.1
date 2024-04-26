@@ -1,0 +1,80 @@
+.TH GTUBER-DL "1" "May 2023" "gtuber-dl 0.4.0" "User Commands"
+.SH NAME
+gtuber-dl \- manual page for gtuber-dl 0.4.0
+.SH DESCRIPTION
+.SS "Usage:"
+.IP
+gtuber\-dl [OPTION?] URI
+.SS "Application Options:"
+.TP
+\fB\-I\fR, \fB\-\-info\fR
+Print media info and exit
+.TP
+\fB\-i\fR, \fB\-\-itags\fR
+A comma separated list of itags to download
+.TP
+\fB\-n\fR, \fB\-\-non\-interactive\fR
+Auto select itags for download without user prompt
+.TP
+\fB\-o\fR, \fB\-\-output\fR
+Download location
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Disable terminal printing
+.TP
+\fB\-\-version\fR
+Print version information and exit
+.SS "Help Options:"
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show help options
+.TP
+\fB\-\-help\-all\fR
+Show all help options
+.TP
+\fB\-\-help\-gst\fR
+Show GStreamer Options
+.PP
+.SS "GStreamer Options:"
+.TP
+\fB\-\-gst\-version\fR
+Print the GStreamer version
+.TP
+\fB\-\-gst\-fatal\-warnings\fR
+Make all warnings fatal
+.TP
+\fB\-\-gst\-debug\-help\fR
+Print available debug categories and exit
+.TP
+\fB\-\-gst\-debug\-level\fR=\fI\,LEVEL\/\fR
+Default debug level from 1 (only error) to 9 (anything) or 0 for no output
+.TP
+\fB\-\-gst\-debug\fR=\fI\,LIST\/\fR
+Comma\-separated list of category_name:level pairs to set specific levels for the individual categories. Example: GST_AUTOPLUG:5,GST_ELEMENT_*:3
+.TP
+\fB\-\-gst\-debug\-no\-color\fR
+Disable colored debugging output
+.TP
+\fB\-\-gst\-debug\-color\-mode\fR
+Changes coloring mode of the debug log. Possible modes: off, on, disable, auto, unix
+.TP
+\fB\-\-gst\-debug\-disable\fR
+Disable debugging
+.TP
+\fB\-\-gst\-plugin\-spew\fR
+Enable verbose plugin loading diagnostics
+.TP
+\fB\-\-gst\-plugin\-path\fR=\fI\,PATHS\/\fR
+Colon\-separated paths containing plugins
+.TP
+\fB\-\-gst\-plugin\-load\fR=\fI\,PLUGINS\/\fR
+Comma\-separated list of plugins to preload in addition to the list stored in environment variable GST_PLUGIN_PATH
+.TP
+\fB\-\-gst\-disable\-segtrap\fR
+Disable trapping of segmentation faults during plugin loading
+.TP
+\fB\-\-gst\-disable\-registry\-update\fR
+Disable updating the registry
+.TP
+\fB\-\-gst\-disable\-registry\-fork\fR
+Disable spawning a helper process while scanning the registry
