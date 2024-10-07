@@ -265,7 +265,7 @@ gtuber_bilibili_create_request (GtuberWebsite *website,
 
   headers = soup_message_get_request_headers (*msg);
 
-  if ((jar = gtuber_website_get_cookies_jar (GTUBER_WEBSITE(self)))) {
+  if ((jar = gtuber_website_get_cookies_jar (website))) {
     gchar *cookies_str;
 
     cookies_str = soup_cookie_jar_get_cookies (jar, soup_message_get_uri (*msg), TRUE);
