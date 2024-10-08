@@ -117,7 +117,7 @@ gchar *
 bilibili_bangumi_obtain_media_uri (GtuberBilibili *self, const gchar *id_name)
 {
   return g_strdup_printf (
-      "https://api.bilibili.com/pgc/player/web/playurl?avid=%i&cid=%i&bvid=%s&qn=0&fnver=0&fnval=80&fourk=1&%s=%s",
+      "https://api.bilibili.com/pgc/player/web/playurl?avid=%" G_GINT64_FORMAT "&cid=%" G_GINT64_FORMAT "&bvid=%s&qn=0&fnver=0&fnval=80&fourk=1&%s=%s",
       self->aid, self->cid, self->bvid, id_name, self->video_id);
 }
 

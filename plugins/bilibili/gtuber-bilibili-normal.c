@@ -32,7 +32,7 @@ gchar *
 bilibili_normal_obtain_media_uri (GtuberBilibili *self)
 {
   return g_strdup_printf (
-      "https://api.bilibili.com/x/player/playurl?aid=%i&cid=%i&bvid=%s&qn=0&fnver=0&fnval=80&fourk=1",
+      "https://api.bilibili.com/x/player/playurl?aid=%" G_GINT64_FORMAT "&cid=%" G_GINT64_FORMAT "&bvid=%s&qn=0&fnver=0&fnval=80&fourk=1",
       self->aid, self->cid, self->bvid);
 }
 
@@ -66,7 +66,8 @@ bilibili_normal_parse_info (GtuberBilibili *self, JsonReader *reader,
     gint i, count = gtuber_utils_json_count_elements (reader, NULL);
 
     for (i = 0; i < count; i++) {
-      guint el_cid, duration;
+      gint64 el_cid;
+      guint duration;
 
       el_cid = gtuber_utils_json_get_int (reader,
           GTUBER_UTILS_JSON_ARRAY_INDEX (i), "cid", NULL);

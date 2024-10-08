@@ -51,7 +51,7 @@ void bilibili_set_media_info_id_from_cid (GtuberBilibili *self, GtuberMediaInfo 
 {
   gchar *id;
 
-  id = g_strdup_printf ("%i", self->cid);
+  id = g_strdup_printf ("%" G_GINT64_FORMAT, self->cid);
   gtuber_media_info_set_id (info, id);
   g_debug ("Video ID: %s", id);
 
@@ -325,7 +325,7 @@ gtuber_bilibili_parse_input_stream (GtuberWebsite *website,
 GtuberFlow
 bilibili_get_flow_from_plugin_props (GtuberBilibili *self, GError **error)
 {
-  g_debug ("Has bvid: %s, aid: %i, cid: %i",
+  g_debug ("Has bvid: %s, aid: %" G_GINT64_FORMAT ", cid: %" G_GINT64_FORMAT,
       self->bvid, self->aid, self->cid);
 
   /* We have info that we are going to use

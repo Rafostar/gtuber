@@ -44,8 +44,8 @@ struct _GtuberBilibili
 
   /* Parsed from response */
   gchar *bvid;
-  guint aid;
-  guint cid;
+  gint64 aid;
+  gint64 cid;
 
   BilibiliType bili_type;
 
