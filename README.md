@@ -1,14 +1,8 @@
-# Gtuber
-C library to fetch media info from websites
+# Deprecation notice
+Gtuber was a C library to fetch media info from websites.
 
-* **[Documentation](https://rafostar.github.io/gtuber/doc/)**
-* **[Examples](https://rafostar.github.io/gtuber/examples/)**
+This project was made to allow playback of media from various media services mainly in [Clapper](https://rafostar.github.io/clapper/) and possibly other [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer) based players with the benefit of acting like a media info extraction library. Unfortunately, due to all the changes occuring in services it tried to handle, this would need constant reverse enginering and maintenance on a daily basis.
 
-### GStreamer Integration
-Gtuber includes a GStreamer plugin.
-Once installed it will be automatically used when you try playing video from website that Gtuber can handle in your GStreamer based application.
+As a replacement, [Clapper](https://rafostar.github.io/clapper/) now supports a [libpeas](https://gitlab.gnome.org/GNOME/libpeas) based plugin system which allows integrating other libraries to achive this functionality. This way, instead of trying to replicate this functionality here, other projects that focus on media extraction can continue their work, users can contribute fixes to them instead, one can write a plugin that uses such library and there is still absolutely zero web scrapping code in the player itself (a win-win solution).
 
-For optimal performance, using stream-aware elements like `playbin3` and GStreamer 1.22 or later is recommended.
-
-### Other Bindings
-* **[gtuber-rs](https://github.com/sp1ritCS/gtuber-rs)** - repository maintained by [sp1ritCS](https://github.com/sp1ritCS)
+Since [Clapper](https://rafostar.github.io/clapper/) nowadays provides an easy to use playback and GTK integration libraries (with `GObject Introspection` bindings), apps that are not video players in their entirety, but just need to play video as part of their functionality, can use those libraries with an optional addition of any extra plugins to enable playback from services they need.
